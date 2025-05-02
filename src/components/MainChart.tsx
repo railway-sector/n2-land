@@ -57,7 +57,7 @@ function MainChart() {
         </CalciteTabNav>
 
         {/* CalciteTab: Lot */}
-        <CalciteTab>{lotLayerLoaded === "loaded" && <LotChart />}</CalciteTab>
+        <CalciteTab>{chartTabName === "Land" && <LotChart />}</CalciteTab>
 
         {/* CalciteTab: Structure */}
         <CalciteTab>
