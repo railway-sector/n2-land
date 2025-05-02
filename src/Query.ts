@@ -586,9 +586,11 @@ export async function generateStructureData(municipal: any, barangay: any) {
   query.orderByFields = [structureStatusField];
   query.groupByFieldsForStatistics = [structureStatusField];
   if (municipal && !barangay) {
+    console.log("municipal onyl");
     query.where = queryField + " AND " + queryMunicipality;
-  } else if (barangay) {
+  } else if (municipal && barangay) {
     query.where = queryField + " AND " + queryMunicipalBarangay;
+    console.log("municipal + barangay");
   }
 
   return structureLayer.queryFeatures(query).then((response: any) => {
@@ -616,6 +618,7 @@ export async function generateStructureData(municipal: any, barangay: any) {
       };
       data1.push(object);
     });
+    console.log(data1);
     return data1;
   });
 }

@@ -48,8 +48,6 @@ const StructureChart = () => {
   const municipal = municipals;
   const barangay = barangays;
 
-  console.log(barangay);
-
   // 0. Updated date
   const [asOfDate, setAsOfDate] = useState<undefined | any | unknown>(null);
   const [daysPass, setDaysPass] = useState<boolean>(false);
@@ -64,7 +62,7 @@ const StructureChart = () => {
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
-  const [structureData, setStructureData] = useState([
+  const [structureData, setStructureData] = useState<any>([
     {
       category: String,
       value: Number,

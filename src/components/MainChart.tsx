@@ -57,19 +57,23 @@ function MainChart() {
         </CalciteTabNav>
 
         {/* CalciteTab: Lot */}
-        <CalciteTab>{chartTabName === "Land" && <LotChart />}</CalciteTab>
+        <CalciteTab>
+          <LotChart />
+        </CalciteTab>
 
         {/* CalciteTab: Structure */}
         <CalciteTab>
-          {chartTabName === "Structure" && <StructureChart />}
+          <StructureChart />
         </CalciteTab>
 
         {/* CalciteTab: Non-Land Owner */}
-        <CalciteTab>{chartTabName === "NLO" && <NloChart />}</CalciteTab>
+        <CalciteTab>
+          <NloChart />
+        </CalciteTab>
 
         {/* CalciteTab: List of Lots under Expropriation */}
         <CalciteTab>
-          {chartTabName === "ExproList" && <ExpropriationList />}
+          <ExpropriationList />
         </CalciteTab>
       </CalciteTabs>
     </>
