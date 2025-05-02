@@ -41,12 +41,14 @@ function maybeDisposeRoot(divId: any) {
 ///*** Others */
 
 /// Draw chart
-const StructureChart = memo(() => {
+const StructureChart = () => {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const { municipals, barangays } = use(MyContext);
 
   const municipal = municipals;
   const barangay = barangays;
+
+  console.log(barangay);
 
   // 0. Updated date
   const [asOfDate, setAsOfDate] = useState<undefined | any | unknown>(null);
@@ -82,7 +84,7 @@ const StructureChart = memo(() => {
 
   if (municipal && !barangay) {
     structureLayer.definitionExpression = queryMunicipality;
-  } else if (barangay) {
+  } else if (municipal && barangay) {
     structureLayer.definitionExpression = queryMunicipalBarangay;
   }
 
@@ -424,6 +426,6 @@ const StructureChart = memo(() => {
       </CalciteLabel>
     </>
   );
-}); // End of lotChartgs
+}; // End of lotChartgs
 
 export default StructureChart;
