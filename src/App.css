@@ -1,38 +1,204 @@
-.App {
-  text-align: center;
+.mapDiv {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+b {
+  color: orange;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+br {
+  content: "";
+  margin: 2em;
+  display: block;
+  font-size: 24%;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.calcitePanelBasemaps {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+
+/*https://developers.arcgis.com/calcite-design-system/foundations/colors/ */
+
+calcite-label {
+  --calcite-color-text-1: #9ca3af;
+  --calcite-font-size--1: 1.1rem;
+  /* margin-top: 1vh; */
+  margin-left: 15px;
+  margin-top: 5px;
+}
+
+calcite-action-bar {
+  --calcite-color-border-3: #555555;
+  --calcite-color-text-3: #bfbfbf;
+}
+
+calcite-shell {
+  --calcite-color-foreground-1: #2b2b2b;
+  --calcite-color-text-1: #ffffff;
+  --calcite-color-background: #2b2b2b;
+  --calcite-color-border-3: #555555;
+}
+
+calcite-shell-panel {
+  --calcite-color-foreground-1: #2b2b2b;
+  --calcite-color-foreground-2: #2b2b2b;
+  --calcite-color-border-3: #555555;
+}
+
+calcite-panel {
+  --calcite-color-foreground-1: #2b2b2b;
+  --calcite-color-foreground-2: #2b2b2b;
+  --calcite-color-text-2: #ffffff;
+  background-color: #2b2b2b;
+  --calcite-color-border-3: #555555;
+  overflow: auto;
+}
+
+calcite-list {
+  overflow-y: auto;
+  --calcite-color-border-3: #555555;
+}
+
+calcite-avatar {
+  margin-inline-end: 0.3rem;
+  margin-top: 0.15rem;
+}
+
+calcite-tabs {
+  --calcite-color-border-3: #555555;
+  --calcite-color-border-2: #555555;
+  --calcite-color-border-1: #555555;
+  border-style: solid;
+  border-width: 0.7;
+  border-top: rgb(0, 0, 0, 0);
+}
+
+#layers-container {
+  overflow-y: auto;
+}
+
+#result-list {
+  overflow-y: auto;
+  --calcite-color-text-1: #ff0000;
+  --calcite-color-text-3: #eaeaea;
+  --calcite-color-foreground-2: #202020;
+}
+
+#exproListChip {
+  --calcite-color-text-1: #ffffff;
+  /*--calcite-color-foreground-2: #555555;*/
+  --calcite-color-foreground-2: rgb(0, 0, 0, 0);
+  margin-inline-end: 0.75rem;
+}
+
+.esri-legend__layer-caption {
+  display: none;
+}
+
+.calcite-tutorial {
+  --calcite-color-brand: #039851;
+  --calcite-color-brand-hover: #008d52;
+}
+
+.calcite-tutorial calcite-chip {
+  --calcite-color-foreground-2: var(--calcite-color-brand);
+  --calcite-color-text-1: white;
+  margin-inline-end: 0.75rem;
+}
+
+/* Lot Tab */
+.totalLotsNumber {
+  color: #6ede00;
+  font-size: 2rem;
+  font-weight: bold;
+  font-family: "calibri";
+  margin-left: 4%;
+}
+
+.totalLotsNumber2 {
   color: white;
+  font-size: 1rem;
+  font-weight: normal;
+  margin-top: 13px;
+  margin-left: 4%;
 }
 
-.App-link {
-  color: #61dafb;
+.permitToEnterNumber {
+  color: #6ede00;
+  font-size: 2rem;
+  font-weight: bold;
+  font-family: "calibri";
+  margin-left: 4%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Structure Tab */
+
+/* Header */
+.headerTitle {
+  color: white;
+  margin-left: 1rem;
+  font-size: 2.6vh;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.date {
+  color: gray;
+  font-size: 0.8rem;
+  width: 150px;
+  height: 20px;
+  margin-top: auto;
+  margin-left: auto;
+}
+
+.dropdownFilter {
+  height: 50px;
+  width: 70%;
+  border-color: rgb(0, 0, 0, 0);
+  padding-top: 10px;
+  margin-left: -10rem;
+}
+
+.dropdownFilterLayout {
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+}
+
+/* Calcite Action panel */
+.informationDiv {
+  color: #eaeaea;
+  font-size: 13px;
+  margin-left: -10px;
+  padding-right: 5px;
+}
+
+.esri-legend * {
+  background-color: #2b2b2b;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #a9a9a9;
+
+  /*#032235*/
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #a9a9a9;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #a9a9a9;
 }
