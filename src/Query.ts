@@ -572,8 +572,7 @@ export async function generateStructureData(municipal: any, barangay: any) {
   // Query
   const queryMunicipality = `${municipalityField} = '` + municipal + "'";
   const queryBarangay = `${barangayField} = '` + barangay + "'";
-  const queryMunicipalBarangay = queryMunicipality + " AND " + queryBarangay;
-  // const queryField = structureStatusField + " IS NOT NULL";
+  const queryField = structureStatusField + " IS NOT NULL";
 
   var total_count = new StatisticDefinition({
     onStatisticField: structureStatusField,
@@ -588,11 +587,9 @@ export async function generateStructureData(municipal: any, barangay: any) {
   query.groupByFieldsForStatistics = [structureStatusField];
   if (municipal && !barangay) {
     console.log("municipal onyl");
-    // query.where = queryField + " AND " + queryMunicipality;
-    query.where = queryMunicipality;
+    query.where = queryField + " AND " + queryMunicipality;
   } else if (barangay) {
-    // query.where = queryField + " AND " + queryMunicipalBarangay;
-    query.where = queryBarangay;
+    query.where = queryField + " AND " + queryBarangay;
     console.log("municipal + barangay");
   }
 

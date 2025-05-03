@@ -78,12 +78,12 @@ const StructureChart = () => {
   // Query
   const queryMunicipality = `${municipalityField} = '` + municipal + "'";
   const queryBarangay = `${barangayField} = '` + barangay + "'";
-  const queryMunicipalBarangay = queryMunicipality + " AND " + queryBarangay;
+  // const queryMunicipalBarangay = queryMunicipality + " AND " + queryBarangay;
 
   if (municipal && !barangay) {
     structureLayer.definitionExpression = queryMunicipality;
-  } else if (municipal && barangay) {
-    structureLayer.definitionExpression = queryMunicipalBarangay;
+  } else if (barangay) {
+    structureLayer.definitionExpression = queryBarangay;
   }
 
   useEffect(() => {
