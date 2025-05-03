@@ -570,9 +570,7 @@ export async function generateHandedOverAreaData() {
 // Structure
 export async function generateStructureData(municipal: any, barangay: any) {
   // Query
-  const queryMunicipality = `${municipalityField} = '` + municipal + "'";
-  // const queryBarangay = `${barangayField} = '` + barangay + "'";
-  // eslint-disable-next-line no-template-curly-in-string
+  const queryMunicipality = "Municipality = '" + municipal + "'";
   const queryBarangay = "Barangay = '" + barangay + "'";
   const queryField = structureStatusField + " IS NOT NULL";
 
@@ -659,8 +657,8 @@ export async function generateStrucNumber() {
 // Non-Land Owner
 export async function generateNloData(municipal: any, barangay: any) {
   // Query
-  const queryMunicipality = `${municipalityField} = '` + municipal + "'";
-  const queryBarangay = `${barangayField} = '` + barangay + "'";
+  const queryMunicipality = "Municipality = '" + municipal + "'";
+  const queryBarangay = "Barangay = '" + barangay + "'";
   const queryField = nloStatusField + " IS NOT NULL";
 
   var total_count = new StatisticDefinition({
@@ -670,7 +668,7 @@ export async function generateNloData(municipal: any, barangay: any) {
   });
 
   var query = nloLayer.createQuery();
-  query.outFields = [nloStatusField];
+  query.outFields = [nloStatusField, municipalityField, barangayField];
   query.outStatistics = [total_count];
   query.orderByFields = [nloStatusField];
   query.groupByFieldsForStatistics = [nloStatusField];
