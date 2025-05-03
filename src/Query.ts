@@ -592,7 +592,7 @@ export async function generateStructureData(municipal: any, barangay: any) {
     query.where = queryMunicipality;
   } else if (barangay) {
     // query.where = queryField + " AND " + queryMunicipalBarangay;
-    query.where = queryMunicipalBarangay;
+    query.where = queryBarangay;
     console.log("municipal + barangay");
   }
 
