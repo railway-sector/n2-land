@@ -571,7 +571,9 @@ export async function generateHandedOverAreaData() {
 export async function generateStructureData(municipal: any, barangay: any) {
   // Query
   const queryMunicipality = `${municipalityField} = '` + municipal + "'";
-  const queryBarangay = `${barangayField} = '` + barangay + "'";
+  // const queryBarangay = `${barangayField} = '` + barangay + "'";
+  // eslint-disable-next-line no-template-curly-in-string
+  const queryBarangay = "Barangay = '" + barangay + "'";
   const queryField = structureStatusField + " IS NOT NULL";
 
   var total_count = new StatisticDefinition({
@@ -585,36 +587,30 @@ export async function generateStructureData(municipal: any, barangay: any) {
   query.outStatistics = [total_count];
   query.orderByFields = [structureStatusField];
   query.groupByFieldsForStatistics = [structureStatusField];
+
   if (municipal && !barangay) {
-    console.log("municipal onyl");
     query.where = queryField + " AND " + queryMunicipality;
   } else if (barangay) {
-    query.where = queryField + " AND " + queryBarangay;
-    console.log("municipal + barangay");
+    query.where =
+      queryField + " AND " + queryMunicipality + " AND " + queryBarangay;
   }
 
   return structureLayer.queryFeatures(query).then((response: any) => {
     var stats = response.features;
-    console.log("1.");
-
     const data = stats.map((result: any, index: any) => {
       const attributes = result.attributes;
       const status_id = attributes.StatusStruc;
       const count = attributes.total_count;
-
-      console.log("2.");
-
       return Object.assign({
         category: statusStructureLabel[status_id - 1],
         value: count,
       });
     });
-    console.log("3.");
+
     const data1: any = [];
     statusStructureLabel.map((status: any, index: any) => {
       const find = data.find((emp: any) => emp.category === status);
       const value = find === undefined ? 0 : find?.value;
-      console.log("4.");
       const object = {
         category: status,
         value: value,
@@ -624,7 +620,6 @@ export async function generateStructureData(municipal: any, barangay: any) {
       };
       data1.push(object);
     });
-    console.log(data1);
     return data1;
   });
 }
@@ -666,7 +661,6 @@ export async function generateNloData(municipal: any, barangay: any) {
   // Query
   const queryMunicipality = `${municipalityField} = '` + municipal + "'";
   const queryBarangay = `${barangayField} = '` + barangay + "'";
-  const queryMunicipalBarangay = queryMunicipality + " AND " + queryBarangay;
   const queryField = nloStatusField + " IS NOT NULL";
 
   var total_count = new StatisticDefinition({
@@ -683,7 +677,7 @@ export async function generateNloData(municipal: any, barangay: any) {
   if (municipal && !barangay) {
     query.where = queryField + " AND " + queryMunicipality;
   } else if (barangay) {
-    query.where = queryField + " AND " + queryMunicipalBarangay;
+    query.where = queryField + " AND " + queryBarangay;
   }
 
   return nloLayer.queryFeatures(query).then((response: any) => {
