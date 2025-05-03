@@ -573,7 +573,7 @@ export async function generateStructureData(municipal: any, barangay: any) {
   const queryMunicipality = `${municipalityField} = '` + municipal + "'";
   const queryBarangay = `${barangayField} = '` + barangay + "'";
   const queryMunicipalBarangay = queryMunicipality + " AND " + queryBarangay;
-  const queryField = structureStatusField + " IS NOT NULL";
+  // const queryField = structureStatusField + " IS NOT NULL";
 
   var total_count = new StatisticDefinition({
     onStatisticField: structureStatusField,
@@ -582,15 +582,17 @@ export async function generateStructureData(municipal: any, barangay: any) {
   });
 
   var query = structureLayer.createQuery();
-  query.outFields = [structureStatusField];
+  query.outFields = [structureStatusField, municipalityField, barangayField];
   query.outStatistics = [total_count];
   query.orderByFields = [structureStatusField];
   query.groupByFieldsForStatistics = [structureStatusField];
   if (municipal && !barangay) {
     console.log("municipal onyl");
-    query.where = queryField + " AND " + queryMunicipality;
-  } else if (municipal && barangay) {
-    query.where = queryField + " AND " + queryMunicipalBarangay;
+    // query.where = queryField + " AND " + queryMunicipality;
+    query.where = queryMunicipality;
+  } else if (barangay) {
+    // query.where = queryField + " AND " + queryMunicipalBarangay;
+    query.where = queryMunicipalBarangay;
     console.log("municipal + barangay");
   }
 
