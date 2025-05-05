@@ -11,8 +11,7 @@ import {
 } from "@esri/calcite-components-react";
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
-import { useEffect, useState } from "react";
-import { lotLayer } from "../layers";
+import { useState } from "react";
 
 import LotChart from "./LotChart";
 import "../index.css";
@@ -22,18 +21,18 @@ import NloChart from "./NloChart";
 import ExpropriationList from "./ExpropriationList";
 
 function MainChart() {
-  const [lotLayerLoaded, setLotLayerLoaded] = useState<any>();
+  // const [lotLayerLoaded, setLotLayerLoaded] = useState<any>();
   const [chartTabName, setChartTabName] = useState("Land");
 
   // Somehow if you do not add arcgisScene here, the child components (ie., LotChart)
   // will not inherit arcgisScene
   // const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
 
-  useEffect(() => {
-    lotLayer.load().then(() => {
-      setLotLayerLoaded(lotLayer.loadStatus);
-    });
-  });
+  // useEffect(() => {
+  //   lotLayer.load().then(() => {
+  //     setLotLayerLoaded(lotLayer.loadStatus);
+  //   });
+  // });
 
   return (
     <>

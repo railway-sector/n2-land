@@ -33,7 +33,6 @@ import {
   structureStatusField,
   superurgent_items,
 } from "./uniqueValues";
-import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 
 // get last date of month
 export function lastDateOfMonth(date: Date) {

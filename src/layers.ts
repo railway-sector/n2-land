@@ -4,7 +4,6 @@ import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import GroupLayer from "@arcgis/core/layers/GroupLayer";
-import Measurement from "@arcgis/core/widgets/Measurement";
 
 import {
   TextSymbol3DLayer,
@@ -52,9 +51,6 @@ import {
   nloLoStatusField,
   occupancyField,
 } from "./uniqueValues";
-import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-
-const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
 
 /* Standalone table for Dates */
 export const dateTable = new FeatureLayer({
