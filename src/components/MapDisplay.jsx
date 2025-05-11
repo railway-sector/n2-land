@@ -81,6 +81,7 @@ function MapDisplay() {
     <arcgis-scene
       // item-id="5ba14f5a7db34710897da0ce2d46d55f"
       basemap="dark-gray-vector"
+      ground="world-elevation"
       viewingMode="local"
       zoom="10"
       center="120.5793, 15.18"
