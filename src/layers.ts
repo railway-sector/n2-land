@@ -50,6 +50,9 @@ import {
   nloStatusField,
   nloLoStatusField,
   occupancyField,
+  color_workable,
+  color_nonworkable,
+  color_completed,
 } from "./uniqueValues";
 
 /* Standalone table for Dates */
@@ -1097,18 +1100,57 @@ const defaultPierAccessLabel = new LabelClass({
   // where: 'AccessDate IS NULL',
 });
 
-// label with access date
-const today = new Date();
-const todayn = today.getTime();
-const cutOffDateAccess = todayn;
-console.log(todayn, "; ", cutOffDateAccess);
-
-const pierAccessReadyDateLabel = new LabelClass({
+//******************************************************* */
+// labe with workable, non-workable, or completed piers
+const pierWorkableLable = new LabelClass({
   symbol: new LabelSymbol3D({
     symbolLayers: [
       new TextSymbol3DLayer({
         material: {
-          color: pierAccessValueDateColor[1],
+          color: color_workable,
+        },
+        size: 15,
+        halo: {
+          color: "#ffffff",
+          size: 0.5,
+        },
+        font: {
+          family: "Ubuntu Mono",
+          weight: "bold",
+        },
+      }),
+    ],
+    verticalOffset: {
+      screenLength: 80,
+      maxWorldLength: 500,
+      minWorldLength: 30,
+    },
+    callout: {
+      type: "line",
+      size: 0.5,
+      color: [0, 0, 0],
+      border: {
+        color: [255, 255, 255, 0.7],
+      },
+    },
+  }),
+  labelExpressionInfo: {
+    expression: "$feature.PierNumber",
+  },
+  where: "AllWorkable = 0",
+  labelPlacement: "above-center",
+});
+
+const pierNonWorkableLable = new LabelClass({
+  symbol: new LabelSymbol3D({
+    symbolLayers: [
+      new TextSymbol3DLayer({
+        material: {
+          color: color_nonworkable,
+        },
+        halo: {
+          color: "#ffffff",
+          size: 0.5,
         },
         size: 15,
         font: {
@@ -1132,64 +1174,27 @@ const pierAccessReadyDateLabel = new LabelClass({
     },
   }),
   labelExpressionInfo: {
-    expression: `var accessdate = $feature.AccessDate;
-                  var cutoffDate = 1718062335146;
-                  var labelPier = when($feature.AccessDate <= cutoffDate, $feature.PierNumber, '');
-                  return \`\${labelPier}\`
-                  `,
+    expression: "$feature.PierNumber",
   },
+  where: "AllWorkable = 1",
   labelPlacement: "above-center",
 });
 
-const pierAccessNotYetLabel = new LabelClass({
+const pierCompletedLable = new LabelClass({
   symbol: new LabelSymbol3D({
     symbolLayers: [
       new TextSymbol3DLayer({
         material: {
-          color: "#cccccc",
+          color: color_completed,
         },
-        size: 10,
+        halo: {
+          color: "#ffffff",
+          size: 0.5,
+        },
+        size: 15,
         font: {
           family: "Ubuntu Mono",
-          weight: "normal",
-        },
-      }),
-    ],
-    verticalOffset: {
-      screenLength: 80,
-      maxWorldLength: 500,
-      minWorldLength: 30,
-    },
-    callout: {
-      type: "line",
-      size: 0.5,
-      color: [0, 0, 0],
-      border: {
-        color: [255, 255, 255, 0.7],
-      },
-    },
-  }),
-  labelExpressionInfo: {
-    expression: `var accessdate = $feature.AccessDate;
-                  var cutoffDate = 1718062335146;
-                  var labelPier = when($feature.AccessDate > cutoffDate || isEmpty($feature.AccessDate), $feature.PierNumber, '');
-                  return \`\${labelPier}\`
-                  `,
-  },
-  labelPlacement: "above-center",
-});
-
-const pierAccessDateMissingLabel = new LabelClass({
-  symbol: new LabelSymbol3D({
-    symbolLayers: [
-      new TextSymbol3DLayer({
-        material: {
-          color: "#ff0000",
-        },
-        size: 10,
-        font: {
-          family: "Ubuntu Mono",
-          weight: "normal",
+          weight: "bold",
         },
       }),
     ],
@@ -1209,98 +1214,259 @@ const pierAccessDateMissingLabel = new LabelClass({
   }),
   labelExpressionInfo: {
     expression: "$feature.PierNumber",
-    //'DefaultValue($feature.GeoTechName, "no data")'
-    //"IIF($feature.Score >= 13, '', '')"
-    //value: "{Type}"
   },
+  where: "AllWorkable = 2",
   labelPlacement: "above-center",
-  where: "AccessDate IS NULL",
 });
+
+const pierWorkableUniqueValueInfos = [
+  {
+    value: 0,
+    label: "Workable",
+    symbol: new SimpleMarkerSymbol({
+      size: 5,
+      color: color_workable,
+      outline: {
+        width: 0.1,
+        color: "white",
+      },
+    }),
+  },
+  {
+    value: 1,
+    label: "Non-Workable",
+    symbol: new SimpleMarkerSymbol({
+      size: 5,
+      color: color_nonworkable,
+      outline: {
+        width: 0.1,
+        color: "white",
+      },
+    }),
+  },
+  {
+    value: 2,
+    label: "Completed",
+    symbol: new SimpleMarkerSymbol({
+      size: 5,
+      color: color_completed,
+      outline: {
+        width: 0.1,
+        color: "white",
+      },
+    }),
+  },
+];
+
+const pierWorkableRenderer = new UniqueValueRenderer({
+  field: "AllWorkable",
+  uniqueValueInfos: pierWorkableUniqueValueInfos,
+});
+
+//******************************************************* */
+
+//******************************************************* */
+// For access date
+// const today = new Date();
+// const todayn = today.getTime();
+// const cutOffDateAccess = todayn;
+// console.log(todayn, "; ", cutOffDateAccess);
+
+// const pierAccessReadyDateLabel = new LabelClass({
+//   symbol: new LabelSymbol3D({
+//     symbolLayers: [
+//       new TextSymbol3DLayer({
+//         material: {
+//           color: pierAccessValueDateColor[1],
+//         },
+//         size: 15,
+//         font: {
+//           family: "Ubuntu Mono",
+//           weight: "bold",
+//         },
+//       }),
+//     ],
+//     verticalOffset: {
+//       screenLength: 80,
+//       maxWorldLength: 500,
+//       minWorldLength: 30,
+//     },
+//     callout: {
+//       type: "line",
+//       size: 0.5,
+//       color: [0, 0, 0],
+//       border: {
+//         color: [255, 255, 255, 0.7],
+//       },
+//     },
+//   }),
+//   labelExpressionInfo: {
+//     expression: `var accessdate = $feature.AccessDate;
+//                   var cutoffDate = 1718062335146;
+//                   var labelPier = when($feature.AccessDate <= cutoffDate, $feature.PierNumber, '');
+//                   return \`\${labelPier}\`
+//                   `,
+//   },
+//   labelPlacement: "above-center",
+// });
+
+// const pierAccessNotYetLabel = new LabelClass({
+//   symbol: new LabelSymbol3D({
+//     symbolLayers: [
+//       new TextSymbol3DLayer({
+//         material: {
+//           color: "#cccccc",
+//         },
+//         size: 10,
+//         font: {
+//           family: "Ubuntu Mono",
+//           weight: "normal",
+//         },
+//       }),
+//     ],
+//     verticalOffset: {
+//       screenLength: 80,
+//       maxWorldLength: 500,
+//       minWorldLength: 30,
+//     },
+//     callout: {
+//       type: "line",
+//       size: 0.5,
+//       color: [0, 0, 0],
+//       border: {
+//         color: [255, 255, 255, 0.7],
+//       },
+//     },
+//   }),
+//   labelExpressionInfo: {
+//     expression: `var accessdate = $feature.AccessDate;
+//                   var cutoffDate = 1718062335146;
+//                   var labelPier = when($feature.AccessDate > cutoffDate || isEmpty($feature.AccessDate), $feature.PierNumber, '');
+//                   return \`\${labelPier}\`
+//                   `,
+//   },
+//   labelPlacement: "above-center",
+// });
+
+// const pierAccessDateMissingLabel = new LabelClass({
+//   symbol: new LabelSymbol3D({
+//     symbolLayers: [
+//       new TextSymbol3DLayer({
+//         material: {
+//           color: "#ff0000",
+//         },
+//         size: 10,
+//         font: {
+//           family: "Ubuntu Mono",
+//           weight: "normal",
+//         },
+//       }),
+//     ],
+//     verticalOffset: {
+//       screenLength: 80,
+//       maxWorldLength: 500,
+//       minWorldLength: 30,
+//     },
+//     callout: {
+//       type: "line",
+//       size: 0.5,
+//       color: [0, 0, 0],
+//       border: {
+//         color: [255, 255, 255, 0.7],
+//       },
+//     },
+//   }),
+//   labelExpressionInfo: {
+//     expression: "$feature.PierNumber",
+//     //'DefaultValue($feature.GeoTechName, "no data")'
+//     //"IIF($feature.Score >= 13, '', '')"
+//     //value: "{Type}"
+//   },
+//   labelPlacement: "above-center",
+//   where: "AccessDate IS NULL",
+// });
+
+// const pierAccessRendererUniqueValueInfos = pierAccessValue.map(
+//   (status: any, index: any) => {
+//     return Object.assign({
+//       value: status,
+//       label: pierAccessValueLabel[index],
+//       symbol: new SimpleMarkerSymbol({
+//         size: 5,
+//         color: pierAccessValueDateColor[index],
+//         outline: {
+//           width: 0.1,
+//           color: "white",
+//         },
+//       }),
+//     });
+//   }
+// );
+// const pierAccessRenderer = new UniqueValueRenderer({
+//   field: "AccessDate",
+//   valueExpression:
+//     "When(IsEmpty($feature.AccessDate), 'empty', $feature.AccessDate <= 1636070400000, 'accessible', $feature.AccessDate > 1636070400000, 'others',$feature.AccessDate)",
+//   uniqueValueInfos: pierAccessRendererUniqueValueInfos,
+// });
+// // pierAccessLayer.renderer = pierAccessRenderer;
+
+// // 3. Popup Template
+// // Custom Popup Content for pierAccessLayer
+// let customContent = new CustomContent({
+//   creator: function (event: any) {
+//     // Extract AsscessDate of clicked pierAccessLayer
+//     const statsDate = event.graphic.attributes.AccessDate;
+//     console.log(statsDate);
+
+//     // Convert numeric to date format
+//     const date = new Date(statsDate);
+//     let dateValue = dateFormat(date, "MM-dd-yyyy");
+
+//     // If the date is before current date, popupContent should be "AVAILABLE"
+//     let DATES: any;
+//     if (dateValue === "01-01-1970") {
+//       // Empty date is entered as this
+//       DATES = "NO DATES AVAILABLE";
+//     } else if (statsDate <= cutOffDateAccess) {
+//       DATES = "ACCESSIBLE";
+//     } else if (statsDate > cutOffDateAccess) {
+//       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//       DATES = dateValue;
+//     }
+
+//     //return `Access Date: <b>${DATES}</b>`;
+//     return `Access Date: <b>${dateValue}</b><br>
+//             Status: <b>${DATES}</b>
+//     `;
+//   },
+// });
+
+// const template = new PopupTemplate({
+//   title: "Pier No: <b>{PierNumber}</b>",
+//   lastEditInfoEnabled: false,
+//   content: [customContent],
+// });
+// // pierAccessLayer.popupTemplate = template;
 
 // 1. Get unique dates
-export const pierAccessLayer = new FeatureLayer(
-  {
-    portalItem: {
-      id: "876de8483da9485aac5df737cbef2143",
-      portal: {
-        url: "https://gis.railway-sector.com/portal",
-      },
+export const pierAccessLayer = new FeatureLayer({
+  portalItem: {
+    id: "876de8483da9485aac5df737cbef2143",
+    portal: {
+      url: "https://gis.railway-sector.com/portal",
     },
-    outFields: ["*"],
-    layerId: 6,
-    labelingInfo: [defaultPierAccessLabel], //[pierAccessReadyDateLabel, pierAccessNotYetLabel, pierAccessDateMissingLabel],
-    title: "Pier Number", //'Pier with Access Date (as of October 2023)',
-    minScale: 150000,
-    maxScale: 0,
-
-    elevationInfo: {
-      mode: "on-the-ground",
-    },
-  }
-  //{ utcOffset: 300 },
-);
-
-const pierAccessRendererUniqueValueInfos = pierAccessValue.map(
-  (status: any, index: any) => {
-    return Object.assign({
-      value: status,
-      label: pierAccessValueLabel[index],
-      symbol: new SimpleMarkerSymbol({
-        size: 5,
-        color: pierAccessValueDateColor[index],
-        outline: {
-          width: 0.1,
-          color: "white",
-        },
-      }),
-    });
-  }
-);
-const pierAccessRenderer = new UniqueValueRenderer({
-  field: "AccessDate",
-  valueExpression:
-    "When(IsEmpty($feature.AccessDate), 'empty', $feature.AccessDate <= 1636070400000, 'accessible', $feature.AccessDate > 1636070400000, 'others',$feature.AccessDate)",
-  uniqueValueInfos: pierAccessRendererUniqueValueInfos,
-});
-// pierAccessLayer.renderer = pierAccessRenderer;
-
-// 3. Popup Template
-// Custom Popup Content for pierAccessLayer
-let customContent = new CustomContent({
-  creator: function (event: any) {
-    // Extract AsscessDate of clicked pierAccessLayer
-    const statsDate = event.graphic.attributes.AccessDate;
-    console.log(statsDate);
-
-    // Convert numeric to date format
-    const date = new Date(statsDate);
-    let dateValue = dateFormat(date, "MM-dd-yyyy");
-
-    // If the date is before current date, popupContent should be "AVAILABLE"
-    let DATES: any;
-    if (dateValue === "01-01-1970") {
-      // Empty date is entered as this
-      DATES = "NO DATES AVAILABLE";
-    } else if (statsDate <= cutOffDateAccess) {
-      DATES = "ACCESSIBLE";
-    } else if (statsDate > cutOffDateAccess) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      DATES = dateValue;
-    }
-
-    //return `Access Date: <b>${DATES}</b>`;
-    return `Access Date: <b>${dateValue}</b><br>
-            Status: <b>${DATES}</b> 
-    `;
+  },
+  outFields: ["*"],
+  layerId: 6,
+  labelingInfo: [defaultPierAccessLabel], //[pierAccessReadyDateLabel, pierAccessNotYetLabel, pierAccessDateMissingLabel],
+  title: "Pier Number", //'Pier with Access Date (as of October 2023)',
+  minScale: 150000,
+  maxScale: 0,
+  // renderer: pierWorkableRenderer,
+  elevationInfo: {
+    mode: "on-the-ground",
   },
 });
-
-const template = new PopupTemplate({
-  title: "Pier No: <b>{PierNumber}</b>",
-  lastEditInfoEnabled: false,
-  content: [customContent],
-});
-// pierAccessLayer.popupTemplate = template;
 
 // Group layers //
 export const alignmentGroupLayer = new GroupLayer({

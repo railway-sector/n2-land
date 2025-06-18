@@ -1,6 +1,11 @@
 import Collection from "@arcgis/core/core/Collection";
 import ActionButton from "@arcgis/core/support/actions/ActionButton";
 
+// Pier Workable properties
+export const color_workable = "#38A800";
+export const color_nonworkable = "#FF0000";
+export const color_completed = "#0070ff";
+
 // Updated Dates
 export const updatedDateCategoryNames = [
   "Land Acquisition",
