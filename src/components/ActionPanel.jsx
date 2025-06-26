@@ -69,8 +69,8 @@ function ActionPanel() {
           style={{
             borderStyle: "solid",
             borderRightWidth: 3.5,
-            borderLeftWidth: 3.5,
-            borderBottomWidth: 4.5,
+            borderLeftWidth: 5,
+            borderBottomWidth: 5,
             borderColor: "#555555",
           }}
         >
