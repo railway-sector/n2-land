@@ -248,6 +248,18 @@ export const valueLabelColor = "#d1d5db";
 export async function defineActions(event) {
   const { item } = event;
 
+  if (item.title === "Sapang Balen River Realignment") {
+    item.actionsSections = new Collection([
+      new Collection([
+        new ActionButton({
+          title: "Zoom to Area",
+          icon: "zoom-in-fixed",
+          id: "full-extent-sapangbalenriver",
+        }),
+      ]),
+    ]);
+  }
+
   if (item.title === "NGCP Pole Relocation Working Area") {
     item.actionsSections = new Collection([
       new Collection([

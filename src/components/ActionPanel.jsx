@@ -16,7 +16,11 @@ import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-directline-measurement-3d";
 import "@arcgis/map-components/components/arcgis-area-measurement-3d";
 import { defineActions } from "../uniqueValues";
-import { ngcp_tagged_structureLayer, ngcp_working_area } from "../layers";
+import {
+  ngcp_tagged_structureLayer,
+  ngcp_working_area,
+  prowOthersLayer,
+} from "../layers";
 import HandedOverAreaChart from "./HandedOverAreaChart";
 import LotProgressChart from "./LotProgressChart";
 
@@ -174,6 +178,12 @@ function ActionPanel() {
                       console.error(error);
                     }
                   });
+              } else if (id === "full-extent-sapangbalenriver") {
+                arcgisScene?.goTo(prowOthersLayer.fullExtent).catch((error) => {
+                  if (error.name !== "AbortError") {
+                    console.error(error);
+                  }
+                });
               }
             }}
           ></arcgis-layer-list>
