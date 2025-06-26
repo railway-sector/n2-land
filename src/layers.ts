@@ -411,14 +411,14 @@ let customContentLot = new CustomContent({
     //var date = dateFormat(daten, 'MM-dd-yyyy');
     //<li>Hand-Over Date: <b>${date}</b></li><br>
 
-    return `<ul><li>Handed-Over Area: <b>${handOverArea} %</b></li><br>
-    <li>Handed-Over Date: <b>${date}</b></li><br>
+    return `<ul><li>Handed-Over Area: <b>${handOverArea} %</b></li>
+    <li>Handed-Over Date: <b>${date}</b></li>
               <li>Status:           <b>${
                 statusLot >= 0 ? statusLotLabel[statusLot - 1] : ""
-              }</b></li><br>
-              <li>Land Use:         <b>${landUse}</b></li><br>
-              <li>Municipality:     <b>${municipal}</b></li><br>
-              <li>Barangay:         <b>${barangay}</b></li><br>
+              }</b></li>
+              <li>Land Use:         <b>${landUse}</b></li>
+              <li>Municipality:     <b>${municipal}</b></li>
+              <li>Barangay:         <b>${barangay}</b></li>
               <li>Land Owner:       <b>${landOwner}</b>
               <li>CP:               <b>${cpNo}</b><br>
               <li>Endorsed:         <b>${endorsed}</b></li></ul>`;
