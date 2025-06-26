@@ -14,6 +14,7 @@ import {
 } from "../Query";
 import {
   barangayField,
+  chart_width,
   cutoff_days,
   municipalityField,
   nloStatusField,
@@ -371,6 +372,7 @@ const NloChart = memo(() => {
       <div
         id={chartID}
         style={{
+          width: chart_width,
           height: "75vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",

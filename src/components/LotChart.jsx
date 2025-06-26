@@ -30,6 +30,7 @@ import {
 } from "@esri/calcite-components-react";
 import {
   barangayField,
+  chart_width,
   cutoff_days,
   lotStatusField,
   municipalityField,
@@ -617,6 +618,7 @@ const LotChart = () => {
       <div
         id={chartID}
         style={{
+          width: chart_width,
           height: "60vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",

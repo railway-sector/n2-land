@@ -19,6 +19,7 @@ import {
 } from "@esri/calcite-components-react";
 import {
   barangayField,
+  chart_width,
   lotStatusField,
   municipalityField,
   statusLotNumber,
@@ -116,7 +117,12 @@ const ExpropriationList = () => {
 
   return (
     <>
-      <CalciteList id="result-list" label="exproListLabel" displayMode="nested">
+      <CalciteList
+        id="result-list"
+        label="exproListLabel"
+        displayMode="nested"
+        style={{ width: chart_width }}
+      >
         {exproItem && // Extract unique objects from the array
           exproItem
             .filter(

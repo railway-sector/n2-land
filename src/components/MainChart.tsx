@@ -38,7 +38,6 @@ function MainChart() {
     <>
       <CalciteTabs
         style={{
-          width: "37%",
           borderRightWidth: 5,
           borderLeftWidth: 5,
           borderBottomWidth: 4,
