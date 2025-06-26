@@ -571,10 +571,14 @@ const LotChart = () => {
           Super Urgent Lot:{" "}
         </div>
         <CalciteSegmentedControl
+          scale="s"
+          width="full"
           style={{
-            marginRight: "auto",
+            width: "220px",
+            // marginRight: "80px",
+            // marginTop: "auto",
+            marginBottom: "auto",
           }}
-          scale="m"
           onCalciteSegmentedControlChange={(event) =>
             setSuperUrgentSelected(event.target.selectedItem.id)
           }

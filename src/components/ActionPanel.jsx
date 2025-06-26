@@ -64,7 +64,16 @@ function ActionPanel() {
         id="left-shell-panel"
         displayMode="dock"
       >
-        <CalciteActionBar slot="action-bar">
+        <CalciteActionBar
+          slot="action-bar"
+          style={{
+            borderStyle: "solid",
+            borderRightWidth: 3.5,
+            borderLeftWidth: 3.5,
+            borderBottomWidth: 4.5,
+            borderColor: "#555555",
+          }}
+        >
           <CalciteAction
             data-action-id="layers"
             icon="layers"
