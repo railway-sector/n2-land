@@ -1,8 +1,8 @@
-.mapDiv {
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  width: 100%;
+.esri-attribution {
+  display: none;
+  /* or */
+  /* position: absolute;
+  left: -9999px; */
 }
 
 b {
