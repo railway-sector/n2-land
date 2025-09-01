@@ -58,7 +58,7 @@ function MainChart() {
         >
           <CalciteTabTitle class="Land">Land</CalciteTabTitle>
           <CalciteTabTitle class="Structure">Structure</CalciteTabTitle>
-          <CalciteTabTitle class="NLO">NLO</CalciteTabTitle>
+          <CalciteTabTitle class="Households">Households</CalciteTabTitle>
           <CalciteTabTitle class="ExproList">ExproList</CalciteTabTitle>
         </CalciteTabNav>
 
