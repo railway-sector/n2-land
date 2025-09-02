@@ -322,7 +322,7 @@ const NloChart = memo(() => {
       >
         <dl style={{ alignItems: "center" }}>
           <dt style={{ color: primaryLabelColor, fontSize: "1.1rem" }}>
-            TOTAL NON-LAND OWNERS
+            Total Households
           </dt>
           <dd
             style={{

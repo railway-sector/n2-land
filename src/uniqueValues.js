@@ -298,14 +298,14 @@ export async function defineActions(event) {
 
   item.title === "Chainage" ||
   item.title === "Pier Head/Column" ||
-  item.title === "NLO/LO Ownership (Structure)" ||
+  item.title === "Households Ownership (Structure)" ||
   // item.title === 'Super Urgent Lot' ||
   item.title === "Land Acquisition (Endorsed Status)" ||
   item.title === "Handed-Over (public + private)" ||
   item.title === "Structure" ||
   item.title === "NGCP Pole Relocation Working Area" ||
   item.title === "NGCP Pole Relocation Tagged Structures" ||
-  item.title === "NLO (Non-Land Owner)" ||
+  item.title === "Households" ||
   item.title === "Occupancy (Structure)" ||
   item.title === "Handed-Over Area"
     ? (item.visible = false)

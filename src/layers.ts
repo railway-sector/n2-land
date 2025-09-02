@@ -709,7 +709,7 @@ export const structureLayer = new FeatureLayer({
           },
           {
             fieldName: "Status",
-            label: "NLO/LO Ownership (structure) ",
+            label: "Households Ownership (structure) ",
           },
         ],
       },
@@ -812,7 +812,7 @@ export const nloLayer = new FeatureLayer({
   layerId: 1,
   renderer: nloRenderer,
 
-  title: "NLO (Non-Land Owner)",
+  title: "Households",
   elevationInfo: {
     mode: "relative-to-scene",
   },
@@ -841,7 +841,7 @@ export const nloLayer = new FeatureLayer({
           },
           {
             fieldName: "Status",
-            label: "NLO/LO Ownership (structure) ",
+            label: "Households Ownership (structure) ",
           },
         ],
       },
@@ -885,7 +885,7 @@ export const strucOwnershipLayer = new FeatureLayer({
   },
   renderer: NLOLORenderer,
   layerId: 3,
-  title: "NLO/LO Ownership (Structure)",
+  title: "Households Ownership (Structure)",
 
   popupEnabled: false,
   elevationInfo: {
@@ -978,7 +978,7 @@ export const occupancyLayer = new FeatureLayer({
           },
           {
             fieldName: "Status",
-            label: "NLO/LO Ownership",
+            label: "Households Ownership",
           },
         ],
       },
@@ -1504,7 +1504,7 @@ export const alignmentGroupLayer = new GroupLayer({
 }); //map.add(alignmentGroupLayer, 0);
 
 export const nloLoOccupancyGroupLayer = new GroupLayer({
-  title: "NLO/LO Occupancy",
+  title: "Households Occupancy",
   visible: true,
   visibilityMode: "independent",
   layers: [occupancyLayer, strucOwnershipLayer, nloLayer],
