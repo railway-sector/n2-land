@@ -137,7 +137,7 @@ const ExpropriationList = () => {
                 // need 'key' to upper div and inside CalciteListItem
                 <CalciteListItem
                   key={result.id}
-                  open
+                  expanded
                   label={result.lotid}
                   description={result.landowner}
                   value={result.objectid}

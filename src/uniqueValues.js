@@ -212,10 +212,7 @@ export const statusNloQuery = statusNloLabel.map((status, index) => {
 });
 
 // Structure Ownership
-export const statusStructureOwnershipLabel = [
-  "LO (Land Owner)",
-  "NLO (Non-Land Owner)",
-];
+export const statusStructureOwnershipLabel = ["LO (Land Owner)", "Households"];
 export const statusStructureOwnershipColor = [
   [128, 128, 128, 1],
   [128, 128, 128, 1],
