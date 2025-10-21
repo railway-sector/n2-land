@@ -4,7 +4,7 @@ import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import GroupLayer from "@arcgis/core/layers/GroupLayer";
-
+import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
 import {
   TextSymbol3DLayer,
   LabelSymbol3D,
