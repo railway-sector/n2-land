@@ -178,7 +178,7 @@ var prowRenderer = new SimpleRenderer({
   symbol: new SimpleLineSymbol({
     color: "#ff0000",
     width: "2px",
-    style: "dash",
+    // style: "dash",
   }),
 });
 
@@ -196,6 +196,7 @@ var prowOthersRenderer = new SimpleRenderer({
   symbol: new SimpleLineSymbol({
     color: "red",
     width: "2px",
+    style: "dash",
   }),
 });
 

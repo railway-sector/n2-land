@@ -16,7 +16,6 @@ import {
   structureLayer,
   pierAccessLayer,
   stationLayer,
-  prowLayer,
   alignmentGroupLayer,
   nloLoOccupancyGroupLayer,
   lotGroupLayer,
@@ -38,7 +37,6 @@ function MapDisplay() {
       arcgisScene.map.add(structureLayer);
       arcgisScene.map.add(nloLoOccupancyGroupLayer);
       arcgisScene.map.add(alignmentGroupLayer);
-      arcgisScene.map.add(prowLayer);
       arcgisScene.map.add(stationLayer);
 
       arcgisSearch.sources = [
