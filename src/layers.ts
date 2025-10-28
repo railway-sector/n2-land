@@ -178,6 +178,7 @@ var prowRenderer = new SimpleRenderer({
   symbol: new SimpleLineSymbol({
     color: "#ff0000",
     width: "2px",
+    style: "dash",
   }),
 });
 
@@ -188,12 +189,12 @@ export const prowLayer = new FeatureLayer({
   popupEnabled: false,
   renderer: prowRenderer,
 });
-prowLayer.listMode = "hide";
+// prowLayer.listMode = "hide";
 
 /* PROW others */
 var prowOthersRenderer = new SimpleRenderer({
   symbol: new SimpleLineSymbol({
-    color: "#BF40BF",
+    color: "red",
     width: "2px",
   }),
 });
@@ -205,7 +206,7 @@ export const prowOthersLayer = new FeatureLayer({
       url: "https://gis.railway-sector.com/portal",
     },
   },
-  title: "Sapang Balen River Realignment",
+  title: "Additional Area due to Sapang Balen River Training",
   renderer: prowOthersRenderer,
   elevationInfo: {
     mode: "on-the-ground",
@@ -1500,6 +1501,7 @@ export const alignmentGroupLayer = new GroupLayer({
     chainageLayer,
     pierHeadColumnLayer,
     prowOthersLayer,
+    prowLayer,
   ],
 }); //map.add(alignmentGroupLayer, 0);
 
