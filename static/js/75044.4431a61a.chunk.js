@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkn2_land=self.webpackChunkn2_land||[]).push([[75044],{75044:(e,r,s)=>{s.r(r),s.d(r,{default:()=>p});var t=s(6326),i=s(46053),n=(s(81806),s(76460),s(47249),s(87990)),a=s(2190);let l=class extends a.A{constructor(){super(...arguments),this.type="geojson-3d"}get graphicOrigin(){return this.layer.graphicOrigin}};(0,t.Cg)([(0,i.MZ)()],l.prototype,"layer",void 0),(0,t.Cg)([(0,i.MZ)()],l.prototype,"graphicOrigin",null),l=(0,t.Cg)([(0,n.$)("esri.views.3d.layers.GeoJSONLayerView3D")],l);const p=l}}]);
+//# sourceMappingURL=75044.4431a61a.chunk.js.map
