@@ -389,7 +389,7 @@ const StructureChart = () => {
         id={chartID}
         style={{
           width: chart_width,
-          height: "61vh",
+          height: "57vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
           marginBottom: "5%",

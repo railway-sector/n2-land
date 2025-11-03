@@ -72,6 +72,7 @@ function MapDisplay() {
       arcgisSearch.allPlaceholder = "LotID, StructureID, Chainage";
       arcgisSearch.includeDefaultSourcesDisabled = true;
       arcgisSearch.locationDisabled = true;
+      arcgisScene.view.ui.components = [];
     }
   });
 
@@ -87,14 +88,14 @@ function MapDisplay() {
         setSceneView(event.target);
       }}
     >
-      <arcgis-compass position="top-right"></arcgis-compass>
-      <arcgis-expand close-on-esc position="top-right" mode="floating">
+      <arcgis-compass slot="top-right"></arcgis-compass>
+      <arcgis-expand close-on-esc slot="top-right" mode="floating">
         <arcgis-search></arcgis-search>
         {/* <arcgis-placement>
           <calcite-button>Placeholder</calcite-button>
         </arcgis-placement> */}
       </arcgis-expand>
-      <arcgis-zoom position="bottom-right"></arcgis-zoom>
+      <arcgis-zoom slot="bottom-right"></arcgis-zoom>
     </arcgis-scene>
   );
 }

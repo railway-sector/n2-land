@@ -619,7 +619,7 @@ const LotChart = () => {
         id={chartID}
         style={{
           width: chart_width,
-          height: "60vh",
+          height: "57vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
           marginBottom: "3%",

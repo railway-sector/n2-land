@@ -4,6 +4,8 @@ import "../index.css";
 import "../App.css";
 import { getMuniciaplityBarangayPair } from "../Query";
 import { MyContext } from "../App";
+import GenerateDropdownData from "npm-dropdown-package";
+import { lotLayer } from "../layers";
 
 export default function DropdownData() {
   const { municipals, barangays, updateMunicipals, updateBarangays } =
@@ -11,8 +13,8 @@ export default function DropdownData() {
 
   const [initMunicipalBarangay, setInitMunicipalBarangay] = useState([
     {
-      municipality: "",
-      barangay: [
+      field1: "",
+      field2: [
         {
           name: "",
         },
@@ -22,10 +24,10 @@ export default function DropdownData() {
 
   const [municipality, setMunicipality] = useState(null);
   const [barangay, setBarangay] = useState(null);
-  const [barangayList, setBarangayList] = useState([]);
+  const [barangayList, setBarangayList] = useState();
   const [municipalSelected, setMunicipalSelected] = useState({
-    municipality: "",
-    barangay: [
+    field1: "",
+    field2: [
       {
         name: "",
       },
@@ -34,7 +36,15 @@ export default function DropdownData() {
   const [barangaySelected, setBarangaySelected] = useState({ name: "" });
 
   useEffect(() => {
-    getMuniciaplityBarangayPair().then((response: any) => {
+    // getMuniciaplityBarangayPair().then((response: any) => {
+    //   setInitMunicipalBarangay(response);
+    // });
+
+    const dropdownData = new GenerateDropdownData(
+      [lotLayer],
+      ["Municipality", "Barangay"]
+    );
+    dropdownData.dropDownQuery().then((response: any) => {
       setInitMunicipalBarangay(response);
     });
   }, []);
@@ -43,10 +53,10 @@ export default function DropdownData() {
   const handleMunicipalityChange = (obj: any) => {
     setMunicipalSelected(obj);
     setMunicipality(obj);
-    setBarangayList(obj.barangay);
+    setBarangayList(obj.field2);
     setBarangay(null);
     setBarangaySelected({ name: "" });
-    updateMunicipals(obj.municipality);
+    updateMunicipals(obj.field1);
     updateBarangays(undefined);
   };
 
@@ -125,7 +135,7 @@ export function DropdownListDisplay({
         value={municipality}
         options={initMunicipalBarangay}
         onChange={handleMunicipalityChange}
-        getOptionLabel={(x: any) => x.municipality}
+        getOptionLabel={(x: any) => x.field1}
         styles={customstyles}
       />
       <br />
