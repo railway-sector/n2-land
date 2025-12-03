@@ -254,56 +254,20 @@ function ActionPanel() {
 
         <CalcitePanel heading="Description" data-panel-id="information" hidden>
           {nextWidget === "information" ? (
-            <div className="informationDiv">
+            <div style={{ paddingLeft: "20px" }}>
+              This smart map shows the progress on the following:
               <ul>
-                <div>
-                  <b style={{ color: "white", fontWeight: "bold" }}>
-                    --- How to Use Dropdown List ---
-                  </b>
-                </div>
-                <li>
-                  You can <b>filter the data</b> by City and Barangy using
-                  dropdown lists.
-                </li>
-                <li>
-                  <b>Click a tab</b> below the dropdown lists to view progress
-                  on land, structure, or NLO in charts.
-                </li>
-
-                <div>
-                  <b style={{ color: "white", fontWeight: "bold" }}>
-                    --- How to Use Chart ---
-                  </b>
-                </div>
-                <li>
-                  <b>Click series in pie charts</b> to view progress on the
-                  corresponding lots/structures/NLO on the map.
-                </li>
-                <li>
-                  <b>Lots under expropriation</b> are available in the 'Expro
-                  List' tab.
-                </li>
-                <li>
-                  <b>Pie chart for lands</b> represent <b>private lands only</b>
-                  .
-                </li>
-                <li>
-                  Values in the bracket of Land legend represent the total
-                  affected areas in square meters corresponeding to milestone
-                  status.
-                </li>
-                <li>
-                  <b>Permit-to-Enter</b> represents both public and private
-                  lands{" "}
-                </li>
-                <li>
-                  <b>Progress Chart</b> indicates the number of handed-over lots
-                  for both public and private lands{" "}
-                </li>
-                <li>
-                  <b>Handed-Over</b> represents both public and privalte lands.
-                </li>
+                <li>Land Aquisition, </li>
+                <li>Structures, </li>
+                <li>Housedholds (NLOs), </li>
+                <li>Lots under Expropriation, </li>
               </ul>
+              <div style={{ paddingLeft: "20px" }}>
+                <li>
+                  The source of data: <b>Master List tables</b> provided by the
+                  RAP Team.
+                </li>
+              </div>
             </div>
           ) : (
             <div className="informationDiv" hidden></div>
