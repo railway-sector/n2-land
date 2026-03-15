@@ -1,1 +1,0 @@
-import{_ as n,ef as e}from"./index-Di8Bz5a7.js";let t=null;async function _(){return t||(t=r()),t}async function r(){const a=await n(()=>import("./bundle-Ddgqihk6.js"),[]);return await a.default({module_or_path:e("esri/libs/parquet/pkg/bundle_bg.wasm")}),a}export{_ as s};
