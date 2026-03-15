@@ -61,7 +61,7 @@ const StructureChart = () => {
   // ***********************************
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
-  const new_imageSize = chartPanelwidth * 0.035;
+  const new_imageSize = chartPanelwidth * 0.03;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieSeriesScale = 220;
   const new_pieInnerValueFontSize = "1.2rem";
@@ -127,7 +127,6 @@ const StructureChart = () => {
         legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
         radius: am5.percent(45), // outer radius
         innerRadius: am5.percent(28),
-        scale: 1.5,
       }),
     );
     pieSeriesRef.current = pieSeries;

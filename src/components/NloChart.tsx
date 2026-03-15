@@ -46,8 +46,8 @@ const NloChart = memo(() => {
 
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
-  const new_imageSize = chartPanelwidth * 0.035;
-  const new_pieSeriesScale = 260;
+  const new_imageSize = chartPanelwidth * 0.028;
+  const new_pieSeriesScale = 280;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieInnerValueFontSize = "1.3rem";
   const new_pieInnerLabelFontSize = "0.45em";
@@ -118,7 +118,7 @@ const NloChart = memo(() => {
     const chart = root.container.children.push(
       am5percent.PieChart.new(root, {
         layout: root.verticalLayout,
-        paddingBottom: 50,
+        paddingBottom: 40,
       }),
     );
     chartRef.current = chart;

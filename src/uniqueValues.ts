@@ -273,7 +273,9 @@ export async function defineActions(event: any) {
   item.title === "NGCP Pole Relocation Tagged Structures" ||
   item.title === "Households" ||
   item.title === "Occupancy (Structure)" ||
-  item.title === "Handed-Over Area"
+  item.title === "Handed-Over Area" ||
+  item.title ===
+    "Candidate Lots of NSCR-Ex Passenger & Freight Line for Optimization"
     ? (item.visible = false)
     : (item.visible = true);
 }

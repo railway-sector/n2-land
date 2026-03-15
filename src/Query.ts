@@ -51,7 +51,7 @@ export function responsiveChart(
   pieSeriesScale: any,
 ) {
   chart.onPrivate("width", (width: any) => {
-    const availableSpace = width * 0.7;
+    const availableSpace = width * 0.7; // original 0.7
     const new_fontSize = width / 29;
     const new_pieSeries_scale = width / pieSeriesScale;
     const new_legendMarkerSize = width * 0.045;
