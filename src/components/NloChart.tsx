@@ -46,7 +46,7 @@ const NloChart = memo(() => {
 
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
-  const new_imageSize = chartPanelwidth * 0.04;
+  const new_imageSize = chartPanelwidth * 0.035;
   const new_pieSeriesScale = 260;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieInnerValueFontSize = "1.3rem";
