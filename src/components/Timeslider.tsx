@@ -101,7 +101,7 @@ export default function Timeslider() {
           referenceElement="arcgis-map"
           slot="bottom"
           layout="auto"
-          mode="time-window"
+          mode="cumulative-from-start"
           onarcgisPropertyChange={() => {
             updateTimesliderstate(true);
           }}
