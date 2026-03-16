@@ -490,6 +490,7 @@ export const lotLayer = new FeatureLayer({
       url: "https://gis.railway-sector.com/portal",
     },
   },
+  // layerId: 4,
   labelingInfo: [lotIdLabel],
   renderer: lotLayerRenderer,
   popupTemplate: templateLot,
