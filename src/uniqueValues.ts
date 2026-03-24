@@ -50,7 +50,7 @@ export const statusLotLabel = [
   "For Notice of Taking",
   "With PTE",
   "For Expropriation",
-  "Harmonized/Optimized",
+  "Optimized",
 ];
 
 export const statusLotNumber = statusLotLabel.map((stat, index) => {
