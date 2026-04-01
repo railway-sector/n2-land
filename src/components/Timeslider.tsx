@@ -14,6 +14,7 @@ export default function Timeslider() {
     updateDateforhandedover,
     updateHandedoverAreafield,
     updateAffectedAreafield,
+    updateNewHandedOverfield,
   } = use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene");
 
@@ -69,22 +70,35 @@ export default function Timeslider() {
 
           const yyyy0mdd = `x${year}0${month}${day}`;
           const yyyymmdd = `x${year}${month}${day}`;
+          const yyyymm0d = `x${year}${month}0${day}`;
+          const yyyy0m0d = `x${year}0${month}0${day}`;
+
+          // console.log(yyyymmdd);
 
           // Updating status field:
-          const new_date_field = month <= 9 ? yyyy0mdd : yyyymmdd;
+          const new_date_field =
+            month <= 9 && day <= 9
+              ? yyyy0m0d
+              : month <= 9 && day >= 10
+                ? yyyy0mdd
+                : month >= 10 && day <= 9
+                  ? yyyymm0d
+                  : yyyymmdd;
 
           updateLotSymbology(new_date_field);
           updateStatusdatefield(new_date_field);
 
           // Updating Handed-Over Area field:
-          const new_handedoverarea_field =
-            month <= 9 ? `${yyyy0mdd}_HOA` : `${yyyymmdd}_HOA`;
+          const new_handedoverarea_field = `${new_date_field}_HOA`;
           updateHandedoverAreafield(new_handedoverarea_field);
 
           // Updating Affected-Area field:
-          const new_affectedarea_field =
-            month <= 9 ? `${yyyy0mdd}_TAA` : `${yyyymmdd}_TAA`;
+          const new_affectedarea_field = `${new_date_field}_TAA`;
           updateAffectedAreafield(new_affectedarea_field);
+
+          // Updating Haned-Over field
+          const new_handedover_field = `${new_date_field}_HO`;
+          updateNewHandedOverfield(new_handedover_field);
         }
       },
     );

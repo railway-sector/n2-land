@@ -40,10 +40,10 @@ import {
   cpField,
   endorsedField,
   landUseField,
-  handedOverLotField,
   nloStatusField,
   nloLoStatusField,
   occupancyField,
+  lotHandedOverField,
 } from "./uniqueValues";
 
 export const drone_image_point_layer = new FeatureLayer({
@@ -616,14 +616,14 @@ endorsedLotLayer.popupTemplate = templateLot;
 
 /* Handed-Over Lot (public + private) */
 const handedOverLotRenderer = new UniqueValueRenderer({
-  field: "HandedOver",
-
+  valueExpression:
+    "When($feature.HandedOver == 1 && $feature.StatusLA != 8, 'Handed-Over', 'others')",
   uniqueValueInfos: [
     {
-      value: 1,
+      value: "Handed-Over",
       label: "Handed-Over",
       symbol: new SimpleFillSymbol({
-        color: [0, 255, 255, 0.3], //[0, 255, 255, 0.1], #00ffff
+        color: [0, 255, 255, 0.3],
         outline: new SimpleLineSymbol({
           color: "#00ffff",
           width: "4px",
@@ -641,7 +641,7 @@ export const handedOverLotLayer = new FeatureLayer({
     },
   },
   layerId: 4,
-  definitionExpression: `${handedOverLotField} = 1`,
+  definitionExpression: `${lotHandedOverField} = 1 AND ${lotStatusField} <> 8`,
   renderer: handedOverLotRenderer,
   // popupEnabled: false,
   popupTemplate: templateLot,

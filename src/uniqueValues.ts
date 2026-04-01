@@ -37,7 +37,7 @@ export const landOwnerField = "LandOwner";
 export const cpField = "CP";
 export const landUseField = "LandUse";
 export const endorsedField = "Endorsed";
-export const handedOverLotField = "HandedOver";
+export const lotHandedOverField = "HandedOver";
 export const lotHandedOverDateField = "HandedOverDate";
 export const lotHandedOverAreaField = "HandedOverArea";
 export const lotStatusField = "StatusLA";
@@ -155,7 +155,7 @@ export const statusNloLabel = [
   "For Payment Processing",
   "For Legal Pass",
   "For Appraisal/OtC/Requirements for Other Entitlements",
-  "LBP Account Opening",
+  "For Notice of Taking",
 ];
 export const statusNloColor = [
   "#00C5FF",

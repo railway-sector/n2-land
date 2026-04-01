@@ -18,10 +18,10 @@ import {
   affectedAreaField,
   barangayField,
   cpField,
-  handedOverLotField,
+  lotHandedOverField,
   lotHandedOverAreaField,
-  lotHandedOverDateField,
   lotIdField,
+  lotStatusField,
   municipalityField,
   nloStatusField,
   querySuperUrgent,
@@ -739,11 +739,11 @@ export async function generateHandedOverLotsNumber(
   superurgent: any,
   municipal: any,
   barangay: any,
-  dateforhandedover: any,
+  newHandedOverfield: any,
 ) {
   try {
-    const onStatisticsFieldValue = `CASE WHEN ${lotHandedOverDateField} <= date '${dateforhandedover}' THEN 1 ELSE 0 END`;
-
+    // console.log(newHandedOverfield);
+    const onStatisticsFieldValue: string = `CASE WHEN (${newHandedOverfield} = 1 AND ${lotStatusField} <> 8) THEN 1 ELSE 0 END`;
     const total_handedover_lot = new StatisticDefinition({
       onStatisticField: onStatisticsFieldValue,
       outStatisticFieldName: "total_handedover_lot",
@@ -758,7 +758,7 @@ export async function generateHandedOverLotsNumber(
 
     const query = lotLayer.createQuery();
     query.outStatistics = [total_handedover_lot, total_lot_N];
-    query.outFields = [lotIdField, lotHandedOverDateField];
+    query.outFields = [lotIdField, newHandedOverfield, lotStatusField];
     query.where = queryStatisticsLayer({
       superurgent: superurgent,
       municipal: municipal,
@@ -1087,7 +1087,7 @@ export function highlightLot(layer: any, view: any) {
 export function highlightHandedOverLot(layer: any, view: any) {
   view?.whenLayerView(layer).then((urgentLayerView: any) => {
     const query = layer.createQuery();
-    query.where = `${handedOverLotField} = 1`;
+    query.where = `${lotHandedOverField} = 1 AND ${lotStatusField} <> 8`;
     layer.queryFeatures(query).then((results: any) => {
       const length = results.features.length;
       const objID = [];

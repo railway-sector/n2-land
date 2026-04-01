@@ -60,10 +60,9 @@ const LotChart = () => {
     updateAsofdate,
     asofdate,
     updateLatestasofdate,
-    updateDateforhandedover,
-    dateforhandedover,
     handedoverAreafield,
     affectedAreafield,
+    newHandedOverfield,
     chartPanelwidth,
     updateChartPanelwidth,
   } = use(MyContext);
@@ -78,9 +77,6 @@ const LotChart = () => {
       // Default latest date for handed over
       const latest_date = response[0][2];
       updateLatestasofdate(latest_date);
-      updateDateforhandedover(
-        `${latest_date.getFullYear()}-${latest_date.getMonth() + 1}-${latest_date.getDate()}`,
-      );
 
       // For calculating the number of days passed since the latest date
       setDaysPass(response[0][1] >= cutoff_days ? true : false);
@@ -194,7 +190,7 @@ const LotChart = () => {
         superurgenttype,
         municipals,
         barangays,
-        dateforhandedover,
+        newHandedOverfield,
       ).then((response: any) => {
         setHandedOverNumber(response);
       });
@@ -213,7 +209,7 @@ const LotChart = () => {
     municipals,
     barangays,
     statusdatefield,
-    dateforhandedover,
+    newHandedOverfield,
   ]);
 
   useEffect(() => {

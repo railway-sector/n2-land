@@ -29,6 +29,7 @@ export default function MapDisplay() {
     updateStatusdatefield,
     updateHandedoverAreafield,
     updateAffectedAreafield,
+    updateNewHandedOverfield,
   } = use(MyContext);
 
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
@@ -66,6 +67,7 @@ export default function MapDisplay() {
       updateStatusdatefield(latest_date);
       updateHandedoverAreafield(`${latest_date}_HOA`);
       updateAffectedAreafield(`${latest_date}_TAA`);
+      updateNewHandedOverfield(`${latest_date}_HO`);
 
       // Default lot layer renderer
       lotLayerRenderer.field = latest_date;

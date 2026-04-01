@@ -54,6 +54,7 @@ export function App(): React.JSX.Element {
   const [handedoverAreafield, setHandedoverAreafield] = useState<any>();
   const [affectedAreafield, setAffectedAreafield] = useState<any>();
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
+  const [newHandedOverfield, setNewHandedOverfield] = useState<any>();
 
   const updateMunicipals = (newMunicipal: any) => {
     setMunicipals(newMunicipal);
@@ -107,6 +108,10 @@ export function App(): React.JSX.Element {
     setChartPanelwidth(newWidth);
   };
 
+  const updateNewHandedOverfield = (newHandedOverfield: any) => {
+    setNewHandedOverfield(newHandedOverfield);
+  };
+
   return (
     <>
       {loggedInState && (
@@ -133,6 +138,7 @@ export function App(): React.JSX.Element {
               handedoverAreafield,
               affectedAreafield,
               chartPanelwidth,
+              newHandedOverfield,
               updateMunicipals,
               updateBarangays,
               updateStatusdatefield,
@@ -146,6 +152,7 @@ export function App(): React.JSX.Element {
               updateHandedoverAreafield,
               updateAffectedAreafield,
               updateChartPanelwidth,
+              updateNewHandedOverfield,
             }}
           >
             <MainChart />
