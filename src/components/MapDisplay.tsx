@@ -119,8 +119,13 @@ export default function MapDisplay() {
     arcgisSearch.allPlaceholder = "LotID, StructureID, Chainage";
     arcgisSearch.includeDefaultSourcesDisabled = true;
     arcgisSearch.locationDisabled = true;
-    arcgisScene.hideAttribution = true;
     arcgisSearch?.sources.push(...sources);
+    arcgisScene.hideAttribution = true;
+    arcgisScene.view.environment.atmosphereEnabled = false;
+    arcgisScene.view.environment.starsEnabled = false;
+    if (arcgisScene?.map?.ground) {
+      arcgisScene.map.ground.navigationConstraint = { type: "none" };
+    }
   });
 
   return (
