@@ -57,7 +57,7 @@ function MainChart() {
       >
         <calcite-tabs
           style={{
-            borderStyle: "solid",
+            // borderStyle: "solid",
             borderRightWidth: 1,
             borderLeftWidth: 1,
             borderBottomWidth: 1,

@@ -64,7 +64,7 @@ const StructureChart = () => {
   const new_imageSize = chartPanelwidth * 0.03;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieSeriesScale = 220;
-  const new_pieInnerValueFontSize = "1.2rem";
+  const new_pieInnerValueFontSize = "1.0rem";
   const new_pieInnerLabelFontSize = "0.45em";
 
   const pieSeriesRef = useRef<unknown | any | undefined>({});
@@ -236,7 +236,7 @@ const StructureChart = () => {
       ></div>
 
       {/* Permit-to-Enter */}
-      <div
+      {/* <div
         style={{
           display: "flex",
           // marginTop: "3px",
@@ -272,7 +272,6 @@ const StructureChart = () => {
                 {thousands_separators(structureNumber[1])})
               </span>
             )}
-            {/* {structureNumber[0]}% ({thousands_separators(structureNumber[1])}) */}
           </dd>
         </dl>
         <img
@@ -281,7 +280,7 @@ const StructureChart = () => {
           height={`${new_imageSize}%`}
           width={`${new_imageSize}%`}
         />
-      </div>
+      </div> */}
     </>
   );
 }; // End of lotChartgs
