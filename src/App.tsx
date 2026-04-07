@@ -51,8 +51,8 @@ export function App(): React.JSX.Element {
   const [latestasofdate, setLatestasofdate] = useState<any>();
   const [dateforhandedover, setDateforhandedover] = useState<any>();
   const [handedoverDatefield, setHandedoverDatefield] = useState<any>();
-  const [handedoverAreafield, setHandedoverAreafield] = useState<any>();
-  const [affectedAreafield, setAffectedAreafield] = useState<any>();
+  const [newHandedoverAreafield, setNewHandedoverAreafield] = useState<any>();
+  const [newAffectedAreafield, setNewAffectedAreafield] = useState<any>();
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
   const [newHandedOverfield, setNewHandedOverfield] = useState<any>();
 
@@ -96,12 +96,12 @@ export function App(): React.JSX.Element {
     setHandedoverDatefield(newDatefield);
   };
 
-  const updateHandedoverAreafield = (newAreafield: any) => {
-    setHandedoverAreafield(newAreafield);
+  const updateNewHandedoverAreafield = (newAreafield: any) => {
+    setNewHandedoverAreafield(newAreafield);
   };
 
-  const updateAffectedAreafield = (newAreafield: any) => {
-    setAffectedAreafield(newAreafield);
+  const updateNewAffectedAreafield = (newAreafield: any) => {
+    setNewAffectedAreafield(newAreafield);
   };
 
   const updateChartPanelwidth = (newWidth: any) => {
@@ -135,8 +135,8 @@ export function App(): React.JSX.Element {
               latestasofdate,
               dateforhandedover,
               handedoverDatefield,
-              handedoverAreafield,
-              affectedAreafield,
+              newHandedoverAreafield,
+              newAffectedAreafield,
               chartPanelwidth,
               newHandedOverfield,
               updateMunicipals,
@@ -149,8 +149,8 @@ export function App(): React.JSX.Element {
               updateLatestasofdate,
               updateDateforhandedover,
               updateHandedoverDatefield,
-              updateHandedoverAreafield,
-              updateAffectedAreafield,
+              updateNewHandedoverAreafield,
+              updateNewAffectedAreafield,
               updateChartPanelwidth,
               updateNewHandedOverfield,
             }}

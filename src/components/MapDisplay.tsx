@@ -27,8 +27,8 @@ export default function MapDisplay() {
   const {
     updateDatefields,
     updateStatusdatefield,
-    updateHandedoverAreafield,
-    updateAffectedAreafield,
+    updateNewHandedoverAreafield,
+    updateNewAffectedAreafield,
     updateNewHandedOverfield,
   } = use(MyContext);
 
@@ -65,8 +65,8 @@ export default function MapDisplay() {
       const latest_date = date_fields[date_fields.length - 1]; // E.g., "x20260220"
       updateDatefields(date_fields);
       updateStatusdatefield(latest_date);
-      updateHandedoverAreafield(`${latest_date}_HOA`);
-      updateAffectedAreafield(`${latest_date}_TAA`);
+      updateNewHandedoverAreafield(`${latest_date}_HOA`);
+      updateNewAffectedAreafield(`${latest_date}_TAA`);
       updateNewHandedOverfield(`${latest_date}_HO`);
 
       // Default lot layer renderer

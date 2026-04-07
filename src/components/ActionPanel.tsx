@@ -82,6 +82,7 @@ function ActionPanel() {
       // need to collapse shell-panel manually
       if (nextWidget === "timeslider" || nextWidget === "handedover-charts") {
         shellPanel.collapsed = true;
+        updateTimesliderstate(true);
       }
     }
   });

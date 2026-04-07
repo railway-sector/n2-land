@@ -4,12 +4,9 @@
 
 import {
   dateTable,
-  handedOverLotLayer,
   lotDefaultSymbol,
   lotLayer,
   lotLayerRendererUniqueValueInfos,
-  nloLayer,
-  occupancyLayer,
   structureLayer,
 } from "./layers";
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
@@ -20,25 +17,17 @@ import {
   cpField,
   lotHandedOverField,
   lotHandedOverAreaField,
-  lotIdField,
   lotStatusField,
   municipalityField,
-  nloStatusField,
   querySuperUrgent,
   statusLotLabel,
-  statusLotQuery,
-  statusNloLabel,
-  statusNloQuery,
-  statusStructureLabel,
-  statusStructureQuery,
-  structurePteField,
-  structureStatusField,
   superurgent_items,
 } from "./uniqueValues";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Query from "@arcgis/core/rest/support/Query";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
+import type { statisticsType } from "./uniqueValues";
 
 // ****************************
 //    Chart Parameters
@@ -172,6 +161,43 @@ export function affectedAreaValue(legend: any, affectAreaPie: any) {
   });
 }
 
+type layerViewQueryProps = {
+  layer?: any;
+  qExpression?: any;
+  view: any;
+};
+
+export const highlightFilterLayerView = ({
+  layer,
+  qExpression,
+  view,
+}: layerViewQueryProps) => {
+  const query = layer.createQuery();
+  query.where = qExpression;
+  let highlightSelect: any;
+
+  view?.whenLayerView(layer).then((layerView: any) => {
+    layer?.queryObjectIds(query).then((results: any) => {
+      const objID = results;
+
+      highlightSelect && highlightSelect.remove();
+      highlightSelect = layerView.highlight(objID);
+    });
+
+    layerView.filter = new FeatureFilter({
+      where: qExpression,
+    });
+
+    // For initial state, we need to add this
+    view?.on("click", () => {
+      layerView.filter = new FeatureFilter({
+        where: undefined,
+      });
+      highlightSelect && highlightSelect.remove();
+    });
+  });
+};
+
 interface chartType {
   chart: any;
   pieSeries: any;
@@ -189,6 +215,7 @@ interface chartType {
   layer: FeatureLayer;
   statusArray: any;
 }
+
 export function chartRenderer({
   chart,
   pieSeries,
@@ -248,8 +275,8 @@ export function chartRenderer({
     const statusSelected = find?.value;
     const qExpression = `Municipality = '${municipals}' AND ${status_field} = ${statusSelected}`;
 
-    polygonViewQueryFeatureHighlight({
-      polygonLayer: layer,
+    highlightFilterLayerView({
+      layer: layer,
       qExpression: qExpression,
       view: arcgisScene?.view,
     });
@@ -324,12 +351,25 @@ export function chartRenderer({
   pieSeries.appear(1000, 100);
 }
 
-// ****************************
-//    Dropdown Parameters
-// ****************************
-
-// Query function for lotLayer
-export const queryDropdownTypes = (municipal: any, barangay: any) => {
+//---------------------------------------------//
+//           Query Expressions                 //
+//---------------------------------------------//
+interface queryExpressionType {
+  superurgenttype?: string;
+  municipal: string;
+  barangay: string;
+  // arcgisScene: any;
+  // timesliderstate: boolean;
+  queryField?: any;
+}
+export function queryExpression({
+  superurgenttype,
+  municipal,
+  barangay,
+  // arcgisScene,
+  // timesliderstate,
+  queryField,
+}: queryExpressionType) {
   const queryMunicipality = `${municipalityField} = '` + municipal + "'";
   const querySuperUrgentMunicipality =
     querySuperUrgent + " AND " + queryMunicipality;
@@ -338,477 +378,244 @@ export const queryDropdownTypes = (municipal: any, barangay: any) => {
   const querySuperUrgentMunicipalBarangay =
     querySuperUrgentMunicipality + " AND " + queryBarangay;
 
-  return [
-    queryMunicipality,
-    queryMunicipalBarangay,
-    querySuperUrgentMunicipality,
-    querySuperUrgentMunicipalBarangay,
-  ];
-};
+  let expression = "";
+  if (superurgenttype === superurgent_items[0]) {
+    if (!municipal) {
+      expression = !queryField ? "1=1" : queryField;
+    } else if (municipal && !barangay) {
+      expression = !queryField
+        ? queryMunicipality
+        : `${queryMunicipality} AND ${queryField}`;
+    } else if (municipal && barangay) {
+      expression = !queryField
+        ? queryMunicipalBarangay
+        : `${queryMunicipalBarangay} AND ${queryField}`;
+    }
+  } else if (superurgenttype === superurgent_items[1]) {
+    if (!municipal) {
+      expression = !queryField
+        ? querySuperUrgent
+        : `${querySuperUrgent} AND ${queryField}`;
+    } else if (municipal && !barangay) {
+      expression = !queryField
+        ? querySuperUrgentMunicipality
+        : `${querySuperUrgentMunicipality} AND ${queryField}`;
+    } else if (municipal && barangay) {
+      expression = !queryField
+        ? querySuperUrgentMunicipalBarangay
+        : `${querySuperUrgentMunicipalBarangay} AND ${queryField}`;
+    }
 
-interface queryLayerExpressionType {
-  superurgenttype?: string;
+    // if (!timesliderstate) {
+    //   zoomToLayer(lotLayer, arcgisScene);
+    //   zoomToLayer(structureLayer, arcgisScene);
+    // }
+
+    // Structure and NLO
+  } else if (!superurgenttype) {
+    if (!municipal) {
+      expression = queryField;
+    } else if (municipal && !barangay) {
+      expression = !queryField
+        ? queryMunicipality
+        : `${queryMunicipality} AND ${queryField}`;
+    } else if (municipal && barangay) {
+      expression = !queryField
+        ? queryMunicipalBarangay
+        : `${queryMunicipalBarangay} AND ${queryField}`;
+    }
+  }
+  return expression;
+}
+
+interface queryDefinitionExpressionType {
+  queryExpression?: string;
+  featureLayer?:
+    | [FeatureLayer, FeatureLayer?, FeatureLayer?, FeatureLayer?, FeatureLayer?]
+    | any;
+  arcgisScene?: any;
+  timesliderstate?: boolean;
+}
+
+export function queryDefinitionExpression({
+  queryExpression,
+  featureLayer,
+  timesliderstate,
+  arcgisScene,
+}: queryDefinitionExpressionType) {
+  if (queryExpression) {
+    if (featureLayer) {
+      if (Array.isArray(featureLayer)) {
+        featureLayer.forEach((layer) => {
+          if (layer) {
+            layer.definitionExpression = queryExpression;
+          }
+        });
+      } else {
+        featureLayer.definitionExpression = queryExpression;
+      }
+    }
+  }
+
+  if (!timesliderstate) {
+    zoomToLayer(lotLayer, arcgisScene);
+    zoomToLayer(structureLayer, arcgisScene);
+  }
+}
+
+//---------------------------------------------//
+//           Pie Chart Data Generation         //
+//---------------------------------------------//
+interface pieChartStatusDataType {
+  superurgenttype?: any;
   municipal: string;
   barangay: string;
-  arcgisScene: any;
-  timesliderstate: boolean;
+  statusdatefield?: any;
+  layer: any;
+  statusList?: any;
+  statusColor?: any;
+  statusField?: any;
+  idField?: any;
+  valueSumField?: any;
+  queryField?: any;
+  statisticType?: statisticsType;
 }
-export function queryLayersExpression({
+export async function pieChartStatusData({
   superurgenttype,
   municipal,
   barangay,
-  arcgisScene,
-  timesliderstate,
-}: queryLayerExpressionType) {
-  try {
-    const typeExpression = queryDropdownTypes(municipal, barangay);
-
-    if (superurgenttype === superurgent_items[0]) {
-      if (!municipal) {
-        lotLayer.definitionExpression = "1=1";
-        handedOverLotLayer.definitionExpression = "1=1";
-      } else if (municipal && !barangay) {
-        lotLayer.definitionExpression = typeExpression[0];
-        handedOverLotLayer.definitionExpression = typeExpression[0];
-      } else if (municipal && barangay) {
-        lotLayer.definitionExpression = typeExpression[1];
-        handedOverLotLayer.definitionExpression = typeExpression[1];
-      }
-    } else if (superurgenttype === superurgent_items[1]) {
-      if (!municipal) {
-        lotLayer.definitionExpression = querySuperUrgent;
-        handedOverLotLayer.definitionExpression = querySuperUrgent;
-      } else if (municipal && !barangay) {
-        lotLayer.definitionExpression = typeExpression[2];
-        handedOverLotLayer.definitionExpression = typeExpression[2];
-      } else if (municipal && barangay) {
-        lotLayer.definitionExpression = typeExpression[3];
-        handedOverLotLayer.definitionExpression = typeExpression[3];
-      }
-
-      // Structure and NLO
-    } else if (!superurgenttype) {
-      if (!municipal) {
-        structureLayer.definitionExpression = "1=1";
-        nloLayer.definitionExpression = "1=1";
-        occupancyLayer.definitionExpression = "1=1";
-      } else if (municipal && !barangay) {
-        structureLayer.definitionExpression = typeExpression[0];
-        nloLayer.definitionExpression = typeExpression[0];
-        occupancyLayer.definitionExpression = typeExpression[0];
-      } else if (municipal && barangay) {
-        structureLayer.definitionExpression = typeExpression[1];
-        nloLayer.definitionExpression = typeExpression[1];
-        occupancyLayer.definitionExpression = typeExpression[1];
-      }
-    }
-
-    if (!timesliderstate) {
-      zoomToLayer(lotLayer, arcgisScene);
-      zoomToLayer(structureLayer, arcgisScene);
-    }
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
-}
-
-interface queryStatisticsType {
-  superurgent?: any;
-  municipal: any;
-  barangay: any;
-  queryField?: any;
-}
-
-export function queryStatisticsLayer({
-  superurgent,
-  municipal,
-  barangay,
+  layer,
+  statusList,
+  statusColor,
+  statusField,
+  valueSumField,
   queryField,
-}: queryStatisticsType) {
-  try {
-    const typeExpression = queryDropdownTypes(municipal, barangay);
-
-    let queryWhere: any;
-    if (superurgent === superurgent_items[0]) {
-      if (!municipal) {
-        queryWhere = !queryField ? "1=1" : queryField;
-      } else if (municipal && !barangay) {
-        queryWhere = !queryField
-          ? typeExpression[0]
-          : queryField + " AND " + typeExpression[0];
-      } else if (municipal && barangay) {
-        queryWhere = !queryField
-          ? typeExpression[1]
-          : queryField + " AND " + typeExpression[1];
-      }
-    } else if (superurgent === superurgent_items[1]) {
-      if (!municipal) {
-        queryWhere = !queryField
-          ? querySuperUrgent
-          : queryField + " AND " + querySuperUrgent;
-      } else if (municipal && !barangay) {
-        queryWhere = !queryField
-          ? typeExpression[2]
-          : queryField + " AND " + typeExpression[2];
-      } else if (municipal && barangay) {
-        queryWhere = !queryField
-          ? typeExpression[3]
-          : queryField + " AND " + typeExpression[3];
-      }
-
-      // Structure and NLO
-    } else if (!superurgent) {
-      if (!municipal) {
-        queryWhere = queryField;
-      } else if (municipal && !barangay) {
-        queryWhere = !queryField
-          ? typeExpression[0]
-          : queryField + " AND " + typeExpression[0];
-      } else if (municipal && barangay) {
-        queryWhere = !queryField
-          ? typeExpression[1]
-          : queryField + " AND " + typeExpression[1];
-      }
-    }
-    return queryWhere;
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
-}
-
-// Change symbology of lot layer
-export function updateLotSymbology(new_date_field: any) {
-  try {
-    const lotLayerRenderer = new UniqueValueRenderer({
-      field: new_date_field,
-      defaultSymbol: lotDefaultSymbol, // autocasts as new SimpleFillSymbol()
-      uniqueValueInfos: lotLayerRendererUniqueValueInfos,
+  statisticType,
+}: pieChartStatusDataType) {
+  let statsCollect: any;
+  if (statisticType === "count") {
+    statsCollect = new StatisticDefinition({
+      onStatisticField: statusField,
+      outStatisticFieldName: "statsCollect",
+      statisticType: statisticType,
     });
-    lotLayer.renderer = lotLayerRenderer;
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
+  } else if (statisticType === "sum") {
+    statsCollect = new StatisticDefinition({
+      onStatisticField: valueSumField,
+      outStatisticFieldName: "statsCollect",
+      statisticType: statisticType,
+    });
   }
-}
 
-// get last date of month
-export function lastDateOfMonth(date: Date) {
-  const old_date = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  const year = old_date.getFullYear();
-  const month = old_date.getMonth() + 1;
-  const day = old_date.getDate();
-  const final_date = `${year}-${month}-${day}`;
+  //--- Query
+  const query = new Query();
+  query.outStatistics = [statsCollect];
 
-  return final_date;
-}
+  const expression = queryExpression({
+    superurgenttype: superurgenttype,
+    municipal: municipal,
+    barangay: barangay,
+    queryField: queryField,
+  });
 
-// Updat date
-export async function dateUpdate(category: any) {
-  const query = dateTable.createQuery();
-  const queryExpression =
-    "project = 'N2'" + " AND " + "category = '" + category + "'";
-  query.where = queryExpression; // "project = 'N2'" + ' AND ' + "category = 'Land Acquisition'";
+  query.where = expression;
+  queryDefinitionExpression({
+    queryExpression: expression,
+    featureLayer: [layer],
+  });
+  query.orderByFields = [statusField];
+  query.groupByFieldsForStatistics = [statusField];
 
-  return dateTable.queryFeatures(query).then((response: any) => {
+  //--- Query features using statistics definitions
+  let total_count = 0;
+  return layer?.queryFeatures(query).then(async (response: any) => {
     const stats = response.features;
-    const dates = stats.map((result: any) => {
-      // get today and date recorded in the table
-      const today = new Date();
-      const date = new Date(result.attributes.date);
-
-      // Calculate the number of days passed since the last update
-      const time_passed = today.getTime() - date.getTime();
-      const days_passed = Math.round(time_passed / (1000 * 3600 * 24));
-
-      const year = date.getFullYear();
-      const month = date.toLocaleString("en-US", {
-        month: "long",
+    const data = stats.map((result: any) => {
+      const attributes = result.attributes;
+      total_count += attributes.statsCollect;
+      return Object.assign({
+        category: statusList[attributes[statusField] - 1],
+        value: attributes.statsCollect,
       });
-      const day = date.getDate();
-      const as_of_date = year < 1990 ? "" : `${month} ${day}, ${year}`;
-      return [as_of_date, days_passed, date];
     });
-    return dates;
+
+    //--- Account for zero count
+    const data0 = statusList.map((status: any, index: any) => {
+      const find = data.find((emp: any) => emp.category === status);
+      const value = find === undefined ? 0 : find?.value;
+      return Object.assign({
+        category: status,
+        value: value,
+        sliceSettings: {
+          fill: am5.color(statusColor[index]),
+        },
+      });
+    });
+    return [data0, total_count];
   });
 }
 
-// Lot Status Query
-export async function generateLotData(
-  superurgent: any,
-  municipal: any,
-  barangay: any,
-  statusdatefield: any,
-) {
-  try {
-    // const queryField = `${statusdatefield} IS NOT NULL`;
-    if (statusdatefield) {
-      const total_count = new StatisticDefinition({
-        onStatisticField: statusdatefield,
-        outStatisticFieldName: "total_count",
-        statisticType: "count",
-      });
+export async function totalFieldCount({
+  superurgenttype,
+  municipal,
+  barangay,
+  layer,
+  idField,
+  queryField,
+}: pieChartStatusDataType) {
+  const statsCollect = new StatisticDefinition({
+    onStatisticField: idField,
+    outStatisticFieldName: "statsCollect",
+    statisticType: "count",
+  });
 
-      const query = lotLayer.createQuery();
-      query.outFields = [statusdatefield];
-      query.outStatistics = [total_count];
-      query.orderByFields = [statusdatefield];
-      query.groupByFieldsForStatistics = [statusdatefield];
-      query.where = queryStatisticsLayer({
-        superurgent: superurgent,
-        municipal: municipal,
-        barangay: barangay,
-        // queryField: queryField,
-      });
+  //--- Query
+  const query = new Query();
+  query.outStatistics = [statsCollect];
+  query.where = queryExpression({
+    superurgenttype: superurgenttype,
+    municipal: municipal,
+    barangay: barangay,
+    queryField: queryField,
+  });
 
-      return lotLayer.queryFeatures(query).then((response: any) => {
-        const stats = response.features;
-        const data = stats.map((result: any) => {
-          const attributes = result.attributes;
-          const status_id = attributes[statusdatefield];
-          const count = attributes.total_count;
-          return Object.assign({
-            category: statusLotLabel[status_id - 1],
-            value: count,
-          });
-        });
-
-        const data1: any = [];
-        statusLotLabel.map((status: any, index: any) => {
-          const find = data.find((emp: any) => emp.category === status);
-          const value = find === undefined ? 0 : find?.value;
-          const object = {
-            category: status,
-            value: value,
-            sliceSettings: {
-              fill: am5.color(statusLotQuery[index].color),
-            },
-          };
-          data1.push(object);
-        });
-
-        return data1;
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
+  return layer?.queryFeatures(query).then((response: any) => {
+    return response.features[0].attributes.statsCollect;
+  });
 }
 
-export async function generateLotNumber(
-  superurgent: any,
-  municipal: any,
-  barangay: any,
-  handedoverDatefield: any,
-) {
-  try {
-    // const queryField = `${lotIdField} IS NOT NULL`;
+export async function totalFieldSum({
+  superurgenttype: superurgenttype,
+  municipal: municipal,
+  barangay: barangay,
+  layer,
+  valueSumField,
+  queryField,
+}: pieChartStatusDataType) {
+  const statsCollect = new StatisticDefinition({
+    onStatisticField: valueSumField,
+    outStatisticFieldName: "statsCollect",
+    statisticType: "sum",
+  });
 
-    const onStatisticsFieldValue: string =
-      "CASE WHEN " + handedoverDatefield + " >= 1 THEN 1 ELSE 0 END";
+  //--- Query
+  const query = new Query();
+  query.outStatistics = [statsCollect];
+  query.where = queryExpression({
+    superurgenttype: superurgenttype,
+    municipal: municipal,
+    barangay: barangay,
+    queryField: queryField,
+  });
 
-    const total_lot_number = new StatisticDefinition({
-      onStatisticField: lotIdField,
-      outStatisticFieldName: "total_lot_number",
-      statisticType: "count",
-    });
-
-    const total_lot_pie = new StatisticDefinition({
-      onStatisticField: onStatisticsFieldValue,
-      outStatisticFieldName: "total_lot_pie",
-      statisticType: "sum",
-    });
-
-    const query = lotLayer.createQuery();
-    query.outFields = [lotIdField, handedoverDatefield];
-    query.outStatistics = [total_lot_number, total_lot_pie];
-    query.where = queryStatisticsLayer({
-      superurgent: superurgent,
-      municipal: municipal,
-      barangay: barangay,
-    });
-
-    return lotLayer.queryFeatures(query).then((response: any) => {
-      const stats = response.features[0].attributes;
-      const totalLotNumber = stats.total_lot_number;
-      const totalLotPie = stats.total_lot_pie;
-      return [totalLotNumber, totalLotPie];
-    });
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
+  return layer?.queryFeatures(query).then((response: any) => {
+    return response.features[0].attributes.statsCollect;
+  });
 }
 
-// type layerInformationTypes = {
-//   superurgent: any;
-//   municipal: any;
-//   barangay: any;
-//   statusdatefield?: any;
-// };
-
-export async function generateTotalAffectedArea(
-  superurgent: any,
-  municipal: any,
-  barangay: any,
-  affectedAreafield: any,
-) {
-  try {
-    // const queryField = `${affectedAreafield} IS NOT NULL`;
-
-    const total_affected_area = new StatisticDefinition({
-      onStatisticField: affectedAreafield,
-      outStatisticFieldName: "total_affected_area",
-      statisticType: "sum",
-    });
-
-    const query = lotLayer.createQuery();
-    query.outFields = [affectedAreafield];
-    query.outStatistics = [total_affected_area];
-    query.where = queryStatisticsLayer({
-      superurgent: superurgent,
-      municipal: municipal,
-      barangay: barangay,
-    });
-
-    return lotLayer.queryFeatures(query).then((response: any) => {
-      const stats = response.features[0].attributes;
-      const value = stats.total_affected_area;
-      return value;
-    });
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
-}
-
-export async function generateAffectedAreaForPie(
-  superurgent: any,
-  municipal: any,
-  barangay: any,
-  statusdatefield: any,
-) {
-  try {
-    const statusQuery = `${statusdatefield} >= 1`;
-
-    const total_affected_area = new StatisticDefinition({
-      onStatisticField: affectedAreaField,
-      outStatisticFieldName: "total_affected_area",
-      statisticType: "sum",
-    });
-
-    const query = lotLayer.createQuery();
-    query.outStatistics = [total_affected_area];
-    query.orderByFields = [statusdatefield];
-    query.groupByFieldsForStatistics = [statusdatefield];
-    query.where = queryStatisticsLayer({
-      superurgent: superurgent,
-      municipal: municipal,
-      barangay: barangay,
-      queryField: statusQuery,
-    });
-
-    return lotLayer.queryFeatures(query).then((response: any) => {
-      const stats = response.features;
-      const data = stats.map((result: any) => {
-        const attributes = result.attributes;
-        const affected = attributes.total_affected_area;
-        const status_id = attributes[statusdatefield];
-
-        return Object.assign({
-          category: statusLotLabel[status_id - 1],
-          value: affected,
-        });
-      });
-
-      const data1: any = [];
-      statusLotLabel.map((status: any) => {
-        const find = data.find((emp: any) => emp.category === status);
-        const value1 = find === undefined ? 0 : (find?.value).toFixed(0);
-        const object = {
-          category: status,
-          value: value1,
-        };
-        data1.push(object);
-      });
-      return data1;
-    });
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
-}
-
-// Handed Over
-export async function generateHandedOverLotsNumber(
-  superurgent: any,
-  municipal: any,
-  barangay: any,
-  newHandedOverfield: any,
-) {
-  try {
-    // console.log(newHandedOverfield);
-    const onStatisticsFieldValue: string = `CASE WHEN (${newHandedOverfield} = 1 AND ${lotStatusField} <> 8) THEN 1 ELSE 0 END`;
-    const total_handedover_lot = new StatisticDefinition({
-      onStatisticField: onStatisticsFieldValue,
-      outStatisticFieldName: "total_handedover_lot",
-      statisticType: "sum",
-    });
-
-    const total_lot_N = new StatisticDefinition({
-      onStatisticField: lotIdField,
-      outStatisticFieldName: "total_lot_N",
-      statisticType: "count",
-    });
-
-    const query = lotLayer.createQuery();
-    query.outStatistics = [total_handedover_lot, total_lot_N];
-    query.outFields = [lotIdField, newHandedOverfield, lotStatusField];
-    query.where = queryStatisticsLayer({
-      superurgent: superurgent,
-      municipal: municipal,
-      barangay: barangay,
-    });
-
-    return lotLayer.queryFeatures(query).then((response: any) => {
-      const stats = response.features[0].attributes;
-      const handedover = stats.total_handedover_lot;
-      const totaln = stats.total_lot_N;
-      const percent = ((handedover / totaln) * 100).toFixed(0);
-
-      return [percent, handedover];
-    });
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
-}
-
-export async function generateHandedOverArea(
-  superurgent: any,
-  municipal: any,
-  barangay: any,
-  handedoverAreafield: any,
-) {
-  try {
-    const handed_over_area = new StatisticDefinition({
-      onStatisticField: handedoverAreafield,
-      outStatisticFieldName: "handed_over_area",
-      statisticType: "sum",
-    });
-
-    const query = lotLayer.createQuery();
-    query.outStatistics = [handed_over_area];
-    query.where = queryStatisticsLayer({
-      superurgent: superurgent,
-      municipal: municipal,
-      barangay: barangay,
-    });
-
-    return lotLayer.queryFeatures(query).then((response: any) => {
-      const stats = response.features[0].attributes;
-      const value = stats.handed_over_area;
-      return value;
-    });
-  } catch (error) {
-    console.error("Error fetching data from FeatureServer:", error);
-  }
-}
-
+//---------------------------------------------//
+//           Lot (handed over area)            //
+//---------------------------------------------//
 export async function generateHandedOverAreaData() {
   try {
     const total_affected_area = new StatisticDefinition({
@@ -855,160 +662,62 @@ export async function generateHandedOverAreaData() {
   }
 }
 
-// Structure
-export async function generateStructureData(municipal: any, barangay: any) {
-  const total_count = new StatisticDefinition({
-    onStatisticField: structureStatusField,
-    outStatisticFieldName: "total_count",
-    statisticType: "count",
-  });
+//----------------------------------------//
+//------ Symbology of lot layer ----------//
+//----------------------------------------//
+export function updateLotSymbology(new_date_field: any) {
+  try {
+    const lotLayerRenderer = new UniqueValueRenderer({
+      field: new_date_field,
+      defaultSymbol: lotDefaultSymbol, // autocasts as new SimpleFillSymbol()
+      uniqueValueInfos: lotLayerRendererUniqueValueInfos,
+    });
+    lotLayer.renderer = lotLayerRenderer;
+  } catch (error) {
+    console.error("Error fetching data from FeatureServer:", error);
+  }
+}
 
-  const query = structureLayer.createQuery();
-  query.outFields = [structureStatusField, municipalityField, barangayField];
-  query.outStatistics = [total_count];
-  query.orderByFields = [structureStatusField];
-  query.groupByFieldsForStatistics = [structureStatusField];
+//----------------------------------------//
+//------        Date and Month       -----//
+//----------------------------------------//
+export function lastDateOfMonth(date: Date) {
+  const old_date = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  const year = old_date.getFullYear();
+  const month = old_date.getMonth() + 1;
+  const day = old_date.getDate();
+  const final_date = `${year}-${month}-${day}`;
 
-  query.where = queryStatisticsLayer({
-    superurgent: undefined,
-    municipal: municipal,
-    barangay: barangay,
-    queryField: undefined,
-  });
+  return final_date;
+}
 
-  return structureLayer.queryFeatures(query).then((response: any) => {
+// Updat date
+export async function dateUpdate(category: any) {
+  const query = dateTable.createQuery();
+  const queryExpression =
+    "project = 'N2'" + " AND " + "category = '" + category + "'";
+  query.where = queryExpression; // "project = 'N2'" + ' AND ' + "category = 'Land Acquisition'";
+
+  return dateTable.queryFeatures(query).then((response: any) => {
     const stats = response.features;
-    const data = stats.map((result: any) => {
-      const attributes = result.attributes;
-      const status_id = attributes.StatusStruc;
-      const count = attributes.total_count;
-      return Object.assign({
-        category: statusStructureLabel[status_id - 1],
-        value: count,
+    const dates = stats.map((result: any) => {
+      // get today and date recorded in the table
+      const today = new Date();
+      const date = new Date(result.attributes.date);
+
+      // Calculate the number of days passed since the last update
+      const time_passed = today.getTime() - date.getTime();
+      const days_passed = Math.round(time_passed / (1000 * 3600 * 24));
+
+      const year = date.getFullYear();
+      const month = date.toLocaleString("en-US", {
+        month: "long",
       });
+      const day = date.getDate();
+      const as_of_date = year < 1990 ? "" : `${month} ${day}, ${year}`;
+      return [as_of_date, days_passed, date];
     });
-
-    const data1: any = [];
-    statusStructureLabel.map((status: any, index: any) => {
-      const find = data.find((emp: any) => emp.category === status);
-      const value = find === undefined ? 0 : find?.value;
-      const object = {
-        category: status,
-        value: value,
-        sliceSettings: {
-          fill: am5.color(statusStructureQuery[index].color),
-        },
-      };
-      data1.push(object);
-    });
-    return data1;
-  });
-}
-
-// For Permit-to-Enter
-export async function generateStrucNumber(municipal: any, barangay: any) {
-  const onStatisticsFieldValue: string =
-    "CASE WHEN " + structureStatusField + " >= 1 THEN 1 ELSE 0 END";
-
-  const onStatisticFieldValuePte: string =
-    "CASE WHEN " + structurePteField + " = 1 THEN 1 ELSE 0 END";
-
-  const total_pte_structure = new StatisticDefinition({
-    onStatisticField: onStatisticFieldValuePte,
-    outStatisticFieldName: "total_pte_structure",
-    statisticType: "sum",
-  });
-
-  const total_struc_N = new StatisticDefinition({
-    onStatisticField: onStatisticsFieldValue,
-    outStatisticFieldName: "total_struc_N",
-    statisticType: "sum",
-  });
-
-  const query = structureLayer.createQuery();
-  query.where = queryStatisticsLayer({
-    municipal: municipal,
-    barangay: barangay,
-  });
-
-  query.outStatistics = [total_pte_structure, total_struc_N];
-  return structureLayer.queryFeatures(query).then((response: any) => {
-    const stats = response.features[0].attributes;
-    const pte = stats.total_pte_structure;
-    const totaln = stats.total_struc_N;
-    const percPTE = Number(((pte / totaln) * 100).toFixed(0));
-    return [percPTE, pte, totaln];
-  });
-}
-
-// Non-Land Owner
-export async function generateNloData(municipal: any, barangay: any) {
-  const total_count = new StatisticDefinition({
-    onStatisticField: nloStatusField,
-    outStatisticFieldName: "total_count",
-    statisticType: "count",
-  });
-
-  const query = nloLayer.createQuery();
-  query.outFields = [nloStatusField, municipalityField, barangayField];
-  query.outStatistics = [total_count];
-  query.orderByFields = [nloStatusField];
-  query.groupByFieldsForStatistics = [nloStatusField];
-  query.where = queryStatisticsLayer({
-    municipal: municipal,
-    barangay: barangay,
-  });
-
-  return nloLayer.queryFeatures(query).then((response: any) => {
-    const stats = response.features;
-    const data = stats.map((result: any) => {
-      const attributes = result.attributes;
-      const status_id = attributes.StatusRC;
-      const count = attributes.total_count;
-      return Object.assign({
-        category: statusNloLabel[status_id - 1],
-        value: count,
-      });
-    });
-
-    const data1: any = [];
-    statusNloLabel.map((status: any, index: any) => {
-      const find = data.find((emp: any) => emp.category === status);
-      const value = find === undefined ? 0 : find?.value;
-      const object = {
-        category: status,
-        value: value,
-        sliceSettings: {
-          fill: am5.color(statusNloQuery[index].color),
-        },
-      };
-      data1.push(object);
-    });
-    return data1;
-  });
-}
-
-export async function generateNloNumber(municipal: any, barangay: any) {
-  const onStatisticsFieldValue: string =
-    "CASE WHEN " + nloStatusField + " >= 1 THEN 1 ELSE 0 END";
-
-  const total_lbp = new StatisticDefinition({
-    onStatisticField: onStatisticsFieldValue,
-    outStatisticFieldName: "total_lbp",
-    statisticType: "sum",
-  });
-  const query = nloLayer.createQuery();
-  query.where = queryStatisticsLayer({
-    municipal: municipal,
-    barangay: barangay,
-  });
-
-  query.outStatistics = [total_lbp];
-  return nloLayer.queryFeatures(query).then((response: any) => {
-    const stats = response.features[0].attributes;
-    const totalnlo = stats.total_lbp;
-
-    return totalnlo;
+    return dates;
   });
 }
 
@@ -1109,67 +818,3 @@ export function highlightRemove() {
     highlight.remove();
   }
 }
-
-// Highlight selected utility feature in the Chart
-export const highlightSelectedUtil = (
-  featureLayer: any,
-  qExpression: any,
-  view: any,
-) => {
-  const query = featureLayer.createQuery();
-  query.where = qExpression;
-  let highlightSelect: any;
-
-  view?.whenLayerView(featureLayer).then((layerView: any) => {
-    featureLayer?.queryObjectIds(query).then((results: any) => {
-      const objID = results;
-
-      const queryExt = new Query({
-        objectIds: objID,
-      });
-
-      try {
-        featureLayer?.queryExtent(queryExt).then((result: any) => {
-          if (result?.extent) {
-            view?.goTo(result.extent);
-          }
-        });
-      } catch (error) {
-        console.error("Error querying extent for point layer:", error);
-      }
-
-      highlightSelect && highlightSelect.remove();
-      highlightSelect = layerView.highlight(objID);
-    });
-
-    layerView.filter = new FeatureFilter({
-      where: qExpression,
-    });
-
-    // For initial state, we need to add this
-    view?.on("click", () => {
-      layerView.filter = new FeatureFilter({
-        where: undefined,
-      });
-      highlightSelect && highlightSelect.remove();
-    });
-  });
-};
-
-type layerViewQueryProps = {
-  pointLayer1?: FeatureLayer;
-  pointLayer2?: FeatureLayer;
-  lineLayer1?: FeatureLayer;
-  lineLayer2?: FeatureLayer;
-  polygonLayer?: FeatureLayer;
-  qExpression?: any;
-  view: any;
-};
-
-export const polygonViewQueryFeatureHighlight = ({
-  polygonLayer,
-  qExpression,
-  view,
-}: layerViewQueryProps) => {
-  highlightSelectedUtil(polygonLayer, qExpression, view);
-};

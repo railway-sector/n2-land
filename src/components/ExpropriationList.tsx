@@ -18,7 +18,7 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 
 import "../index.css";
 import { MyContext } from "../contexts/MyContext";
-import { queryStatisticsLayer } from "../Query";
+import { queryExpression } from "../Query";
 
 // Zoom in to selected lot from expropriation list
 let highlightSelect: any;
@@ -60,7 +60,7 @@ const ExpropriationList = () => {
   useEffect(() => {
     const queryExpro = `${lotStatusField} = ${statusExproValue}`;
     const query = lotLayer.createQuery();
-    query.where = queryStatisticsLayer({
+    query.where = queryExpression({
       municipal: municipals,
       barangay: barangays,
       queryField: queryExpro,

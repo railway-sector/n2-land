@@ -12,8 +12,8 @@ export default function Timeslider() {
     updateTimesliderstate,
     updateAsofdate,
     updateDateforhandedover,
-    updateHandedoverAreafield,
-    updateAffectedAreafield,
+    updateNewHandedoverAreafield,
+    updateNewAffectedAreafield,
     updateNewHandedOverfield,
   } = use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene");
@@ -90,11 +90,11 @@ export default function Timeslider() {
 
           // Updating Handed-Over Area field:
           const new_handedoverarea_field = `${new_date_field}_HOA`;
-          updateHandedoverAreafield(new_handedoverarea_field);
+          updateNewHandedoverAreafield(new_handedoverarea_field);
 
           // Updating Affected-Area field:
           const new_affectedarea_field = `${new_date_field}_TAA`;
-          updateAffectedAreafield(new_affectedarea_field);
+          updateNewAffectedAreafield(new_affectedarea_field);
 
           // Updating Haned-Over field
           const new_handedover_field = `${new_date_field}_HO`;

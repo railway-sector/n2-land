@@ -11,8 +11,8 @@ type MyDropdownContextType = {
   latestasofdate: any;
   dateforhandedover: any;
   handedoverDatefield: any;
-  handedoverAreafield: any;
-  affectedAreafield: any;
+  newHandedoverAreafield: any;
+  newAffectedAreafield: any;
   chartPanelwidth: any;
   newHandedOverfield: any;
   updateMunicipals: any;
@@ -25,8 +25,8 @@ type MyDropdownContextType = {
   updateLatestasofdate: any;
   updateDateforhandedover: any;
   updateHandedoverDatefield: any;
-  updateHandedoverAreafield: any;
-  updateAffectedAreafield: any;
+  updateNewHandedoverAreafield: any;
+  updateNewAffectedAreafield: any;
   updateChartPanelwidth: any;
   updateNewHandedOverfield: any;
 };
@@ -42,8 +42,8 @@ const initialState = {
   latestasofdate: undefined,
   dateforhandedover: undefined,
   handedoverDatefield: undefined,
-  handedoverAreafield: undefined,
-  affectedAreafield: undefined,
+  newHandedoverAreafield: undefined,
+  newAffectedAreafield: undefined,
   chartPanelwidth: undefined,
   newHandedOverfield: undefined,
   updateMunicipals: undefined,
@@ -56,8 +56,8 @@ const initialState = {
   updateLatestasofdate: undefined,
   updateDateforhandedover: undefined,
   updateHandedoverDatefield: undefined,
-  updateHandedoverAreafield: undefined,
-  updateAffectedAreafield: undefined,
+  updateNewHandedoverAreafield: undefined,
+  updateNewAffectedAreafield: undefined,
   updateChartPanelwidth: undefined,
   updateNewHandedOverfield: undefined,
 };

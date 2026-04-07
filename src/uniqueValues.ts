@@ -1,6 +1,8 @@
 import Collection from "@arcgis/core/core/Collection";
 import ActionButton from "@arcgis/core/support/actions/ActionButton";
 
+export type statisticsType = "count" | "sum";
+
 // Chart width
 export const chart_width = "26vw";
 export const chart_box_width = 250;

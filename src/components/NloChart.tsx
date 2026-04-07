@@ -7,15 +7,17 @@ import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
   chartRenderer,
   dateUpdate,
-  generateNloData,
-  generateNloNumber,
-  queryLayersExpression,
+  queryExpression,
+  queryDefinitionExpression,
   thousands_separators,
+  pieChartStatusData,
 } from "../Query";
 import {
   cutoff_days,
   nloStatusField,
   primaryLabelColor,
+  statusNloColor,
+  statusNloLabel,
   statusNloQuery,
   updatedDateCategoryNames,
   valueLabelColor,
@@ -36,13 +38,8 @@ function maybeDisposeRoot(divId: any) {
 /// Draw chart
 const NloChart = memo(() => {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
-  const {
-    municipals,
-    barangays,
-    timesliderstate,
-    chartPanelwidth,
-    updateChartPanelwidth,
-  } = use(MyContext);
+  const { municipals, barangays, chartPanelwidth, updateChartPanelwidth } =
+    use(MyContext);
 
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
@@ -66,7 +63,7 @@ const NloChart = memo(() => {
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
-  const [nloData, SetNloData] = useState([
+  const [nloData, setNloData] = useState([
     {
       category: String,
       value: Number,
@@ -75,25 +72,30 @@ const NloChart = memo(() => {
       },
     },
   ]);
-  // NLO
   const [nloNumber, setNloNumber] = useState(0);
   const chartID = "nlo-chart";
 
   useEffect(() => {
-    queryLayersExpression({
+    queryDefinitionExpression({
+      queryExpression: queryExpression({
+        municipal: municipals,
+        barangay: barangays,
+      }),
+      featureLayer: [nloLayer],
+    });
+
+    //--- chart data
+    pieChartStatusData({
       municipal: municipals,
       barangay: barangays,
-      arcgisScene: arcgisScene,
-      timesliderstate: timesliderstate,
-    });
-
-    generateNloData(municipals, barangays).then((result: any) => {
-      SetNloData(result);
-    });
-
-    // NLO
-    generateNloNumber(municipals, barangays).then((response: any) => {
-      setNloNumber(response);
+      layer: nloLayer,
+      statusList: statusNloLabel,
+      statusColor: statusNloColor,
+      statusField: nloStatusField,
+      statisticType: "count",
+    }).then((result: any) => {
+      setNloData(result[0]);
+      setNloNumber(result[1]);
     });
   }, [municipals, barangays]);
 

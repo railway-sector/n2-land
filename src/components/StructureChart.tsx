@@ -6,23 +6,27 @@ import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
   chartRenderer,
   dateUpdate,
-  generateStrucNumber,
-  generateStructureData,
-  queryLayersExpression,
+  pieChartStatusData,
+  queryDefinitionExpression,
+  queryExpression,
   thousands_separators,
+  zoomToLayer,
 } from "../Query";
 import "../index.css";
 import {
   cutoff_days,
   primaryLabelColor,
+  statusStructureColorHex,
+  statusStructureLabel,
   statusStructureQuery,
+  // structurePteField,
   structureStatusField,
   updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { structureLayer } from "../layers";
+import { occupancyLayer, structureLayer } from "../layers";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -38,13 +42,8 @@ function maybeDisposeRoot(divId: any) {
 /// Draw chart
 const StructureChart = () => {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
-  const {
-    municipals,
-    barangays,
-    timesliderstate,
-    chartPanelwidth,
-    updateChartPanelwidth,
-  } = use(MyContext);
+  const { municipals, barangays, chartPanelwidth, updateChartPanelwidth } =
+    use(MyContext);
 
   // 0. Updated date
   const [asOfDate, setAsOfDate] = useState<undefined | any | unknown>(null);
@@ -73,25 +72,45 @@ const StructureChart = () => {
   const [structureData, setStructureData] = useState<any>([]);
 
   const chartID = "structure-chart";
-  const [structureNumber, setStructureNumber] = useState([]);
+  const [structureNumber, setStructureNumber] = useState<number>(0);
+  // const [pteNumber, setPteNumber] = useState<number>(0);
+  // const [ptePercent, setPtePercent] = useState<number>(0);
 
   useEffect(() => {
-    queryLayersExpression({
-      superurgenttype: undefined,
+    queryDefinitionExpression({
+      queryExpression: queryExpression({
+        municipal: municipals,
+        barangay: barangays,
+      }),
+      featureLayer: [structureLayer, occupancyLayer],
+    });
+
+    //--- chart data
+    pieChartStatusData({
       municipal: municipals,
       barangay: barangays,
-      arcgisScene: arcgisScene,
-      timesliderstate: timesliderstate,
+      layer: structureLayer,
+      statusList: statusStructureLabel,
+      statusColor: statusStructureColorHex,
+      statusField: structureStatusField,
+      statisticType: "count",
+    }).then((result: any) => {
+      setStructureData(result[0]);
+      setStructureNumber(result[1]);
     });
 
-    generateStructureData(municipals, barangays).then((result: any) => {
-      setStructureData(result);
-    });
+    //--- total number of pte
+    // totalFieldCount({
+    //   municipal: municipals,
+    //   barangay: barangays,
+    //   layer: structureLayer,
+    //   idField: structurePteField,
+    //   queryField: `${structurePteField} = 1`,
+    // }).then((result: any) => {
+    //   setPteNumber(result);
+    // });
 
-    // Structure Number
-    generateStrucNumber(municipals, barangays).then((response: any) => {
-      setStructureNumber(response);
-    });
+    zoomToLayer(structureLayer, arcgisScene);
   }, [municipals, barangays]);
 
   useEffect(() => {
@@ -208,7 +227,7 @@ const StructureChart = () => {
               margin: "auto",
             }}
           >
-            {thousands_separators(structureNumber[2])}
+            {thousands_separators(structureNumber)}
           </dd>
         </dl>
       </div>
@@ -264,12 +283,12 @@ const StructureChart = () => {
               margin: "auto",
             }}
           >
-            {structureNumber[1] === 0 ? (
-              <span>{structureNumber[0]}% (0)</span>
+            {ptePercent === 0 ? (
+              <span>{ptePercent}% (0)</span>
             ) : (
               <span>
-                {structureNumber[0]}% (
-                {thousands_separators(structureNumber[1])})
+                {ptePercent}% (
+                {thousands_separators(pteNumber)})
               </span>
             )}
           </dd>
