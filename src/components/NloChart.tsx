@@ -159,6 +159,7 @@ const NloChart = memo(() => {
       legend: legend,
       root: root,
       municipals: municipals,
+      barangays: barangays,
       status_field: nloStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,

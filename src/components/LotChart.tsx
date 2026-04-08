@@ -244,7 +244,9 @@ const LotChart = () => {
       });
     }
 
-    zoomToLayer(lotLayer, arcgisScene);
+    if (!timesliderstate) {
+      zoomToLayer(lotLayer, arcgisScene);
+    }
   }, [
     superurgenttype,
     municipals,
@@ -305,7 +307,9 @@ const LotChart = () => {
       pieSeries: pieSeries,
       legend: legend,
       root: root,
+      superurgenttype: superurgenttype,
       municipals: municipals,
+      barangays: barangays,
       status_field: lotStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,

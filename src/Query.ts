@@ -180,6 +180,15 @@ export const highlightFilterLayerView = ({
     layer?.queryObjectIds(query).then((results: any) => {
       const objID = results;
 
+      const queryExt = new Query({
+        objectIds: objID,
+      });
+      layer?.queryExtent(queryExt).then((result: any) => {
+        if (result?.extent) {
+          view?.goTo(result.extent);
+        }
+      });
+
       highlightSelect && highlightSelect.remove();
       highlightSelect = layerView.highlight(objID);
     });
@@ -203,7 +212,9 @@ interface chartType {
   pieSeries: any;
   legend: any;
   root: any;
+  superurgenttype?: any;
   municipals: any;
+  barangays: any;
   status_field: any;
   arcgisScene: any;
   updateChartPanelwidth: any;
@@ -221,7 +232,9 @@ export function chartRenderer({
   pieSeries,
   legend,
   root,
+  superurgenttype,
   municipals,
+  barangays,
   status_field,
   arcgisScene,
   updateChartPanelwidth,
@@ -273,7 +286,18 @@ export function chartRenderer({
     const Category = Selected.category;
     const find = statusArray.find((emp: any) => emp.category === Category);
     const statusSelected = find?.value;
-    const qExpression = `Municipality = '${municipals}' AND ${status_field} = ${statusSelected}`;
+    const isStringOrNumber = typeof statusSelected === "number";
+
+    const queryField = isStringOrNumber
+      ? `${status_field} = ${statusSelected}`
+      : `${status_field} = '${statusSelected}'`;
+
+    const qExpression = queryExpression({
+      superurgenttype: superurgenttype,
+      municipal: municipals,
+      barangay: barangays,
+      queryField: queryField,
+    });
 
     highlightFilterLayerView({
       layer: layer,
@@ -286,21 +310,12 @@ export function chartRenderer({
 
   // Disabling labels and ticksll
   pieSeries.labels.template.setAll({
-    // fill: am5.color('#ffffff'),
-    // fontSize: '0.5rem',
     visible: false,
     scale: 0,
-    // oversizedBehavior: 'wrap',
-    // maxWidth: 65,
-    // text: "{category}: [#C9CC3F; fontSize: 10px;]{valuePercentTotal.formatNumber('#.')}%[/]",
   });
 
   // pieSeries.labels.template.set('visible', true);
   pieSeries.ticks.template.setAll({
-    // fillOpacity: 0.9,
-    // stroke: am5.color('#ffffff'),
-    // strokeWidth: 0.3,
-    // strokeOpacity: 1,
     visible: false,
     scale: 0,
   });
@@ -330,20 +345,15 @@ export function chartRenderer({
   legend.labels.template.setAll({
     oversizedBehavior: "truncate",
     fill: am5.color("#ffffff"),
-    //textDecoration: "underline"
-    //width: am5.percent(200)
-    //fontWeight: "300"
   });
 
   legend.valueLabels.template.setAll({
     textAlign: "right",
     //width: valueLabelsWidth,
     fill: am5.color("#ffffff"),
-    //fontSize: LEGEND_FONT_SIZE,
   });
 
   legend.itemContainers.template.setAll({
-    // set space between legend items
     paddingTop: 3,
     paddingBottom: 1,
   });
@@ -533,8 +543,14 @@ export async function pieChartStatusData({
     const data = stats.map((result: any) => {
       const attributes = result.attributes;
       total_count += attributes.statsCollect;
+      const statusName = attributes[statusField];
+
+      //--- Check if attributes[statusField] is numeric or string
+      //--- This correctly accounts for a case where status in the attribute table is not number,
+      const isStringOrNumber = typeof statusName === "number";
+
       return Object.assign({
-        category: statusList[attributes[statusField] - 1],
+        category: isStringOrNumber ? statusList[statusName - 1] : statusName,
         value: attributes.statsCollect,
       });
     });
