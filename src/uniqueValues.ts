@@ -279,6 +279,7 @@ export async function defineActions(event: any) {
   item.title === "Households" ||
   item.title === "Occupancy (Structure)" ||
   item.title === "Handed-Over Area" ||
+  item.title === "MERALCO TSS 10" ||
   item.title ===
     "Candidate Lots of NSCR-Ex Passenger & Freight Line for Optimization"
     ? (item.visible = false)
