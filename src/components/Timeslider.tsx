@@ -73,8 +73,6 @@ export default function Timeslider() {
           const yyyymm0d = `x${year}${month}0${day}`;
           const yyyy0m0d = `x${year}0${month}0${day}`;
 
-          // console.log(yyyymmdd);
-
           // Updating status field:
           const new_date_field =
             month <= 9 && day <= 9

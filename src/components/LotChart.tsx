@@ -237,7 +237,10 @@ const LotChart = () => {
         statusList: statusLotLabel,
         statusColor: statusLotColor,
         statusField: statusdatefield,
-        statisticType: "count",
+        valueSumField: timesliderstate
+          ? newAffectedAreafield
+          : affectedAreaField,
+        statisticType: "sum",
         queryField: `${statusdatefield} >= 1`,
       }).then((result: any) => {
         setAffectAreaPie(result[0]);
