@@ -1,1 +1,0 @@
-import{cI as u}from"./index-Dx0mojH5.js";function l(r,n){return r===null?n:new u({url:r.field("url")})}export{l};
