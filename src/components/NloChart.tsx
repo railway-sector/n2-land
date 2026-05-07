@@ -4,16 +4,11 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+import { dateUpdate, thousands_separators, zoomToLayer } from "../Query";
 import {
-  chartRenderer,
-  dateUpdate,
-  queryExpression,
-  queryDefinitionExpression,
-  thousands_separators,
-  pieChartStatusData,
-} from "../Query";
-import {
+  barangayField,
   cutoff_days,
+  municipalityField,
   nloStatusField,
   primaryLabelColor,
   statusNloColor,
@@ -25,6 +20,9 @@ import {
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
 import { nloLayer } from "../layers";
+import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
+import { pieChartStatusData } from "../ChartGenerator";
+import { chartRenderer } from "../ChartRenderer";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -76,18 +74,21 @@ const NloChart = memo(() => {
   const chartID = "nlo-chart";
 
   useEffect(() => {
+    const qe = queryExpression({
+      q1Value: municipals,
+      q1Field: municipalityField,
+      q2Value: barangays,
+      q2Field: barangayField,
+    });
+
     queryDefinitionExpression({
-      queryExpression: queryExpression({
-        municipal: municipals,
-        barangay: barangays,
-      }),
+      queryExpression: qe,
       featureLayer: [nloLayer],
     });
 
     //--- chart data
     pieChartStatusData({
-      municipal: municipals,
-      barangay: barangays,
+      qChart: qe,
       layer: nloLayer,
       statusList: statusNloLabel,
       statusColor: statusNloColor,
@@ -97,6 +98,8 @@ const NloChart = memo(() => {
       setNloData(result[0]);
       setNloNumber(result[1]);
     });
+
+    zoomToLayer(nloLayer, arcgisScene);
   }, [municipals, barangays]);
 
   useEffect(() => {
@@ -158,8 +161,10 @@ const NloChart = memo(() => {
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      municipals: municipals,
-      barangays: barangays,
+      q1Value: municipals,
+      q1Field: municipalityField,
+      q2Value: barangays,
+      q2Field: barangayField,
       status_field: nloStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,

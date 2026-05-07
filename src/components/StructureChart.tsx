@@ -3,23 +3,16 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
-import {
-  chartRenderer,
-  dateUpdate,
-  pieChartStatusData,
-  queryDefinitionExpression,
-  queryExpression,
-  thousands_separators,
-  zoomToLayer,
-} from "../Query";
+import { dateUpdate, thousands_separators, zoomToLayer } from "../Query";
 import "../index.css";
 import {
+  barangayField,
   cutoff_days,
+  municipalityField,
   primaryLabelColor,
   statusStructureColorHex,
   statusStructureLabel,
   statusStructureQuery,
-  // structurePteField,
   structureStatusField,
   updatedDateCategoryNames,
   valueLabelColor,
@@ -27,6 +20,9 @@ import {
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
 import { occupancyLayer, structureLayer } from "../layers";
+import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
+import { pieChartStatusData } from "../ChartGenerator";
+import { chartRenderer } from "../ChartRenderer";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -77,18 +73,21 @@ const StructureChart = () => {
   // const [ptePercent, setPtePercent] = useState<number>(0);
 
   useEffect(() => {
+    const qe = queryExpression({
+      q1Value: municipals,
+      q1Field: municipalityField,
+      q2Value: barangays,
+      q2Field: barangayField,
+    });
+
     queryDefinitionExpression({
-      queryExpression: queryExpression({
-        municipal: municipals,
-        barangay: barangays,
-      }),
+      queryExpression: qe,
       featureLayer: [structureLayer, occupancyLayer],
     });
 
     //--- chart data
     pieChartStatusData({
-      municipal: municipals,
-      barangay: barangays,
+      qChart: qe,
       layer: structureLayer,
       statusList: statusStructureLabel,
       statusColor: statusStructureColorHex,
@@ -98,17 +97,6 @@ const StructureChart = () => {
       setStructureData(result[0]);
       setStructureNumber(result[1]);
     });
-
-    //--- total number of pte
-    // totalFieldCount({
-    //   municipal: municipals,
-    //   barangay: barangays,
-    //   layer: structureLayer,
-    //   idField: structurePteField,
-    //   queryField: `${structurePteField} = 1`,
-    // }).then((result: any) => {
-    //   setPteNumber(result);
-    // });
 
     zoomToLayer(structureLayer, arcgisScene);
   }, [municipals, barangays]);
@@ -167,8 +155,10 @@ const StructureChart = () => {
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      municipals: municipals,
-      barangays: barangays,
+      q1Value: municipals,
+      q1Field: municipalityField,
+      q2Value: barangays,
+      q2Field: barangayField,
       status_field: structureStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,

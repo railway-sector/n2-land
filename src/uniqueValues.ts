@@ -2,6 +2,7 @@ import Collection from "@arcgis/core/core/Collection";
 import ActionButton from "@arcgis/core/support/actions/ActionButton";
 
 export type statisticsType = "count" | "sum";
+export type TypeFieldType = "number" | "string";
 
 // Chart width
 export const chart_width = "26vw";

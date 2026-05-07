@@ -5,17 +5,10 @@ import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
-  affectedAreaValue,
-  chartRenderer,
   dateUpdate,
   highlightLot,
   highlightRemove,
-  pieChartStatusData,
-  queryDefinitionExpression,
-  queryExpression,
   thousands_separators,
-  totalFieldCount,
-  totalFieldSum,
   zoomToLayer,
 } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
@@ -24,12 +17,15 @@ import "@esri/calcite-components/dist/components/calcite-checkbox";
 
 import {
   affectedAreaField,
+  barangayField,
   cutoff_days,
   lotHandedOverAreaField,
   lotHandedOverField,
   lotIdField,
   lotStatusField,
+  municipalityField,
   primaryLabelColor,
+  querySuperUrgent,
   statusLotColor,
   statusLotLabel,
   statusLotQuery,
@@ -41,6 +37,13 @@ import {
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
+import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
+import {
+  pieChartStatusData,
+  totalFieldCount,
+  totalFieldSum,
+} from "../ChartGenerator";
+import { affectedAreaValue, chartRenderer } from "../ChartRenderer";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -51,8 +54,6 @@ function maybeDisposeRoot(divId: any) {
   });
 }
 
-///*** Others */
-/// Draw chart
 const LotChart = () => {
   const arcgisScene = document.querySelector("arcgis-scene");
   const {
@@ -88,9 +89,6 @@ const LotChart = () => {
     });
   }, []);
 
-  // ************************************
-  //  Chart
-  // ***********************************
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
   const new_imageSize = chartPanelwidth * 0.03;
@@ -147,21 +145,24 @@ const LotChart = () => {
   // Chart data and calculate statistics
   useEffect(() => {
     if (statusdatefield) {
+      const qSuperrugent_expression =
+        superurgenttype === "OFF" ? undefined : querySuperUrgent;
+
+      const qe = queryExpression({
+        q1Value: municipals,
+        q1Field: municipalityField,
+        q2Value: barangays,
+        q2Field: barangayField,
+        q2Expression: qSuperrugent_expression,
+      });
+
       queryDefinitionExpression({
-        queryExpression: queryExpression({
-          municipal: municipals,
-          barangay: barangays,
-        }),
+        queryExpression: qe,
         featureLayer: [lotLayer, handedOverLotLayer],
-        timesliderstate,
-        arcgisScene,
       });
 
       pieChartStatusData({
-        superurgenttype: superurgenttype,
-        municipal: municipals,
-        barangay: barangays,
-        statusdatefield: statusdatefield,
+        qChart: qe,
         layer: lotLayer,
         statusList: statusLotLabel,
         statusColor: statusLotColor,
@@ -173,10 +174,7 @@ const LotChart = () => {
 
       //--- total number of lots (public + private)
       totalFieldCount({
-        superurgenttype: superurgenttype,
-        municipal: municipals,
-        barangay: barangays,
-        statusdatefield: statusdatefield,
+        qChart: qe,
         layer: lotLayer,
         idField: lotIdField,
       }).then((result: any) => {
@@ -185,10 +183,7 @@ const LotChart = () => {
 
       //-- Total affected area
       totalFieldSum({
-        superurgenttype: superurgenttype,
-        municipal: municipals,
-        barangay: barangays,
-        statusdatefield: statusdatefield,
+        qChart: qe,
         layer: lotLayer,
         valueSumField: timesliderstate
           ? newAffectedAreafield
@@ -199,10 +194,7 @@ const LotChart = () => {
 
       //--- Total handed-over area
       totalFieldSum({
-        superurgenttype: superurgenttype,
-        municipal: municipals,
-        barangay: barangays,
-        statusdatefield: statusdatefield,
+        qChart: qe,
         layer: lotLayer,
         valueSumField: timesliderstate
           ? newHandedoverAreafield
@@ -213,35 +205,46 @@ const LotChart = () => {
       });
 
       //--- Total handed-over lots
+      const qe2 = queryExpression({
+        q1Value: municipals,
+        q1Field: municipalityField,
+        q2Value: barangays,
+        q2Field: barangayField,
+        qExpression: `${lotStatusField} <> 8`,
+        q2Expression: qSuperrugent_expression,
+      });
+
       totalFieldSum({
-        superurgenttype: superurgenttype,
-        municipal: municipals,
-        barangay: barangays,
-        statusdatefield: statusdatefield,
+        qChart: qe2,
         layer: lotLayer,
         valueSumField: timesliderstate
           ? newHandedOverfield
           : lotHandedOverField,
-        queryField: `${lotStatusField} <> 8`,
+        // queryField: `${lotStatusField} <> 8`,
       }).then((result: any) => {
         setHandedOverNumber(result);
       });
 
       //--- Affected area for each status
+      const qe3 = queryExpression({
+        q1Value: municipals,
+        q1Field: municipalityField,
+        q2Value: barangays,
+        q2Field: barangayField,
+        qExpression: `${statusdatefield} >= 1`,
+        q2Expression: qSuperrugent_expression,
+      });
+
       pieChartStatusData({
-        superurgenttype: superurgenttype,
-        municipal: municipals,
-        barangay: barangays,
-        statusdatefield: statusdatefield,
+        qChart: qe3,
         layer: lotLayer,
         statusList: statusLotLabel,
         statusColor: statusLotColor,
-        statusField: statusdatefield,
+        statusField: timesliderstate ? statusdatefield : lotStatusField,
         valueSumField: timesliderstate
           ? newAffectedAreafield
           : affectedAreaField,
         statisticType: "sum",
-        queryField: `${statusdatefield} >= 1`,
       }).then((result: any) => {
         setAffectAreaPie(result[0]);
       });
@@ -310,9 +313,11 @@ const LotChart = () => {
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      superurgenttype: superurgenttype,
-      municipals: municipals,
-      barangays: barangays,
+      q1Value: municipals,
+      q1Field: municipalityField,
+      q2Value: barangays,
+      q2Field: barangayField,
+      q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
       status_field: lotStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,
@@ -324,7 +329,7 @@ const LotChart = () => {
       layer: lotLayer,
       statusArray: statusLotQuery,
     });
-    affectedAreaValue(legend, affectAreaPie);
+    affectedAreaValue(legend, affectAreaPie, statusLotLabel);
 
     // Dispose root
     return () => {

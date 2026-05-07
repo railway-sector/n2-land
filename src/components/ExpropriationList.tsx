@@ -13,12 +13,18 @@ import "@esri/calcite-components/components/calcite-chip-group";
 import "@esri/calcite-components/components/calcite-avatar";
 import "@esri/calcite-components/components/calcite-action-bar";
 
-import { chart_width, lotStatusField, statusLotNumber } from "../uniqueValues";
+import {
+  barangayField,
+  chart_width,
+  lotStatusField,
+  municipalityField,
+  statusLotNumber,
+} from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 
 import "../index.css";
 import { MyContext } from "../contexts/MyContext";
-import { queryExpression } from "../Query";
+import { queryExpression } from "../QueryExpression";
 
 // Zoom in to selected lot from expropriation list
 let highlightSelect: any;
@@ -61,9 +67,11 @@ const ExpropriationList = () => {
     const queryExpro = `${lotStatusField} = ${statusExproValue}`;
     const query = lotLayer.createQuery();
     query.where = queryExpression({
-      municipal: municipals,
-      barangay: barangays,
-      queryField: queryExpro,
+      q1Value: municipals,
+      q1Field: municipalityField,
+      q2Value: barangays,
+      q2Field: barangayField,
+      qExpression: queryExpro,
     });
     query.outFields = ["*"];
 
