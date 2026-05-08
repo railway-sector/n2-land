@@ -1,5 +1,11 @@
 import { use, useEffect, useRef, useState } from "react";
-import { handedOverLotLayer, lotLayer } from "../layers";
+import {
+  handedOverLotLayer,
+  lotLayer,
+  queryc,
+  queryc2,
+  queryc3,
+} from "../layers";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
@@ -37,7 +43,7 @@ import {
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
+import { queryDefinitionExpression } from "../QueryExpression";
 import {
   pieChartStatusData,
   totalFieldCount,
@@ -148,21 +154,16 @@ const LotChart = () => {
       const qSuperrugent_expression =
         superurgenttype === "OFF" ? undefined : querySuperUrgent;
 
-      const qe = queryExpression({
-        q1Value: municipals,
-        q1Field: municipalityField,
-        q2Value: barangays,
-        q2Field: barangayField,
-        q2Expression: qSuperrugent_expression,
-      });
+      queryc.qValues = [municipals, barangays];
+      queryc.q2Expression = qSuperrugent_expression;
 
       queryDefinitionExpression({
-        queryExpression: qe,
+        queryExpression: queryc.queryExpression(),
         featureLayer: [lotLayer, handedOverLotLayer],
       });
 
       pieChartStatusData({
-        qChart: qe,
+        qChart: queryc.queryExpression(),
         layer: lotLayer,
         statusList: statusLotLabel,
         statusColor: statusLotColor,
@@ -174,7 +175,7 @@ const LotChart = () => {
 
       //--- total number of lots (public + private)
       totalFieldCount({
-        qChart: qe,
+        qChart: queryc.queryExpression(),
         layer: lotLayer,
         idField: lotIdField,
       }).then((result: any) => {
@@ -183,7 +184,7 @@ const LotChart = () => {
 
       //-- Total affected area
       totalFieldSum({
-        qChart: qe,
+        qChart: queryc.queryExpression(),
         layer: lotLayer,
         valueSumField: timesliderstate
           ? newAffectedAreafield
@@ -194,49 +195,37 @@ const LotChart = () => {
 
       //--- Total handed-over area
       totalFieldSum({
-        qChart: qe,
+        qChart: queryc.queryExpression(),
         layer: lotLayer,
         valueSumField: timesliderstate
           ? newHandedoverAreafield
           : lotHandedOverAreaField,
-        // queryField: `${lotStatusField} <> 8`,
       }).then((result: any) => {
         setHandedOverArea(result);
       });
 
       //--- Total handed-over lots
-      const qe2 = queryExpression({
-        q1Value: municipals,
-        q1Field: municipalityField,
-        q2Value: barangays,
-        q2Field: barangayField,
-        qExpression: `${lotStatusField} <> 8`,
-        q2Expression: qSuperrugent_expression,
-      });
+      queryc2.qValues = [municipals, barangays];
+      queryc2.qExpression = `${lotStatusField} <> 8`;
+      queryc2.q2Expression = qSuperrugent_expression;
 
       totalFieldSum({
-        qChart: qe2,
+        qChart: queryc2.queryExpression(),
         layer: lotLayer,
         valueSumField: timesliderstate
           ? newHandedOverfield
           : lotHandedOverField,
-        // queryField: `${lotStatusField} <> 8`,
       }).then((result: any) => {
         setHandedOverNumber(result);
       });
 
       //--- Affected area for each status
-      const qe3 = queryExpression({
-        q1Value: municipals,
-        q1Field: municipalityField,
-        q2Value: barangays,
-        q2Field: barangayField,
-        qExpression: `${statusdatefield} >= 1`,
-        q2Expression: qSuperrugent_expression,
-      });
+      queryc3.qValues = [municipals, barangays];
+      queryc3.qExpression = `${statusdatefield} >= 1`;
+      queryc3.q2Expression = qSuperrugent_expression;
 
       pieChartStatusData({
-        qChart: qe3,
+        qChart: queryc3.queryExpression(),
         layer: lotLayer,
         statusList: statusLotLabel,
         statusColor: statusLotColor,

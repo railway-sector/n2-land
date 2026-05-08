@@ -19,8 +19,8 @@ import {
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { nloLayer } from "../layers";
-import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
+import { nloLayer, queryc5 } from "../layers";
+import { queryDefinitionExpression } from "../QueryExpression";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
 
@@ -45,7 +45,7 @@ const NloChart = memo(() => {
   const new_pieSeriesScale = 280;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieInnerValueFontSize = "1.3rem";
-  const new_pieInnerLabelFontSize = "0.45em";
+  const new_pieInnerLabelFontSize = "0.7em";
 
   // 0. Updated date
   const [asOfDate, setAsOfDate] = useState<undefined | any | unknown>(null);
@@ -74,21 +74,15 @@ const NloChart = memo(() => {
   const chartID = "nlo-chart";
 
   useEffect(() => {
-    const qe = queryExpression({
-      q1Value: municipals,
-      q1Field: municipalityField,
-      q2Value: barangays,
-      q2Field: barangayField,
-    });
-
+    queryc5.qValues = [municipals, barangays];
     queryDefinitionExpression({
-      queryExpression: qe,
+      queryExpression: queryc5.queryExpression(),
       featureLayer: [nloLayer],
     });
 
     //--- chart data
     pieChartStatusData({
-      qChart: qe,
+      qChart: queryc5.queryExpression(),
       layer: nloLayer,
       statusList: statusNloLabel,
       statusColor: statusNloColor,

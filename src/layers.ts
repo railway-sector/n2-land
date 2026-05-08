@@ -46,6 +46,91 @@ import {
   lotHandedOverField,
   primaryLabelColor,
 } from "./uniqueValues";
+import QueryExpressionLayers from "query-layers-expression";
+
+export const queryc = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const queryc2 = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const queryc3 = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const queryc4 = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const queryc5 = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const queryc6 = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const querycExpro = new QueryExpressionLayers(
+  [undefined, undefined],
+  [municipalityField, barangayField],
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
 
 export const drone_image_point_layer = new FeatureLayer({
   portalItem: {

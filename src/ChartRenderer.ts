@@ -2,8 +2,8 @@ import * as am5 from "@amcharts/amcharts5";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Query from "@arcgis/core/rest/support/Query";
-import { queryExpression } from "./QueryExpression";
 import { thousands_separators } from "./Query";
+import { queryc6 } from "./layers";
 
 // Dynamic chart size
 export function responsiveChart(
@@ -213,9 +213,7 @@ export function chartRenderer({
   legend,
   root,
   q1Value,
-  q1Field,
   q2Value,
-  q2Field,
   q2Expression,
   status_field,
   arcgisScene,
@@ -273,18 +271,13 @@ export function chartRenderer({
       ? `${status_field} = ${statusSelected}`
       : `${status_field} = '${statusSelected}'`;
 
-    const qExpression = queryExpression({
-      q1Value: q1Value,
-      q1Field: q1Field,
-      q2Value: q2Value,
-      q2Field: q2Field,
-      qExpression: queryField,
-      q2Expression: q2Expression,
-    });
+    queryc6.qValues = [q1Value, q2Value];
+    queryc6.qExpression = queryField;
+    queryc6.q2Expression = q2Expression;
 
     highlightFilterLayerView({
       layer: layer,
-      qExpression: qExpression,
+      qExpression: queryc6.queryExpression(),
       view: arcgisScene?.view,
     });
   });

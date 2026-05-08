@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable array-callback-return */
 import { use, useEffect, useState } from "react";
-import { lotLayer } from "../layers";
+import { lotLayer, querycExpro } from "../layers";
 import Query from "@arcgis/core/rest/support/Query";
 import "@esri/calcite-components/components/calcite-shell";
 import "@esri/calcite-components/components/calcite-list";
@@ -13,18 +13,11 @@ import "@esri/calcite-components/components/calcite-chip-group";
 import "@esri/calcite-components/components/calcite-avatar";
 import "@esri/calcite-components/components/calcite-action-bar";
 
-import {
-  barangayField,
-  chart_width,
-  lotStatusField,
-  municipalityField,
-  statusLotNumber,
-} from "../uniqueValues";
+import { chart_width, lotStatusField, statusLotNumber } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 
 import "../index.css";
 import { MyContext } from "../contexts/MyContext";
-import { queryExpression } from "../QueryExpression";
 
 // Zoom in to selected lot from expropriation list
 let highlightSelect: any;
@@ -64,15 +57,12 @@ const ExpropriationList = () => {
   const [exproItem, setExproItem] = useState<undefined | any>([]);
 
   useEffect(() => {
-    const queryExpro = `${lotStatusField} = ${statusExproValue}`;
+    // const queryExpro = `${lotStatusField} = ${statusExproValue}`;
     const query = lotLayer.createQuery();
-    query.where = queryExpression({
-      q1Value: municipals,
-      q1Field: municipalityField,
-      q2Value: barangays,
-      q2Field: barangayField,
-      qExpression: queryExpro,
-    });
+
+    querycExpro.qValues = [municipals, barangays];
+    querycExpro.qExpression = `${lotStatusField} = ${statusExproValue}`;
+    query.where = querycExpro.queryExpression();
     query.outFields = ["*"];
 
     query.returnGeometry = true;
