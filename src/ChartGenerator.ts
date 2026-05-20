@@ -67,17 +67,19 @@ export async function pieChartStatusData({
       const isStringOrNumber = typeof statusName === "number";
 
       return Object.assign({
-        category: isStringOrNumber ? statusList[statusName - 1] : statusName,
+        category: isStringOrNumber
+          ? statusList.find((item: any) => item.value === statusName).category
+          : statusName,
         value: attributes.statsCollect,
       });
     });
 
     //--- Account for zero count
     const data0 = statusList.map((status: any, index: any) => {
-      const find = data.find((emp: any) => emp.category === status);
+      const find = data.find((emp: any) => emp.category === status.category);
       const value = find === undefined ? 0 : find?.value;
       return Object.assign({
-        category: status,
+        category: status.category,
         value: value,
         sliceSettings: {
           fill: am5.color(statusColor[index]),

@@ -165,7 +165,7 @@ const LotChart = () => {
       pieChartStatusData({
         qChart: queryc.queryExpression(),
         layer: lotLayer,
-        statusList: statusLotLabel,
+        statusList: statusLotQuery,
         statusColor: statusLotColor,
         statusField: timesliderstate ? statusdatefield : lotStatusField,
         statisticType: "count",
@@ -227,7 +227,7 @@ const LotChart = () => {
       pieChartStatusData({
         qChart: queryc3.queryExpression(),
         layer: lotLayer,
-        statusList: statusLotLabel,
+        statusList: statusLotQuery,
         statusColor: statusLotColor,
         statusField: timesliderstate ? statusdatefield : lotStatusField,
         valueSumField: timesliderstate

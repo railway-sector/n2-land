@@ -11,7 +11,6 @@ import {
   municipalityField,
   primaryLabelColor,
   statusStructureColorHex,
-  statusStructureLabel,
   statusStructureQuery,
   structureStatusField,
   updatedDateCategoryNames,
@@ -83,7 +82,7 @@ const StructureChart = () => {
     pieChartStatusData({
       qChart: queryc4.queryExpression(),
       layer: structureLayer,
-      statusList: statusStructureLabel,
+      statusList: statusStructureQuery,
       statusColor: statusStructureColorHex,
       statusField: structureStatusField,
       statisticType: "count",
