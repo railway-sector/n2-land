@@ -307,7 +307,7 @@ const LotChart = () => {
       q2Value: barangays,
       q2Field: barangayField,
       q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
-      status_field: lotStatusField,
+      status_field: timesliderstate ? statusdatefield : lotStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,
       data: lotData,
