@@ -41,6 +41,18 @@ export function responsiveChart(
   });
 }
 
+function affected_area_label(affectAreaPie: any, category: any) {
+  return (
+    "{value}[/]" +
+    " (" +
+    thousands_separators(
+      affectAreaPie.find((emp: any) => emp.category === category)?.value,
+    ) +
+    " m2" +
+    ")"
+  );
+}
+
 export function affectedAreaValue(
   legend: any,
   affectAreaPie: any,
@@ -57,80 +69,21 @@ export function affectedAreaValue(
     // "[#C9CC3F; fontSize: 12px;][bold]{valuePercentTotal.formatNumber('#.')}% ({value})[/]"
     if (target.dataItem) {
       return category === statusLotLabel[0]
-        ? "{value}[/]" +
-            " (" +
-            thousands_separators(
-              affectAreaPie.find((emp: any) => emp.category === category)
-                ?.value,
-            ) +
-            " m2" +
-            ")"
+        ? affected_area_label(affectAreaPie, category)
         : category === statusLotLabel[1]
-          ? "{value}[/]" +
-            " (" +
-            thousands_separators(
-              affectAreaPie?.find((emp: any) => emp.category === category)
-                ?.value,
-            ) +
-            " m2" +
-            ")"
+          ? affected_area_label(affectAreaPie, category)
           : category === statusLotLabel[2]
-            ? "{value}[/]" +
-              " (" +
-              thousands_separators(
-                affectAreaPie?.find((emp: any) => emp.category === category)
-                  ?.value,
-              ) +
-              " m2" +
-              ")"
+            ? affected_area_label(affectAreaPie, category)
             : category === statusLotLabel[3]
-              ? "{value}[/]" +
-                " (" +
-                thousands_separators(
-                  affectAreaPie?.find((emp: any) => emp.category === category)
-                    ?.value,
-                ) +
-                " m2" +
-                ")"
+              ? affected_area_label(affectAreaPie, category)
               : category === statusLotLabel[4]
-                ? "{value}[/]" +
-                  " (" +
-                  thousands_separators(
-                    affectAreaPie?.find((emp: any) => emp.category === category)
-                      ?.value,
-                  ) +
-                  " m2" +
-                  ")"
+                ? affected_area_label(affectAreaPie, category)
                 : category === statusLotLabel[5]
-                  ? "{value}[/]" +
-                    " (" +
-                    thousands_separators(
-                      affectAreaPie?.find(
-                        (emp: any) => emp.category === category,
-                      )?.value,
-                    ) +
-                    " m2" +
-                    ")"
+                  ? affected_area_label(affectAreaPie, category)
                   : category === statusLotLabel[6]
-                    ? "{value}[/]" +
-                      " (" +
-                      thousands_separators(
-                        affectAreaPie?.find(
-                          (emp: any) => emp.category === category,
-                        )?.value,
-                      ) +
-                      " m2" +
-                      ")"
+                    ? affected_area_label(affectAreaPie, category)
                     : category === statusLotLabel[7]
-                      ? "{value}[/]" +
-                        " (" +
-                        thousands_separators(
-                          affectAreaPie?.find(
-                            (emp: any) => emp.category === category,
-                          )?.value,
-                        ) +
-                        " m2" +
-                        ")"
+                      ? affected_area_label(affectAreaPie, category)
                       : "{value}";
     }
 
