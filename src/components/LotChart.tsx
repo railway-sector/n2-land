@@ -5,6 +5,7 @@ import {
   queryc,
   queryc2,
   queryc3,
+  queryc6,
 } from "../layers";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
@@ -23,13 +24,11 @@ import "@esri/calcite-components/dist/components/calcite-checkbox";
 
 import {
   affectedAreaField,
-  barangayField,
   cutoff_days,
   lotHandedOverAreaField,
   lotHandedOverField,
   lotIdField,
   lotStatusField,
-  municipalityField,
   primaryLabelColor,
   querySuperUrgent,
   statusLotColor,
@@ -44,11 +43,7 @@ import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
 import { queryDefinitionExpression } from "../QueryExpression";
-import {
-  pieChartStatusData,
-  totalFieldCount,
-  totalFieldSum,
-} from "../ChartGenerator";
+import { pieChartStatusData, fieldStatistic } from "../ChartGenerator";
 import { affectedAreaValue, chartRenderer } from "../ChartRenderer";
 
 // Dispose function
@@ -174,32 +169,35 @@ const LotChart = () => {
       });
 
       //--- total number of lots (public + private)
-      totalFieldCount({
+      fieldStatistic({
         qChart: queryc.queryExpression(),
         layer: lotLayer,
-        idField: lotIdField,
+        statisticField: lotIdField,
+        statisticType: "count",
       }).then((result: any) => {
         setLotNumber(result);
       });
 
       //-- Total affected area
-      totalFieldSum({
+      fieldStatistic({
         qChart: queryc.queryExpression(),
         layer: lotLayer,
-        valueSumField: timesliderstate
+        statisticField: timesliderstate
           ? newAffectedAreafield
           : affectedAreaField,
+        statisticType: "sum",
       }).then((result: any) => {
         setTotalAffectedArea(result);
       });
 
       //--- Total handed-over area
-      totalFieldSum({
+      fieldStatistic({
         qChart: queryc.queryExpression(),
         layer: lotLayer,
-        valueSumField: timesliderstate
+        statisticField: timesliderstate
           ? newHandedoverAreafield
           : lotHandedOverAreaField,
+        statisticType: "sum",
       }).then((result: any) => {
         setHandedOverArea(result);
       });
@@ -207,14 +205,14 @@ const LotChart = () => {
       //--- Total handed-over lots
       queryc2.qValues = [municipals, barangays];
       queryc2.qExpression = `${lotStatusField} <> 8`;
-      queryc2.q2Expression = qSuperrugent_expression;
 
-      totalFieldSum({
+      fieldStatistic({
         qChart: queryc2.queryExpression(),
         layer: lotLayer,
-        valueSumField: timesliderstate
+        statisticField: timesliderstate
           ? newHandedOverfield
           : lotHandedOverField,
+        statisticType: "sum",
       }).then((result: any) => {
         setHandedOverNumber(result);
       });
@@ -296,16 +294,15 @@ const LotChart = () => {
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
+    queryc6.qValues = [municipals, barangays];
+
     // Render chart
     chartRenderer({
       chart: chart,
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      q1Value: municipals,
-      q1Field: municipalityField,
-      q2Value: barangays,
-      q2Field: barangayField,
+      qChart: queryc6,
       q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
       status_field: timesliderstate ? statusdatefield : lotStatusField,
       arcgisScene: arcgisScene,

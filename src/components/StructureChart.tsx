@@ -6,9 +6,7 @@ import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import { dateUpdate, thousands_separators, zoomToLayer } from "../Query";
 import "../index.css";
 import {
-  barangayField,
   cutoff_days,
-  municipalityField,
   primaryLabelColor,
   statusStructureColorHex,
   statusStructureQuery,
@@ -18,7 +16,7 @@ import {
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { occupancyLayer, queryc4, structureLayer } from "../layers";
+import { occupancyLayer, queryc4, queryc6, structureLayer } from "../layers";
 import { queryDefinitionExpression } from "../QueryExpression";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
@@ -142,16 +140,15 @@ const StructureChart = () => {
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
+    queryc6.qValues = [municipals, barangays];
+
     // Render chart
     chartRenderer({
       chart: chart,
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      q1Value: municipals,
-      q1Field: municipalityField,
-      q2Value: barangays,
-      q2Field: barangayField,
+      qChart: queryc6,
       status_field: structureStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,

@@ -3,7 +3,6 @@ import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Query from "@arcgis/core/rest/support/Query";
 import { thousands_separators } from "./Query";
-import { queryc6 } from "./layers";
 
 // Dynamic chart size
 export function responsiveChart(
@@ -142,8 +141,9 @@ interface chartType {
   pieSeries: any;
   legend: any;
   root: any;
-  q1Value: any;
-  q1Field: any;
+  qChart: any;
+  q1Value?: any;
+  q1Field?: any;
   q2Value?: any;
   q2Field?: any;
   q3Value?: any;
@@ -165,8 +165,7 @@ export function chartRenderer({
   pieSeries,
   legend,
   root,
-  q1Value,
-  q2Value,
+  qChart,
   q2Expression,
   status_field,
   arcgisScene,
@@ -224,13 +223,12 @@ export function chartRenderer({
       ? `${status_field} = ${statusSelected}`
       : `${status_field} = '${statusSelected}'`;
 
-    queryc6.qValues = [q1Value, q2Value];
-    queryc6.qExpression = queryField;
-    queryc6.q2Expression = q2Expression;
+    qChart.qExpression = queryField;
+    qChart.q2Expression = q2Expression;
 
     highlightFilterLayerView({
       layer: layer,
-      qExpression: queryc6.queryExpression(),
+      qExpression: qChart.queryExpression(),
       view: arcgisScene?.view,
     });
   });
