@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable no-unsafe-optional-chaining */
-
 import {
   dateTable,
   lotDefaultSymbol,
@@ -9,7 +8,6 @@ import {
   lotLayerRendererUniqueValueInfos,
 } from "./layers";
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
-
 import {
   affectedAreaField,
   cpField,
@@ -17,8 +15,40 @@ import {
   lotHandedOverAreaField,
   lotStatusField,
 } from "./uniqueValues";
-
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
+
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+
+//---------------------------------------------------------//
+//    Definition Expression using queryExpression          //
+//---------------------------------------------------------//
+interface queryDefinitionExpressionType {
+  queryExpression?: string;
+  featureLayer?:
+    | [FeatureLayer, FeatureLayer?, FeatureLayer?, FeatureLayer?, FeatureLayer?]
+    | any;
+}
+
+export function queryDefinitionExpression({
+  queryExpression,
+  featureLayer,
+}: queryDefinitionExpressionType) {
+  if (queryExpression) {
+    if (featureLayer) {
+      if (Array.isArray(featureLayer)) {
+        featureLayer.forEach((layer) => {
+          if (layer) {
+            layer.definitionExpression = queryExpression;
+            // layer.visible = true;
+          }
+        });
+      } else {
+        featureLayer.definitionExpression = queryExpression;
+        // featureLayer.visible = true;
+      }
+    }
+  }
+}
 
 //---------------------------------------------//
 //           Lot (handed over area)            //

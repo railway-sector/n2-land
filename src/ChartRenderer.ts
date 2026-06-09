@@ -96,7 +96,7 @@ type layerViewQueryProps = {
   view: any;
 };
 
-export const highlightFilterLayerView = ({
+export const highlightFilterLayerView = async ({
   layer,
   qExpression,
   view,
@@ -105,34 +105,24 @@ export const highlightFilterLayerView = ({
   query.where = qExpression;
   let highlightSelect: any;
 
-  view?.whenLayerView(layer).then((layerView: any) => {
-    layer?.queryObjectIds(query).then((results: any) => {
-      const objID = results;
+  const layerView = await view?.whenLayerView(layer);
+  const results = await layer?.queryObjectIds(query);
 
-      const queryExt = new Query({
-        objectIds: objID,
-      });
-      layer?.queryExtent(queryExt).then((result: any) => {
-        if (result?.extent) {
-          view?.goTo(result.extent);
-        }
-      });
+  const queryExt = new Query({ objectIds: results });
+  const qExtResult = await layer?.queryExtent(queryExt);
+  if (qExtResult?.extent) {
+    view?.goTo(qExtResult.extent);
+  }
 
-      highlightSelect && highlightSelect.remove();
-      highlightSelect = layerView.highlight(objID);
-    });
+  highlightSelect && highlightSelect.remove();
+  highlightSelect = layerView.highlight(results);
 
+  layerView.filter = new FeatureFilter({ where: qExpression });
+  view?.on("click", () => {
     layerView.filter = new FeatureFilter({
-      where: qExpression,
+      where: undefined,
     });
-
-    // For initial state, we need to add this
-    view?.on("click", () => {
-      layerView.filter = new FeatureFilter({
-        where: undefined,
-      });
-      highlightSelect && highlightSelect.remove();
-    });
+    highlightSelect && highlightSelect.remove();
   });
 };
 

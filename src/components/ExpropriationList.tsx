@@ -21,28 +21,25 @@ import { MyContext } from "../contexts/MyContext";
 
 // Zoom in to selected lot from expropriation list
 let highlightSelect: any;
-function resultClickHandler(event: any) {
+async function resultClickHandler(event: any) {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const queryExtent = new Query({
     objectIds: [event.target.value],
   });
-  lotLayer.queryExtent(queryExtent).then((result: any) => {
-    result.extent &&
-      arcgisScene?.goTo({
-        target: result.extent,
-        // speedFactor: 2,
-        zoom: 17,
-      });
-  });
-
-  arcgisScene?.whenLayerView(lotLayer).then((layerView: any) => {
-    highlightSelect && highlightSelect.remove();
-    highlightSelect = layerView.highlight([event.target.value]);
-
-    arcgisScene?.view.on("click", () => {
-      layerView.filter = null;
-      highlightSelect.remove();
+  const result = await lotLayer.queryExtent(queryExtent);
+  result.extent &&
+    arcgisScene?.goTo({
+      target: result.extent,
+      // speedFactor: 2,
+      zoom: 17,
     });
+
+  const layerView = await arcgisScene?.whenLayerView(lotLayer);
+  highlightSelect && highlightSelect.remove();
+  highlightSelect = layerView.highlight([event.target.value]);
+  arcgisScene?.view.on("click", () => {
+    layerView.filter = null;
+    highlightSelect.remove();
   });
 }
 

@@ -2,10 +2,9 @@ import { use, useEffect, useRef, useState } from "react";
 import {
   handedOverLotLayer,
   lotLayer,
-  queryc,
-  queryc2,
-  queryc3,
-  queryc6,
+  queryc_lot2,
+  queryc_lot,
+  queryc_lot3,
 } from "../layers";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
@@ -17,11 +16,11 @@ import {
   highlightRemove,
   thousands_separators,
   zoomToLayer,
+  queryDefinitionExpression,
 } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
 import "@esri/calcite-components/dist/components/calcite-checkbox";
-
 import {
   affectedAreaField,
   cutoff_days,
@@ -42,7 +41,6 @@ import {
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { queryDefinitionExpression } from "../QueryExpression";
 import { pieChartStatusData, fieldStatistic } from "../ChartGenerator";
 import { affectedAreaValue, chartRenderer } from "../ChartRenderer";
 
@@ -149,16 +147,16 @@ const LotChart = () => {
       const qSuperrugent_expression =
         superurgenttype === "OFF" ? undefined : querySuperUrgent;
 
-      queryc.qValues = [municipals, barangays];
-      queryc.q2Expression = qSuperrugent_expression;
+      queryc_lot.qValues = [municipals, barangays];
+      queryc_lot.q2Expression = qSuperrugent_expression;
 
       queryDefinitionExpression({
-        queryExpression: queryc.queryExpression(),
+        queryExpression: queryc_lot.queryExpression(),
         featureLayer: [lotLayer, handedOverLotLayer],
       });
 
       pieChartStatusData({
-        qChart: queryc.queryExpression(),
+        qChart: queryc_lot.queryExpression(),
         layer: lotLayer,
         statusList: statusLotQuery,
         statusColor: statusLotColor,
@@ -171,7 +169,7 @@ const LotChart = () => {
 
       //--- total number of lots (public + private)
       fieldStatistic({
-        qChart: queryc.queryExpression(),
+        qChart: queryc_lot.queryExpression(),
         layer: lotLayer,
         statisticField: lotIdField,
         statisticType: "count",
@@ -181,7 +179,7 @@ const LotChart = () => {
 
       //-- Total affected area
       fieldStatistic({
-        qChart: queryc.queryExpression(),
+        qChart: queryc_lot.queryExpression(),
         layer: lotLayer,
         statisticField: timesliderstate
           ? newAffectedAreafield
@@ -193,7 +191,7 @@ const LotChart = () => {
 
       //--- Total handed-over area
       fieldStatistic({
-        qChart: queryc.queryExpression(),
+        qChart: queryc_lot.queryExpression(),
         layer: lotLayer,
         statisticField: timesliderstate
           ? newHandedoverAreafield
@@ -204,11 +202,11 @@ const LotChart = () => {
       });
 
       //--- Total handed-over lots
-      queryc2.qValues = [municipals, barangays];
-      queryc2.qExpression = `${lotStatusField} <> 8`;
+      queryc_lot2.qValues = [municipals, barangays];
+      queryc_lot2.qExpression = `${lotStatusField} <> 8`;
 
       fieldStatistic({
-        qChart: queryc2.queryExpression(),
+        qChart: queryc_lot2.queryExpression(),
         layer: lotLayer,
         statisticField: timesliderstate
           ? newHandedOverfield
@@ -219,12 +217,12 @@ const LotChart = () => {
       });
 
       //--- Affected area for each status
-      queryc3.qValues = [municipals, barangays];
-      queryc3.qExpression = `${statusdatefield} >= 1`;
-      queryc3.q2Expression = qSuperrugent_expression;
+      queryc_lot3.qValues = [municipals, barangays];
+      queryc_lot3.qExpression = `${statusdatefield} >= 1`;
+      queryc_lot3.q2Expression = qSuperrugent_expression;
 
       pieChartStatusData({
-        qChart: queryc3.queryExpression(),
+        qChart: queryc_lot3.queryExpression(),
         layer: lotLayer,
         statusList: statusLotQuery,
         statusColor: statusLotColor,
@@ -295,15 +293,13 @@ const LotChart = () => {
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
-    queryc6.qValues = [municipals, barangays];
-
     // Render chart
     chartRenderer({
       chart: chart,
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      qChart: queryc6,
+      qChart: queryc_lot,
       q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
       status_field: timesliderstate ? statusdatefield : lotStatusField,
       arcgisScene: arcgisScene,

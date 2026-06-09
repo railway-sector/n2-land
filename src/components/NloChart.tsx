@@ -4,7 +4,12 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
-import { dateUpdate, thousands_separators, zoomToLayer } from "../Query";
+import {
+  dateUpdate,
+  thousands_separators,
+  zoomToLayer,
+  queryDefinitionExpression,
+} from "../Query";
 import {
   cutoff_days,
   nloStatusField,
@@ -16,8 +21,7 @@ import {
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { nloLayer, queryc5, queryc6 } from "../layers";
-import { queryDefinitionExpression } from "../QueryExpression";
+import { nloLayer, queryc_nlo } from "../layers";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
 
@@ -71,16 +75,16 @@ const NloChart = memo(() => {
   const chartID = "nlo-chart";
 
   useEffect(() => {
-    queryc5.qValues = [municipals, barangays];
-    queryc5.qExpression = "StatusRC >= 1";
+    queryc_nlo.qValues = [municipals, barangays];
+    queryc_nlo.qExpression = `${nloStatusField} >= 1`;
     queryDefinitionExpression({
-      queryExpression: queryc5.queryExpression(),
+      queryExpression: queryc_nlo.queryExpression(),
       featureLayer: [nloLayer],
     });
 
     //--- chart data
     pieChartStatusData({
-      qChart: queryc5.queryExpression(),
+      qChart: queryc_nlo.queryExpression(),
       layer: nloLayer,
       statusList: statusNloQuery,
       statusColor: statusNloColor,
@@ -88,7 +92,6 @@ const NloChart = memo(() => {
       statisticField: nloStatusField,
       statisticType: "count",
     }).then((result: any) => {
-      console.log(result);
       setNloData(result[0]);
       setNloNumber(result[1]);
     });
@@ -149,15 +152,13 @@ const NloChart = memo(() => {
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
-    queryc6.qValues = [municipals, barangays];
-
     // Render chart
     chartRenderer({
       chart: chart,
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      qChart: queryc6,
+      qChart: queryc_nlo,
       status_field: nloStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,

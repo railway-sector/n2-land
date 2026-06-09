@@ -3,7 +3,12 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
-import { dateUpdate, thousands_separators, zoomToLayer } from "../Query";
+import {
+  dateUpdate,
+  thousands_separators,
+  zoomToLayer,
+  queryDefinitionExpression,
+} from "../Query";
 import "../index.css";
 import {
   cutoff_days,
@@ -16,8 +21,7 @@ import {
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import { occupancyLayer, queryc4, queryc6, structureLayer } from "../layers";
-import { queryDefinitionExpression } from "../QueryExpression";
+import { occupancyLayer, queryc_struc, structureLayer } from "../layers";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
 
@@ -70,15 +74,17 @@ const StructureChart = () => {
   // const [ptePercent, setPtePercent] = useState<number>(0);
 
   useEffect(() => {
-    queryc4.qValues = [municipals, barangays];
+    queryc_struc.qValues = [municipals, barangays];
+    queryc_struc.qExpression = `${structureStatusField} >= 1`;
+
     queryDefinitionExpression({
-      queryExpression: queryc4.queryExpression(),
+      queryExpression: queryc_struc.queryExpression(),
       featureLayer: [structureLayer, occupancyLayer],
     });
 
     //--- chart data
     pieChartStatusData({
-      qChart: queryc4.queryExpression(),
+      qChart: queryc_struc.queryExpression(),
       layer: structureLayer,
       statusList: statusStructureQuery,
       statusColor: statusStructureColorHex,
@@ -141,15 +147,13 @@ const StructureChart = () => {
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
-    queryc6.qValues = [municipals, barangays];
-
     // Render chart
     chartRenderer({
       chart: chart,
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      qChart: queryc6,
+      qChart: queryc_struc,
       status_field: structureStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: updateChartPanelwidth,
