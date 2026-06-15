@@ -73,6 +73,45 @@ const LotChart = () => {
   } = use(MyContext);
 
   // 0. Updated date
+  //--- useQuery version (tanstack query)
+  // import { useQuery } from "@tanstack/react-query";
+
+  // // 1. Fetcher function
+  // const fetchDateInfo = async (categoryName: string) => {
+  //   const response = await dateUpdate(categoryName);
+  //   return response;
+  // };
+
+  // // 2. Component Implementation
+  // const { data, isPending, isError } = useQuery({
+  //   queryKey: ["dateInfo", updatedDateCategoryNames[0]],
+  //   queryFn: () => fetchDateInfo(updatedDateCategoryNames[0]),
+  //   select: (response) => {
+  //     // Derive your processed data directly from the response
+  //     const row = response[0];
+  //     const latestDate = row[2];
+  //     const isDaysPass = row[1] >= cutoff_days;
+
+  //     return {
+  //       asOfDate: row[0],
+  //       latestDate,
+  //       daysPass: isDaysPass,
+  //     };
+  //   },
+  // });
+  // if (isPending) return <div>Loading...</div>;
+  // if (isError) return <div>Error fetching date info.</div>;
+
+  // return (
+  //   <div>
+  //     <p>As of Date: {data?.asOfDate}</p>
+  //     <p>Latest Date: {data?.latestDate}</p>
+  //     <p>
+  //       Days Passed Status: {data?.daysPass ? "Cutoff Met" : "Cutoff Not Met"}
+  //     </p>
+  //   </div>
+  // );
+
   const [daysPass, setDaysPass] = useState<boolean>(false);
   useEffect(() => {
     dateUpdate(updatedDateCategoryNames[0]).then((response) => {
@@ -128,11 +167,7 @@ const LotChart = () => {
   }, [superurgenttype]);
 
   useEffect(() => {
-    if (handedOverCheckBox === true) {
-      handedOverLotLayer.visible = true;
-    } else {
-      handedOverLotLayer.visible = false;
-    }
+    handedOverLotLayer.visible = handedOverCheckBox;
   }, [handedOverCheckBox]);
 
   useEffect(() => {
@@ -204,6 +239,7 @@ const LotChart = () => {
       //--- Total handed-over lots
       queryc_lot2.qValues = [municipals, barangays];
       queryc_lot2.qExpression = `${lotStatusField} <> 8`;
+      queryc_lot2.q2Expression = qSuperrugent_expression;
 
       fieldStatistic({
         qChart: queryc_lot2.queryExpression(),
