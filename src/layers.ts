@@ -6,13 +6,13 @@ import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import GroupLayer from "@arcgis/core/layers/GroupLayer";
 import TextSymbol3DLayer from "@arcgis/core/symbols/TextSymbol3DLayer";
 import LabelSymbol3D from "@arcgis/core/symbols/LabelSymbol3D";
-import SolidEdges3D from "@arcgis/core/symbols/edges/SolidEdges3D";
 import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
 import PolygonSymbol3D from "@arcgis/core/symbols/PolygonSymbol3D";
 import ExtrudeSymbol3DLayer from "@arcgis/core/symbols/ExtrudeSymbol3DLayer";
 import PointSymbol3D from "@arcgis/core/symbols/PointSymbol3D";
 import IconSymbol3DLayer from "@arcgis/core/symbols/IconSymbol3DLayer";
 import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
+import SolidEdges3D from "@arcgis/core/symbols/edges/SolidEdges3D";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 
@@ -20,7 +20,6 @@ import {
   statusLotEndorsedLabel,
   statusLotEndorsedQuery,
   statusLotLabel,
-  statusLotQuery,
   statusNloLabel,
   statusNloSymbolRef,
   statusStructureQuery,
@@ -45,6 +44,7 @@ import {
   occupancyField,
   lotHandedOverField,
   primaryLabelColor,
+  statusLotColor,
 } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
 
@@ -314,6 +314,7 @@ const pnrRenderer = new UniqueValueRenderer({
   uniqueValueInfos: [
     {
       value: 1, // RP
+      label: "RP",
       symbol: new SimpleFillSymbol({
         color: [137, 205, 102],
         style: "diagonal-cross",
@@ -325,6 +326,7 @@ const pnrRenderer = new UniqueValueRenderer({
     },
     {
       value: 2, // PNR
+      label: "PNR",
       symbol: new SimpleFillSymbol({
         color: [137, 205, 102],
         style: "diagonal-cross",
@@ -336,6 +338,7 @@ const pnrRenderer = new UniqueValueRenderer({
     },
     {
       value: 3, // BCDA
+      label: "BCDA",
       symbol: new SimpleFillSymbol({
         color: [137, 205, 102],
         style: "diagonal-cross",
@@ -485,14 +488,14 @@ export const lotLayerRendererUniqueValueInfos = statusLotLabel.map(
       value: index + 1,
       label: status,
       symbol: new SimpleFillSymbol({
-        color: statusLotQuery[index]?.color,
+        color: statusLotColor[index],
       }),
     });
   },
 );
 
 export const lotLayerRenderer = new UniqueValueRenderer({
-  field: undefined,
+  field: lotStatusField,
   defaultSymbol: lotDefaultSymbol, // autocasts as new SimpleFillSymbol()
   uniqueValueInfos: lotLayerRendererUniqueValueInfos,
 });

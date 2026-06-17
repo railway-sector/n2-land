@@ -5,6 +5,7 @@ import {
   queryc_lot2,
   queryc_lot,
   queryc_lot3,
+  lotLayerRenderer,
 } from "../layers";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
@@ -282,6 +283,7 @@ const LotChart = () => {
     statusdatefield,
     newHandedOverfield,
   ]);
+  lotLayer.renderer = lotLayerRenderer;
 
   useEffect(() => {
     // Dispose previously created root element
