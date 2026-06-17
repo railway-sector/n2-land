@@ -495,7 +495,7 @@ export const lotLayerRendererUniqueValueInfos = statusLotLabel.map(
 );
 
 export const lotLayerRenderer = new UniqueValueRenderer({
-  field: undefined,
+  field: lotStatusField,
   defaultSymbol: lotDefaultSymbol, // autocasts as new SimpleFillSymbol()
   uniqueValueInfos: lotLayerRendererUniqueValueInfos,
 });
@@ -529,10 +529,6 @@ const customContentLot = new CustomContent({
     } else {
       date = "Undefined";
     }
-    // Convert numeric to date format 0
-    //const daten = new Date(handedOverDate);
-    //const date = dateFormat(daten, 'MM-dd-yyyy');
-    //<li>Hand-Over Date: <b>${date}</b></li><br>
 
     return `
     <div style='color: #eaeaea'>

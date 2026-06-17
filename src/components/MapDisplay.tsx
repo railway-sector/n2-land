@@ -17,7 +17,6 @@ import {
   lotGroupLayer,
   ngcp2_groupLayer,
   lotLayer,
-  lotLayerRenderer,
   meralco_tss10_groupLayer,
 } from "../layers";
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search";
@@ -53,24 +52,11 @@ export default function MapDisplay() {
   });
   queryClient.setQueryData<LatestDateType>(latestDateKeys.selected, latestDate);
 
-  //--- Prepare initial date array
+  //--- Declare only in preparation for timeslider
   const { data: dateList } = useQuery<TimesliderFieldsTypes | any>({
-    queryKey: [timesliderFieldKeys.selected, lotLayer], // lotLayer is a dependency
+    queryKey: [timesliderFieldKeys.selected], // lotLayer is a dependency
     queryFn: async () => {
-      const date_fields: any = await getSortDates(lotLayer);
-      const latest_date = date_fields[date_fields.length - 1];
-
-      // Default lot layer renderer
-      lotLayerRenderer.field = latest_date;
-      lotLayer.renderer = lotLayerRenderer;
-
-      return {
-        dateFields: date_fields,
-        statusdateField: latest_date,
-        newHandedoverAreafield: `${latest_date}_HOA`,
-        newAffectedAreafield: `${latest_date}_TAA`,
-        newHandedOverfield: `${latest_date}_HO`,
-      };
+      return {};
     },
     staleTime: Infinity,
   });

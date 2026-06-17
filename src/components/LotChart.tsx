@@ -193,7 +193,9 @@ const LotChart = () => {
 
       //--- Affected area for each status
       queryc_lot3.qValues = [municipality, barangay];
-      queryc_lot3.qExpression = `${status_field} >= 1`;
+      queryc_lot3.qExpression = timesliderstate
+        ? `${status_field} >= 1`
+        : `${lotStatusField} >= 1`;
       queryc_lot3.q2Expression = qSuperrugent_expression;
 
       const affected_area_pie = await pieChartStatusData({
