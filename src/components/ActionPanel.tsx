@@ -106,13 +106,17 @@ function ActionPanel() {
 
     // Timeslider and handedOver charts do not appear in shell-panel so
     // need to collapse shell-panel manually
-    if (nextWidget === "timeslider" || nextWidget === "handedover-charts") {
-      shellPanel.collapsed = true;
 
+    if (nextWidget === "timeslider") {
+      shellPanel.collapsed = true;
       //--- Update timeslider state
       queryClient.setQueryData<TimeSliderState>(timesliderKeys.selected, {
         timesliderstate: true,
       });
+    }
+
+    if (nextWidget === "handedover-charts") {
+      shellPanel.collapsed = true;
     }
   }
 
