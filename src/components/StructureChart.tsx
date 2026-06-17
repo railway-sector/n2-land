@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState, use } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
-  dateUpdate,
   thousands_separators,
-  zoomToLayer,
   queryDefinitionExpression,
+  updatedDisplayDates,
 } from "../Query";
 import "../index.css";
 import {
-  cutoff_days,
   primaryLabelColor,
   statusStructureColorHex,
   statusStructureQuery,
@@ -20,10 +18,16 @@ import {
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { MyContext } from "../contexts/MyContext";
 import { occupancyLayer, queryc_struc, structureLayer } from "../layers";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
+import type {
+  SelectedLocation,
+  ChartResponse,
+  DisplayDates,
+} from "../interfaceKeys";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -34,27 +38,36 @@ function maybeDisposeRoot(divId: any) {
   });
 }
 
-///*** Others */
-
-/// Draw chart
+//--------------------------------------------//
+//              Chart Component                //
+//--------------------------------------------//
 const StructureChart = () => {
+  const queryClient = useQueryClient();
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
-  const { municipals, barangays, chartPanelwidth, updateChartPanelwidth } =
-    use(MyContext);
+  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
 
-  // 0. Updated date
-  const [asOfDate, setAsOfDate] = useState<undefined | any | unknown>(null);
-  const [daysPass, setDaysPass] = useState<boolean>(false);
-  useEffect(() => {
-    dateUpdate(updatedDateCategoryNames[1]).then((response: any) => {
-      setAsOfDate(response[0][0]);
-      setDaysPass(response[0][1] >= cutoff_days ? true : false);
-    });
-  }, []);
+  //--- 0. As of date
+  queryClient.setQueryData<DisplayDates>(
+    dateDisplayKeys.selected,
+    updatedDisplayDates(updatedDateCategoryNames[0]),
+  );
 
-  // ************************************
-  //  Chart
-  // ***********************************
+  const { data: newAsOfDate } = useQuery<DisplayDates | any>({
+    queryKey: dateDisplayKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+
+  //--- 1. Location state
+  const { data: selectedLocation } = useQuery<SelectedLocation | any>({
+    queryKey: locationKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+  const municipality = selectedLocation?.municipality;
+  const barangay = selectedLocation?.barangay;
+
+  //--- Chart parameters
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
   const new_imageSize = chartPanelwidth * 0.03;
@@ -66,38 +79,42 @@ const StructureChart = () => {
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
-  const [structureData, setStructureData] = useState<any>([]);
-
   const chartID = "structure-chart";
-  const [structureNumber, setStructureNumber] = useState<number>(0);
-  // const [pteNumber, setPteNumber] = useState<number>(0);
-  // const [ptePercent, setPtePercent] = useState<number>(0);
 
-  useEffect(() => {
-    queryc_struc.qValues = [municipals, barangays];
-    queryc_struc.qExpression = `${structureStatusField} >= 1`;
+  //--- 2. Streamlined Data Fetching with useQuery
+  const { data } = useQuery<ChartResponse | any>({
+    queryKey: [municipality, barangay, structureStatusField],
+    queryFn: async () => {
+      queryc_struc.qValues = [municipality, barangay];
+      queryc_struc.qExpression = `${structureStatusField} >= 1`;
 
-    queryDefinitionExpression({
-      queryExpression: queryc_struc.queryExpression(),
-      featureLayer: [structureLayer, occupancyLayer],
-    });
+      queryDefinitionExpression({
+        queryExpression: queryc_struc.queryExpression(),
+        featureLayer: [structureLayer, occupancyLayer],
+      });
 
-    //--- chart data
-    pieChartStatusData({
-      qChart: queryc_struc.queryExpression(),
-      layer: structureLayer,
-      statusList: statusStructureQuery,
-      statusColor: statusStructureColorHex,
-      statusField: structureStatusField,
-      statisticField: structureStatusField,
-      statisticType: "count",
-    }).then((result: any) => {
-      setStructureData(result[0]);
-      setStructureNumber(result[1]);
-    });
+      //--- Pie chart data
+      const chartData = await pieChartStatusData({
+        qChart: queryc_struc.queryExpression(),
+        layer: structureLayer,
+        statusList: statusStructureQuery,
+        statusColor: statusStructureColorHex,
+        statusField: structureStatusField,
+        statisticField: structureStatusField,
+        statisticType: "count",
+      });
 
-    zoomToLayer(structureLayer, arcgisScene);
-  }, [municipals, barangays]);
+      return {
+        chartData: chartData[0] || [],
+        totalNumber: chartData[1],
+      };
+    },
+    structuralSharing: false,
+  });
+
+  //--- Call chart data
+  const chartData = data?.chartData || [];
+  const totalNumber = data?.totalNumber || 0;
 
   useEffect(() => {
     // Dispose previously created root element
@@ -156,8 +173,8 @@ const StructureChart = () => {
       qChart: queryc_struc,
       status_field: structureStatusField,
       arcgisScene: arcgisScene,
-      updateChartPanelwidth: updateChartPanelwidth,
-      data: structureData,
+      updateChartPanelwidth: setChartPanelwidth,
+      data: chartData,
       pieSeriesScale: new_pieSeriesScale,
       pieInnerLabel: "STRUCTURES",
       pieInnerLabelFontSize: new_pieInnerLabelFontSize,
@@ -169,10 +186,10 @@ const StructureChart = () => {
     return () => {
       root.dispose();
     };
-  }, [chartID, structureData]);
+  }, [chartID, chartData]);
 
   useEffect(() => {
-    pieSeriesRef.current?.data.setAll(structureData);
+    pieSeriesRef.current?.data.setAll(chartData);
     legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
   });
 
@@ -213,20 +230,20 @@ const StructureChart = () => {
               margin: "auto",
             }}
           >
-            {thousands_separators(structureNumber)}
+            {thousands_separators(totalNumber)}
           </dd>
         </dl>
       </div>
 
       <div
         style={{
-          color: daysPass === true ? "red" : "gray",
+          color: newAsOfDate?.daysPass === true ? "red" : "gray",
           fontSize: `${new_asofDateSize}px`,
           float: "right",
           marginRight: "5px",
         }}
       >
-        {!asOfDate ? "" : "As of " + asOfDate}
+        {!newAsOfDate?.asOfDate ? "" : "As of " + newAsOfDate?.asOfDate}
       </div>
 
       {/* Structure Chart */}

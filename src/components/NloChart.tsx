@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { useRef, useState, useEffect, memo, use } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
-  dateUpdate,
   thousands_separators,
-  zoomToLayer,
   queryDefinitionExpression,
+  updatedDisplayDates,
 } from "../Query";
 import {
-  cutoff_days,
   nloStatusField,
   primaryLabelColor,
   statusNloColor,
@@ -20,10 +18,16 @@ import {
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { MyContext } from "../contexts/MyContext";
 import { nloLayer, queryc_nlo } from "../layers";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
+import type {
+  SelectedLocation,
+  ChartResponse,
+  DisplayDates,
+} from "../interfaceKeys";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -34,12 +38,36 @@ function maybeDisposeRoot(divId: any) {
   });
 }
 
-/// Draw chart
+//--------------------------------------------//
+//              Chart Component                //
+//--------------------------------------------//
 const NloChart = memo(() => {
+  const queryClient = useQueryClient();
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
-  const { municipals, barangays, chartPanelwidth, updateChartPanelwidth } =
-    use(MyContext);
+  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
 
+  //--- 0. As of date
+  queryClient.setQueryData<DisplayDates>(
+    dateDisplayKeys.selected,
+    updatedDisplayDates(updatedDateCategoryNames[0]),
+  );
+
+  const { data: newAsOfDate } = useQuery<DisplayDates | any>({
+    queryKey: dateDisplayKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+
+  //--- 1. Location state
+  const { data: selectedLocation } = useQuery<SelectedLocation | any>({
+    queryKey: locationKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+  const municipality = selectedLocation?.municipality;
+  const barangay = selectedLocation?.barangay;
+
+  //--- Chart parameters
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
   const new_imageSize = chartPanelwidth * 0.028;
@@ -48,56 +76,45 @@ const NloChart = memo(() => {
   const new_pieInnerValueFontSize = "1.3rem";
   const new_pieInnerLabelFontSize = "0.7em";
 
-  // 0. Updated date
-  const [asOfDate, setAsOfDate] = useState<undefined | any | unknown>(null);
-  const [daysPass, setDaysPass] = useState<boolean>(false);
-
-  useEffect(() => {
-    dateUpdate(updatedDateCategoryNames[2]).then((response: any) => {
-      setAsOfDate(response[0][0]);
-      setDaysPass(response[0][1] >= cutoff_days ? true : false);
-    });
-  }, []);
-
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
-  const [nloData, setNloData] = useState([
-    {
-      category: String,
-      value: Number,
-      sliceSettings: {
-        fill: am5.color("#00c5ff"),
-      },
-    },
-  ]);
-  const [nloNumber, setNloNumber] = useState(0);
   const chartID = "nlo-chart";
 
-  useEffect(() => {
-    queryc_nlo.qValues = [municipals, barangays];
-    queryc_nlo.qExpression = `${nloStatusField} >= 1`;
-    queryDefinitionExpression({
-      queryExpression: queryc_nlo.queryExpression(),
-      featureLayer: [nloLayer],
-    });
+  //--- 2. Streamlined Data Fetching with useQuery
+  const { data } = useQuery<ChartResponse | any>({
+    queryKey: [municipality, barangay, nloStatusField],
+    queryFn: async () => {
+      queryc_nlo.qValues = [municipality, barangay];
+      queryc_nlo.qExpression = `${nloStatusField} >= 1`;
 
-    //--- chart data
-    pieChartStatusData({
-      qChart: queryc_nlo.queryExpression(),
-      layer: nloLayer,
-      statusList: statusNloQuery,
-      statusColor: statusNloColor,
-      statusField: nloStatusField,
-      statisticField: nloStatusField,
-      statisticType: "count",
-    }).then((result: any) => {
-      setNloData(result[0]);
-      setNloNumber(result[1]);
-    });
+      queryDefinitionExpression({
+        queryExpression: queryc_nlo.queryExpression(),
+        featureLayer: [nloLayer],
+      });
 
-    zoomToLayer(nloLayer, arcgisScene);
-  }, [municipals, barangays]);
+      //--- Pie chart data
+      const chartData = await pieChartStatusData({
+        qChart: queryc_nlo.queryExpression(),
+        layer: nloLayer,
+        statusList: statusNloQuery,
+        statusColor: statusNloColor,
+        statusField: nloStatusField,
+        statisticField: nloStatusField,
+        statisticType: "count",
+      });
+
+      return {
+        chartData: chartData[0] || [],
+        totalNumber: chartData[1],
+      };
+    },
+    structuralSharing: false,
+  });
+
+  //--- Call chart data
+  const chartData = data?.chartData || [];
+  const totalNumber = data?.totalNumber || 0;
 
   useEffect(() => {
     // Dispose previously created root element
@@ -161,8 +178,8 @@ const NloChart = memo(() => {
       qChart: queryc_nlo,
       status_field: nloStatusField,
       arcgisScene: arcgisScene,
-      updateChartPanelwidth: updateChartPanelwidth,
-      data: nloData,
+      updateChartPanelwidth: setChartPanelwidth,
+      data: chartData,
       pieSeriesScale: new_pieSeriesScale,
       pieInnerLabel: "HOUSEHOLDS",
       pieInnerLabelFontSize: new_pieInnerLabelFontSize,
@@ -174,10 +191,10 @@ const NloChart = memo(() => {
     return () => {
       root.dispose();
     };
-  }, [chartID, nloData]);
+  }, [chartID, chartData]);
 
   useEffect(() => {
-    pieSeriesRef.current?.data.setAll(nloData);
+    pieSeriesRef.current?.data.setAll(chartData);
     legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
   });
 
@@ -219,19 +236,19 @@ const NloChart = memo(() => {
               margin: "auto",
             }}
           >
-            {thousands_separators(nloNumber)}
+            {thousands_separators(totalNumber)}
           </dd>
         </dl>
       </div>
       <div
         style={{
-          color: daysPass === true ? "red" : "gray",
+          color: newAsOfDate?.daysPass === true ? "red" : "gray",
           fontSize: `${new_asofDateSize}px`,
           float: "right",
           marginRight: "5px",
         }}
       >
-        {!asOfDate ? "" : "As of " + asOfDate}
+        {!newAsOfDate?.asOfDate ? "" : "As of " + newAsOfDate?.asOfDate}
       </div>
       <div
         id={chartID}

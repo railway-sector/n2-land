@@ -83,8 +83,6 @@ export const statusLotQuery = statusLotLabel.map((status, index) => {
   });
 });
 
-console.log(statusLotQuery);
-
 // Permit to Enter for lot
 export const lotPteField = "PTE";
 

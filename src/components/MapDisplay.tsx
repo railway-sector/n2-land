@@ -20,62 +20,78 @@ import {
   lotLayerRenderer,
   meralco_tss10_groupLayer,
 } from "../layers";
-import { use, useEffect } from "react";
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search";
-import { MyContext } from "../contexts/MyContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  timesliderFieldKeys,
+  datefieldKeys,
+  latestDateKeys,
+} from "../interfaceKeys";
+import { fetchDateInfo, getSortDates } from "../Query";
+import { updatedDateCategoryNames } from "../uniqueValues";
+import type {
+  TimesliderFieldsTypes,
+  DateFieldsType,
+  LatestDateType,
+} from "../interfaceKeys";
 
 export default function MapDisplay() {
-  const {
-    updateDatefields,
-    updateStatusdatefield,
-    updateNewHandedoverAreafield,
-    updateNewAffectedAreafield,
-    updateNewHandedOverfield,
-  } = use(MyContext);
-
+  const queryClient = useQueryClient();
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const arcgisSearch = document.querySelector("arcgis-search") as ArcgisSearch;
 
-  useEffect(() => {
-    // Extract status date fields for time slider
-    lotLayer.when(() => {
-      const all_fields: string[] = [];
-      lotLayer?.fields.map((field) => {
-        all_fields.push(field.name);
-      });
+  //--- Latest date
+  const { data: latestDate } = useQuery<LatestDateType | any>({
+    queryKey: [latestDateKeys.selected, updatedDateCategoryNames[0]],
+    queryFn: () => fetchDateInfo(updatedDateCategoryNames[0]),
+    select: (response) => {
+      return {
+        latestasofdate: response[0][2],
+      };
+    },
+    staleTime: Infinity,
+  });
+  queryClient.setQueryData<LatestDateType>(latestDateKeys.selected, latestDate);
 
-      const date_fields = all_fields.filter(
-        (field: any) => field.startsWith("x") && !isNaN(field.slice(1)),
-      );
-
-      // Re-order date fields in ascending order
-      date_fields.sort((a: any, b: any) => {
-        const a_date: any = new Date(
-          Number(a.slice(1, 5)),
-          Number(a.slice(5, 7)) - 1,
-          Number(a.slice(7, 9)),
-        );
-        const b_date: any = new Date(
-          Number(b.slice(1, 5)),
-          Number(b.slice(5, 7)) - 1,
-          Number(b.slice(7, 9)),
-        );
-        return a_date - b_date;
-      });
-
-      const latest_date = date_fields[date_fields.length - 1]; // E.g., "x20260220"
-      updateDatefields(date_fields);
-      updateStatusdatefield(latest_date);
-      updateNewHandedoverAreafield(`${latest_date}_HOA`);
-      updateNewAffectedAreafield(`${latest_date}_TAA`);
-      updateNewHandedOverfield(`${latest_date}_HO`);
+  //--- Prepare initial date array
+  const { data: dateList } = useQuery<TimesliderFieldsTypes | any>({
+    queryKey: [timesliderFieldKeys.selected, lotLayer], // lotLayer is a dependency
+    queryFn: async () => {
+      const date_fields: any = await getSortDates(lotLayer);
+      const latest_date = date_fields[date_fields.length - 1];
 
       // Default lot layer renderer
       lotLayerRenderer.field = latest_date;
       lotLayer.renderer = lotLayerRenderer;
-    });
-  }, []);
 
+      return {
+        dateFields: date_fields,
+        statusdateField: latest_date,
+        newHandedoverAreafield: `${latest_date}_HOA`,
+        newAffectedAreafield: `${latest_date}_TAA`,
+        newHandedOverfield: `${latest_date}_HO`,
+      };
+    },
+    staleTime: Infinity,
+  });
+  queryClient.setQueryData<TimesliderFieldsTypes>(
+    timesliderFieldKeys.selected,
+    dateList,
+  );
+
+  //--- Dates array for time slider
+  const { data: dateField } = useQuery<DateFieldsType | any>({
+    queryKey: [datefieldKeys.selected, lotLayer], // lotLayer is a dependency
+    queryFn: async () => {
+      return {
+        dateFields: await getSortDates(lotLayer),
+      };
+    },
+    staleTime: Infinity,
+  });
+  queryClient.setQueryData<DateFieldsType>(datefieldKeys.selected, dateField);
+
+  //--- Add layers to scene view
   arcgisScene?.viewOnReady(() => {
     arcgisScene?.map?.add(pierAccessLayer);
     arcgisScene?.map?.add(lotGroupLayer);

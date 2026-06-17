@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable array-callback-return */
-import { use, useEffect, useState } from "react";
 import { lotLayer, querycExpro } from "../layers";
 import Query from "@arcgis/core/rest/support/Query";
 import "@esri/calcite-components/components/calcite-shell";
@@ -12,14 +11,14 @@ import "@esri/calcite-components/components/calcite-chip";
 import "@esri/calcite-components/components/calcite-chip-group";
 import "@esri/calcite-components/components/calcite-avatar";
 import "@esri/calcite-components/components/calcite-action-bar";
-
 import { chart_width, lotStatusField, statusLotNumber } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-
 import "../index.css";
-import { MyContext } from "../contexts/MyContext";
+import { useQuery } from "@tanstack/react-query";
+import { locationKeys } from "../interfaceKeys";
+import type { SelectedLocation } from "../interfaceKeys";
 
-// Zoom in to selected lot from expropriation list
+//--- Zoom in to selected lot from expropriation list
 let highlightSelect: any;
 async function resultClickHandler(event: any) {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
@@ -43,51 +42,58 @@ async function resultClickHandler(event: any) {
   });
 }
 
+//--- List component
 const ExpropriationList = () => {
-  const { municipals, barangays } = use(MyContext);
+  //--- 1. Location state
+  const { data: selectedLocation } = useQuery<SelectedLocation | any>({
+    queryKey: locationKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+  const municipality = selectedLocation?.municipality;
+  const barangay = selectedLocation?.barangay;
 
-  // Obtain Status number for 'For Expropriation'
+  //--- Obtain Status number for 'For Expropriation'
   const find = statusLotNumber.filter((e) =>
     e.category.includes("Expropriation"),
   );
   const statusExproValue = find[0]?.value;
-  const [exproItem, setExproItem] = useState<undefined | any>([]);
 
-  useEffect(() => {
-    // const queryExpro = `${lotStatusField} = ${statusExproValue}`;
+  //--- queryFeatures function
+  async function queryFeatures() {
     const query = lotLayer.createQuery();
 
-    querycExpro.qValues = [municipals, barangays];
+    querycExpro.qValues = [municipality, barangay];
     querycExpro.qExpression = `${lotStatusField} = ${statusExproValue}`;
     query.where = querycExpro.queryExpression();
     query.outFields = ["*"];
-
     query.returnGeometry = true;
-    lotLayer.queryFeatures(query).then((result: any) => {
-      setExproItem([]);
-      result.features.map((feature: any, index: any) => {
-        const attributes = feature.attributes;
-        const lotid = attributes.LotID;
-        const cp = attributes.CP;
-        const municipal = attributes.Municipality;
-        const landowner = attributes.LandOwner;
-        const objectid = attributes.OBJECTID;
-        const id = index;
 
-        setExproItem((prev: any) => [
-          ...prev,
-          {
-            id: id,
-            lotid: lotid,
-            landowner: landowner,
-            municipality: municipal,
-            cp: cp,
-            objectid: objectid,
-          },
-        ]);
-      });
-    });
-  }, [municipals, barangays]);
+    return await lotLayer?.queryFeatures(query);
+  }
+
+  //--- Obtain queried Features
+  const { data } = useQuery<any>({
+    queryKey: [municipality, barangay, lotStatusField],
+    queryFn: () => queryFeatures(),
+    select: (response) => {
+      return response.features;
+    },
+  });
+
+  const exproItem = data
+    ? data.map((feature: any, index: number) => {
+        const attributes = feature.attributes;
+        return {
+          id: index,
+          lotid: attributes.LotID,
+          landowner: attributes.LandOwner,
+          municipality: attributes.Municipality,
+          cp: attributes.CP,
+          objectid: attributes.OBJECTID,
+        };
+      })
+    : [];
 
   return (
     <>

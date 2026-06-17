@@ -19,6 +19,7 @@ const HandedOverAreaChart = memo(() => {
   const [lotHandedOverAreaData, setLotHandedOverAreaData] = useState([]);
 
   const chartID = "lot-handedover";
+
   useEffect(() => {
     generateHandedOverAreaData().then((result: any) => {
       setLotHandedOverAreaData(result);

@@ -94,15 +94,17 @@ type layerViewQueryProps = {
   layer?: any;
   qExpression?: any;
   view: any;
+  qChart?: any;
 };
 
 export const highlightFilterLayerView = async ({
   layer,
-  qExpression,
+  // qExpression,
   view,
+  qChart,
 }: layerViewQueryProps) => {
   const query = layer.createQuery();
-  query.where = qExpression;
+  query.where = qChart.queryExpression();
   let highlightSelect: any;
 
   const layerView = await view?.whenLayerView(layer);
@@ -117,11 +119,14 @@ export const highlightFilterLayerView = async ({
   highlightSelect && highlightSelect.remove();
   highlightSelect = layerView.highlight(results);
 
-  layerView.filter = new FeatureFilter({ where: qExpression });
+  layerView.filter = new FeatureFilter({ where: qChart.queryExpression() });
   view?.on("click", () => {
     layerView.filter = new FeatureFilter({
       where: undefined,
     });
+    //-- Reset q/q2Expression; else, statusLA is not cleared.
+    qChart.qExpression = undefined;
+    qChart.q2Expression = undefined;
     highlightSelect && highlightSelect.remove();
   });
 };
@@ -218,8 +223,9 @@ export function chartRenderer({
 
     highlightFilterLayerView({
       layer: layer,
-      qExpression: qChart.queryExpression(),
+      // qExpression: qChart.queryExpression(),
       view: arcgisScene?.view,
+      qChart: qChart,
     });
   });
 

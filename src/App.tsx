@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import OAuthInfo from "@arcgis/core/identity/OAuthInfo";
 import IdentityManager from "@arcgis/core/identity/IdentityManager";
 import Portal from "@arcgis/core/portal/Portal";
-import { MyContext } from "./contexts/MyContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MapDisplay from "./components/MapDisplay";
-import { superurgent_items } from "./uniqueValues";
 import ActionPanel from "./components/ActionPanel";
 import Header from "./components/Header";
 import MainChart from "./components/MainChart";
+
+//--- Create a client
+const queryClient = new QueryClient();
 
 export function App(): React.JSX.Element {
   const [loggedInState, setLoggedInState] = useState<boolean>(false);
@@ -39,79 +41,6 @@ export function App(): React.JSX.Element {
     loginAndLoadPortal();
   }, []);
 
-  const [municipals, setMunicipals] = useState<any>();
-  const [barangays, setBarangays] = useState<any>();
-  const [statusdatefield, setStatusdatefield] = useState<any>();
-  const [superurgenttype, setSuperurgenttype] = useState<any>(
-    superurgent_items[0],
-  );
-  const [datefields, setDatefields] = useState<any>();
-  const [timesliderstate, setTimesliderstate] = useState<boolean>(false);
-  const [asofdate, setAsofdate] = useState<any>();
-  const [latestasofdate, setLatestasofdate] = useState<any>();
-  const [dateforhandedover, setDateforhandedover] = useState<any>();
-  const [handedoverDatefield, setHandedoverDatefield] = useState<any>();
-  const [newHandedoverAreafield, setNewHandedoverAreafield] = useState<any>();
-  const [newAffectedAreafield, setNewAffectedAreafield] = useState<any>();
-  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
-  const [newHandedOverfield, setNewHandedOverfield] = useState<any>();
-
-  const updateMunicipals = (newMunicipal: any) => {
-    setMunicipals(newMunicipal);
-  };
-
-  const updateBarangays = (newBarangay: any) => {
-    setBarangays(newBarangay);
-  };
-
-  const updateStatusdatefield = (newStatusfield: any) => {
-    setStatusdatefield(newStatusfield);
-  };
-
-  const updateSuperurgenttype = (newSuperurgenttype: any) => {
-    setSuperurgenttype(newSuperurgenttype);
-  };
-
-  const updateDatefields = (newDateFields: any) => {
-    setDatefields(newDateFields);
-  };
-
-  const updateTimesliderstate = (newState: any) => {
-    setTimesliderstate(newState);
-  };
-
-  const updateAsofdate = (newAsofdate: any) => {
-    setAsofdate(newAsofdate);
-  };
-
-  const updateLatestasofdate = (newAsofdate: any) => {
-    setLatestasofdate(newAsofdate);
-  };
-
-  const updateDateforhandedover = (newDate: any) => {
-    setDateforhandedover(newDate);
-  };
-
-  const updateHandedoverDatefield = (newDatefield: any) => {
-    setHandedoverDatefield(newDatefield);
-  };
-
-  const updateNewHandedoverAreafield = (newAreafield: any) => {
-    setNewHandedoverAreafield(newAreafield);
-  };
-
-  const updateNewAffectedAreafield = (newAreafield: any) => {
-    setNewAffectedAreafield(newAreafield);
-  };
-
-  const updateChartPanelwidth = (newWidth: any) => {
-    setChartPanelwidth(newWidth);
-  };
-
-  const updateNewHandedOverfield = (newHandedOverfield: any) => {
-    setNewHandedOverfield(newHandedOverfield);
-  };
-
   return (
     <>
       {loggedInState && (
@@ -123,44 +52,12 @@ export function App(): React.JSX.Element {
             "--calcite-color-background": "#2b2b2b",
           }}
         >
-          <MyContext
-            value={{
-              municipals,
-              barangays,
-              statusdatefield,
-              superurgenttype,
-              datefields,
-              timesliderstate,
-              asofdate,
-              latestasofdate,
-              dateforhandedover,
-              handedoverDatefield,
-              newHandedoverAreafield,
-              newAffectedAreafield,
-              chartPanelwidth,
-              newHandedOverfield,
-              updateMunicipals,
-              updateBarangays,
-              updateStatusdatefield,
-              updateSuperurgenttype,
-              updateDatefields,
-              updateTimesliderstate,
-              updateAsofdate,
-              updateLatestasofdate,
-              updateDateforhandedover,
-              updateHandedoverDatefield,
-              updateNewHandedoverAreafield,
-              updateNewAffectedAreafield,
-              updateChartPanelwidth,
-              updateNewHandedOverfield,
-            }}
-          >
+          <QueryClientProvider client={queryClient}>
             <MainChart />
             <ActionPanel />
             <MapDisplay />
-
             <Header />
-          </MyContext>
+          </QueryClientProvider>
         </calcite-shell>
       )}
     </>

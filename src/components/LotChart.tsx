@@ -1,30 +1,28 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   handedOverLotLayer,
   lotLayer,
   queryc_lot2,
   queryc_lot,
   queryc_lot3,
-  lotLayerRenderer,
 } from "../layers";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
-  dateUpdate,
   highlightLot,
   highlightRemove,
   thousands_separators,
   zoomToLayer,
   queryDefinitionExpression,
+  updatedDisplayDates,
 } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
 import "@esri/calcite-components/dist/components/calcite-checkbox";
 import {
   affectedAreaField,
-  cutoff_days,
   lotHandedOverAreaField,
   lotHandedOverField,
   lotIdField,
@@ -38,12 +36,24 @@ import {
   updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
-
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
-import { MyContext } from "../contexts/MyContext";
 import { pieChartStatusData, fieldStatistic } from "../ChartGenerator";
 import { affectedAreaValue, chartRenderer } from "../ChartRenderer";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  timesliderFieldKeys,
+  locationKeys,
+  dateDisplayKeys,
+  timesliderKeys,
+} from "../interfaceKeys";
+import type {
+  SelectedLocation,
+  TimesliderFieldsTypes,
+  ChartResponse,
+  DisplayDates,
+  TimeSliderState,
+} from "../interfaceKeys";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -54,80 +64,185 @@ function maybeDisposeRoot(divId: any) {
   });
 }
 
+//--------------------------------------------//
+//              Chart Component                //
+//--------------------------------------------//
 const LotChart = () => {
+  const queryClient = useQueryClient();
   const arcgisScene = document.querySelector("arcgis-scene");
-  const {
-    municipals,
-    barangays,
-    statusdatefield,
-    superurgenttype,
-    updateSuperurgenttype,
-    updateAsofdate,
-    asofdate,
-    updateLatestasofdate,
-    newHandedoverAreafield,
-    newAffectedAreafield,
-    newHandedOverfield,
-    chartPanelwidth,
-    updateChartPanelwidth,
-    timesliderstate,
-  } = use(MyContext);
 
-  // 0. Updated date
-  //--- useQuery version (tanstack query)
-  // import { useQuery } from "@tanstack/react-query";
+  //--- Declare useState
+  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
+  const [handedOverCheckBox, setHandedOverCheckBox] = useState<any>(false);
+  const [superurgenttype, setSuperurgenttype] = useState<any>(
+    superurgent_items[0],
+  );
 
-  // // 1. Fetcher function
-  // const fetchDateInfo = async (categoryName: string) => {
-  //   const response = await dateUpdate(categoryName);
-  //   return response;
-  // };
+  //--- 0. As of date
+  //--- Updated dates: asofDate and dayspass
+  queryClient.setQueryData<DisplayDates>(
+    dateDisplayKeys.selected,
+    updatedDisplayDates(updatedDateCategoryNames[0]),
+  );
 
-  // // 2. Component Implementation
-  // const { data, isPending, isError } = useQuery({
-  //   queryKey: ["dateInfo", updatedDateCategoryNames[0]],
-  //   queryFn: () => fetchDateInfo(updatedDateCategoryNames[0]),
-  //   select: (response) => {
-  //     // Derive your processed data directly from the response
-  //     const row = response[0];
-  //     const latestDate = row[2];
-  //     const isDaysPass = row[1] >= cutoff_days;
+  const { data: newAsOfDate } = useQuery<DisplayDates | any>({
+    queryKey: dateDisplayKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
 
-  //     return {
-  //       asOfDate: row[0],
-  //       latestDate,
-  //       daysPass: isDaysPass,
-  //     };
-  //   },
-  // });
-  // if (isPending) return <div>Loading...</div>;
-  // if (isError) return <div>Error fetching date info.</div>;
+  //--- 1. Location state
+  const { data: selectedLocation } = useQuery<SelectedLocation | any>({
+    queryKey: locationKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+  const municipality = selectedLocation?.municipality;
+  const barangay = selectedLocation?.barangay;
 
-  // return (
-  //   <div>
-  //     <p>As of Date: {data?.asOfDate}</p>
-  //     <p>Latest Date: {data?.latestDate}</p>
-  //     <p>
-  //       Days Passed Status: {data?.daysPass ? "Cutoff Met" : "Cutoff Not Met"}
-  //     </p>
-  //   </div>
-  // );
+  //--- Updated fields for timeslider
+  const { data: newStates } = useQuery<TimesliderFieldsTypes | any>({
+    queryKey: timesliderFieldKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+  const status_field = newStates?.statusdateField;
+  const ho_field = newStates?.newHandedOverfield;
+  const hoa_field = newStates?.newHandedoverAreafield;
+  const aa_field = newStates?.newAffectedAreafield;
 
-  const [daysPass, setDaysPass] = useState<boolean>(false);
-  useEffect(() => {
-    dateUpdate(updatedDateCategoryNames[0]).then((response) => {
-      // Default as of date:
-      updateAsofdate(response[0][0]);
+  //--- timeslider state
+  const { data: time } = useQuery<TimeSliderState | any>({
+    queryKey: timesliderKeys.selected,
+    queryFn: async () => ({}),
+    staleTime: Infinity,
+  });
+  const timesliderstate = time?.timesliderstate;
 
-      // Default latest date for handed over
-      const latest_date = response[0][2];
-      updateLatestasofdate(latest_date);
+  //--- 2. Streamlined Data Fetching with useQuery
+  const { data } = useQuery<ChartResponse | any>({
+    queryKey: [
+      municipality,
+      barangay,
+      superurgenttype,
+      status_field,
+      lotStatusField,
+      ho_field,
+      hoa_field,
+      aa_field,
+      timesliderstate, // Add dependecies so when these layers are changed, re-fetching happens.
+    ],
+    queryFn: async () => {
+      const qSuperrugent_expression =
+        superurgenttype === "OFF" ? undefined : querySuperUrgent;
 
-      // For calculating the number of days passed since the latest date
-      setDaysPass(response[0][1] >= cutoff_days ? true : false);
-    });
-  }, []);
+      queryc_lot.qValues = [municipality, barangay];
+      queryc_lot.q2Expression = qSuperrugent_expression;
 
+      queryDefinitionExpression({
+        queryExpression: queryc_lot.queryExpression(),
+        featureLayer: [lotLayer, handedOverLotLayer],
+      });
+
+      //--- Pie chart data
+      const chartData = await pieChartStatusData({
+        qChart: queryc_lot.queryExpression(),
+        layer: lotLayer,
+        statusList: statusLotQuery,
+        statusColor: statusLotColor,
+        statusField: timesliderstate ? status_field : lotStatusField,
+        statisticField: timesliderstate ? status_field : lotStatusField,
+        statisticType: "count",
+      });
+
+      //--- total number of lots (public + private)
+      const totaln = await fieldStatistic({
+        qChart: queryc_lot.queryExpression(),
+        layer: lotLayer,
+        statisticField: lotIdField,
+        statisticType: "count",
+      });
+
+      //-- Total affected area
+      const total_affected_area = await fieldStatistic({
+        qChart: queryc_lot.queryExpression(),
+        layer: lotLayer,
+        statisticField: timesliderstate ? aa_field : affectedAreaField,
+        statisticType: "sum",
+      });
+
+      //--- Total handed-over area
+      const total_ho_area = await fieldStatistic({
+        qChart: queryc_lot.queryExpression(),
+        layer: lotLayer,
+        statisticField: timesliderstate ? hoa_field : lotHandedOverAreaField,
+        statisticType: "sum",
+      });
+
+      //--- Total handed-over lots
+      queryc_lot2.qValues = [municipality, barangay];
+      queryc_lot2.qExpression = `${lotStatusField} <> 8`;
+      queryc_lot2.q2Expression = qSuperrugent_expression;
+
+      const total_ho_lot = await fieldStatistic({
+        qChart: queryc_lot2.queryExpression(),
+        layer: lotLayer,
+        statisticField: timesliderstate ? ho_field : lotHandedOverField,
+        statisticType: "sum",
+      });
+
+      //--- Affected area for each status
+      queryc_lot3.qValues = [municipality, barangay];
+      queryc_lot3.qExpression = `${status_field} >= 1`;
+      queryc_lot3.q2Expression = qSuperrugent_expression;
+
+      const affected_area_pie = await pieChartStatusData({
+        qChart: queryc_lot3.queryExpression(),
+        layer: lotLayer,
+        statusList: statusLotQuery,
+        statusColor: statusLotColor,
+        statusField: timesliderstate ? status_field : lotStatusField,
+        statisticField: timesliderstate ? aa_field : affectedAreaField,
+        statisticType: "sum",
+      });
+
+      //--- Handed-Over percent
+      const handedover_percent = Number(
+        ((total_ho_lot / totaln) * 100).toFixed(0),
+      );
+
+      if (!time?.timesliderstate) {
+        zoomToLayer(lotLayer, arcgisScene);
+      }
+
+      return {
+        chartData: chartData[0] || [],
+        lotNumber: totaln,
+        totalAffectedArea: total_affected_area,
+        handedOverArea: total_ho_area,
+        handedOverNumber: total_ho_lot,
+        affectedAreaPie: affected_area_pie[0] || [],
+        handedOverPercent: handedover_percent,
+      };
+    },
+    structuralSharing: false,
+    // staleTime: Infinity,
+    // Code below will stop rendering a chart during an initial loading.
+    // This simply means enabling this useQuery when either municipality or barangay is true.
+    // enabled: !!selectedLocation?.municipality || !!selectedLocation?.barangay,
+  });
+  //--- Call chart data
+  const chartData = data?.chartData || [];
+  const lotNumber = data?.lotNumber || 0;
+  const totalAffectedArea = data?.totalAffectedArea || 0;
+  const totalHandedOver = data?.handedOverNumber || 0;
+  const totalHandedOverPercent = data?.handedOverPercent || 0;
+  const totalHandedOverArea = data?.handedOverArea || 0;
+  const affectedAreaStatus = data?.affectedAreaPie || [];
+
+  //------------------------------------------------------------//
+  //              Pie chart rendering declaration               //
+  //------------------------------------------------------------//
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
   const new_imageSize = chartPanelwidth * 0.03;
@@ -140,164 +255,32 @@ const LotChart = () => {
   const pieSeriesRef = useRef<any>(null);
   const legendRef = useRef<any>(null);
   const chartRef = useRef<any>(null);
-  const [lotData, setLotData] = useState<any>([]);
 
   // Define chart id
   const chartID = "pie-two";
 
-  const [lotNumber, setLotNumber] = useState<number>(0);
-  const [affectAreaPie, setAffectAreaPie] = useState<
-    Array<{ category: string; value: number }>
-  >([]);
-  const [totalAffectedArea, setTotalAffectedArea] = useState<
-    number | undefined
-  >();
-
-  // Handed Over
-  const [handedOverNumber, setHandedOverNumber] = useState<number>(0);
-  const [handedOverPercent, setHandedOverPercent] = useState<number>(0);
-  const [handedOverArea, setHandedOverArea] = useState<number>(0);
-  const [handedOverCheckBox, setHandedOverCheckBox] = useState<any>(false);
-
   useEffect(() => {
-    if (superurgenttype === superurgent_items[1]) {
-      highlightLot(lotLayer, arcgisScene);
-    } else {
-      highlightRemove();
-    }
+    superurgenttype === superurgent_items[1]
+      ? highlightLot(lotLayer, arcgisScene)
+      : highlightRemove();
   }, [superurgenttype]);
 
   useEffect(() => {
     handedOverLotLayer.visible = handedOverCheckBox;
   }, [handedOverCheckBox]);
 
+  //---  Pie Chart Renderer
   useEffect(() => {
-    setHandedOverPercent(
-      Number(((handedOverNumber / lotNumber) * 100).toFixed(0)),
-    );
-  }, [handedOverNumber, lotNumber]);
-
-  // Chart data and calculate statistics
-  useEffect(() => {
-    if (statusdatefield) {
-      const qSuperrugent_expression =
-        superurgenttype === "OFF" ? undefined : querySuperUrgent;
-
-      queryc_lot.qValues = [municipals, barangays];
-      queryc_lot.q2Expression = qSuperrugent_expression;
-
-      queryDefinitionExpression({
-        queryExpression: queryc_lot.queryExpression(),
-        featureLayer: [lotLayer, handedOverLotLayer],
-      });
-
-      pieChartStatusData({
-        qChart: queryc_lot.queryExpression(),
-        layer: lotLayer,
-        statusList: statusLotQuery,
-        statusColor: statusLotColor,
-        statusField: timesliderstate ? statusdatefield : lotStatusField,
-        statisticField: timesliderstate ? statusdatefield : lotStatusField,
-        statisticType: "count",
-      }).then((result: any) => {
-        setLotData(result[0]);
-      });
-
-      //--- total number of lots (public + private)
-      fieldStatistic({
-        qChart: queryc_lot.queryExpression(),
-        layer: lotLayer,
-        statisticField: lotIdField,
-        statisticType: "count",
-      }).then((result: any) => {
-        setLotNumber(result);
-      });
-
-      //-- Total affected area
-      fieldStatistic({
-        qChart: queryc_lot.queryExpression(),
-        layer: lotLayer,
-        statisticField: timesliderstate
-          ? newAffectedAreafield
-          : affectedAreaField,
-        statisticType: "sum",
-      }).then((result: any) => {
-        setTotalAffectedArea(result);
-      });
-
-      //--- Total handed-over area
-      fieldStatistic({
-        qChart: queryc_lot.queryExpression(),
-        layer: lotLayer,
-        statisticField: timesliderstate
-          ? newHandedoverAreafield
-          : lotHandedOverAreaField,
-        statisticType: "sum",
-      }).then((result: any) => {
-        setHandedOverArea(result);
-      });
-
-      //--- Total handed-over lots
-      queryc_lot2.qValues = [municipals, barangays];
-      queryc_lot2.qExpression = `${lotStatusField} <> 8`;
-      queryc_lot2.q2Expression = qSuperrugent_expression;
-
-      fieldStatistic({
-        qChart: queryc_lot2.queryExpression(),
-        layer: lotLayer,
-        statisticField: timesliderstate
-          ? newHandedOverfield
-          : lotHandedOverField,
-        statisticType: "sum",
-      }).then((result: any) => {
-        setHandedOverNumber(result);
-      });
-
-      //--- Affected area for each status
-      queryc_lot3.qValues = [municipals, barangays];
-      queryc_lot3.qExpression = `${statusdatefield} >= 1`;
-      queryc_lot3.q2Expression = qSuperrugent_expression;
-
-      pieChartStatusData({
-        qChart: queryc_lot3.queryExpression(),
-        layer: lotLayer,
-        statusList: statusLotQuery,
-        statusColor: statusLotColor,
-        statusField: timesliderstate ? statusdatefield : lotStatusField,
-        statisticField: timesliderstate
-          ? newAffectedAreafield
-          : affectedAreaField,
-        statisticType: "sum",
-      }).then((result: any) => {
-        setAffectAreaPie(result[0]);
-      });
-    }
-
-    if (!timesliderstate) {
-      zoomToLayer(lotLayer, arcgisScene);
-    }
-  }, [
-    superurgenttype,
-    municipals,
-    barangays,
-    statusdatefield,
-    newHandedOverfield,
-  ]);
-  lotLayer.renderer = lotLayerRenderer;
-
-  useEffect(() => {
-    // Dispose previously created root element
     maybeDisposeRoot(chartID);
-    // Define root
     const root = am5.Root.new(chartID);
     root.container.children.clear();
     root._logo?.dispose();
-    // Set themesf
+
     root.setThemes([
       am5themes_Animated.new(root),
       am5themes_Responsive.new(root),
     ]);
-    // Define chart
+
     const chart = root.container.children.push(
       am5percent.PieChart.new(root, {
         centerY: am5.percent(25), //-10
@@ -306,7 +289,7 @@ const LotChart = () => {
       }),
     );
     chartRef.current = chart;
-    // Define series
+
     const pieSeries = chart.series.push(
       am5percent.PieSeries.new(root, {
         name: "Series",
@@ -320,7 +303,7 @@ const LotChart = () => {
     );
     pieSeriesRef.current = pieSeries;
     chart.series.push(pieSeries);
-    // Define legend
+
     const legend = chart.children.push(
       am5.Legend.new(root, {
         centerX: am5.percent(50),
@@ -339,10 +322,10 @@ const LotChart = () => {
       root: root,
       qChart: queryc_lot,
       q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
-      status_field: timesliderstate ? statusdatefield : lotStatusField,
+      status_field: timesliderstate ? status_field : lotStatusField,
       arcgisScene: arcgisScene,
-      updateChartPanelwidth: updateChartPanelwidth,
-      data: lotData,
+      updateChartPanelwidth: setChartPanelwidth,
+      data: chartData,
       pieSeriesScale: new_pieSeriesScale,
       pieInnerLabel: "PRIVATE LOTS",
       pieInnerLabelFontSize: new_pieInnerLabelFontSize,
@@ -350,16 +333,16 @@ const LotChart = () => {
       layer: lotLayer,
       statusArray: statusLotQuery,
     });
-    affectedAreaValue(legend, affectAreaPie, statusLotLabel);
+    affectedAreaValue(legend, affectedAreaStatus, statusLotLabel);
 
     // Dispose root
     return () => {
       root.dispose();
     };
-  }, [chartID, lotData, affectAreaPie]);
+  }, [chartID, chartData, affectedAreaStatus]);
 
   useEffect(() => {
-    pieSeriesRef.current?.data.setAll(lotData);
+    pieSeriesRef.current?.data.setAll(chartData);
     legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
   });
 
@@ -456,7 +439,7 @@ const LotChart = () => {
             marginBottom: "auto",
           }}
           oncalciteSegmentedControlChange={(event: any) =>
-            updateSuperurgenttype(event.target.selectedItem.id)
+            setSuperurgenttype(event.target.selectedItem.id)
           }
         >
           {superurgenttype &&
@@ -477,14 +460,14 @@ const LotChart = () => {
 
       <div
         style={{
-          color: daysPass === true ? "red" : "gray",
+          color: newAsOfDate?.daysPass === true ? "red" : "gray",
           fontSize: `${new_asofDateSize}px`,
           float: "right",
           marginRight: "5px",
           marginTop: "5px",
         }}
       >
-        {!asofdate ? "" : "As of " + asofdate}
+        {!newAsOfDate?.asOfDate ? "" : "As of " + newAsOfDate?.asOfDate}
       </div>
 
       {/* Lot Chart */}
@@ -542,7 +525,7 @@ const LotChart = () => {
               margin: "auto",
             }}
           >
-            {handedOverPercent}% ({thousands_separators(handedOverNumber)})
+            {totalHandedOverPercent}% ({thousands_separators(totalHandedOver)})
           </dd>
         </dl>
         <dl style={{ alignItems: "center" }}>
@@ -562,7 +545,8 @@ const LotChart = () => {
               fontWeight: "bold",
             }}
           >
-            {handedOverArea && thousands_separators(handedOverArea.toFixed(0))}
+            {totalHandedOverArea &&
+              thousands_separators(totalHandedOverArea.toFixed(0))}
             <label
               style={{ fontWeight: "normal", fontSize: `${new_fontSize}px` }}
             >
