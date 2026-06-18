@@ -16,19 +16,11 @@ import {
   prowOthersLayer,
 } from "../layers";
 import HandedOverAreaChart from "./HandedOverAreaChart";
-import { updateLotSymbology } from "../Query";
+import { updateDisplayDates, updateLotSymbology } from "../Query";
 import Timeslider from "./Timeslider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  datefieldKeys,
-  dateDisplayKeys,
-  timesliderKeys,
-} from "../interfaceKeys";
-import type {
-  DateFieldsType,
-  DisplayDates,
-  TimeSliderState,
-} from "../interfaceKeys";
+import { datefieldKeys, timesliderKeys } from "../interfaceKeys";
+import type { DateFieldsType, TimeSliderState } from "../interfaceKeys";
 
 function ActionPanel() {
   const queryClient = useQueryClient();
@@ -74,10 +66,8 @@ function ActionPanel() {
       });
       const day = latestasofdate.getDate();
 
-      //-- Update As of date
-      queryClient.setQueryData<DisplayDates | any>(dateDisplayKeys.selected, {
-        asOfDate: `${month} ${day}, ${year}`,
-      });
+      //-- Update As of date only
+      updateDisplayDates(queryClient, "asOfDate", `${month} ${day}, ${year}`);
 
       //--- Update timeslider state
       queryClient.setQueryData<TimeSliderState>(timesliderKeys.selected, {

@@ -1,7 +1,7 @@
 //--- Dropdown
 export interface SelectedLocation {
-  municipality: string | any;
-  barangay: string | any;
+  municipality?: string | any;
+  barangay?: string | any;
 }
 
 export const locationKeys = {
@@ -17,7 +17,7 @@ export const timesliderKeys = {
   selected: ["selectedTimesliderState"] as const,
 };
 
-//-- date fields
+//-- date fields (needs to render only once)
 export interface DateFieldsType {
   dateFields: any;
   latestasofdate: any;

@@ -17,6 +17,24 @@ import {
 } from "./uniqueValues";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import type { QueryClient } from "@tanstack/react-query";
+import { dateDisplayKeys, type DisplayDates } from "./interfaceKeys";
+
+//--- Update asOfDate and/or daysPass
+// This only updates either 'asOfDate' or 'daysPass'
+export function updateDisplayDates(
+  queryClient: QueryClient,
+  fieldToUpdate: "asOfDate" | "daysPass",
+  value: string,
+) {
+  queryClient.setQueryData<DisplayDates>(
+    dateDisplayKeys.selected,
+    (oldData: any) => ({
+      ...oldData, // Retains whichever field is NOT being updated
+      [fieldToUpdate]: value,
+    }),
+  );
+}
 
 //---------------------------------------------------------//
 //                Get Initial Dates                        //

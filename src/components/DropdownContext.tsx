@@ -44,7 +44,6 @@ export default function DropdownData() {
   // handle change event of the Municipality dropdown
   const handleMunicipalityChange = (obj: any) => {
     updateMunicipalBarangay(obj.field1, undefined);
-
     setMunicipalSelected(obj);
     setBarangayList(obj.field2);
     setBarangaySelected({ name: "" });

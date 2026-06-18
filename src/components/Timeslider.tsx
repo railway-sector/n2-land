@@ -1,16 +1,14 @@
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { updateLotSymbology } from "../Query";
+import { updateDisplayDates, updateLotSymbology } from "../Query";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   timesliderFieldKeys,
-  dateDisplayKeys,
   timesliderKeys,
   datefieldKeys,
 } from "../interfaceKeys";
 import type {
   TimesliderFieldsTypes,
-  DisplayDates,
   TimeSliderState,
   DateFieldsType,
 } from "../interfaceKeys";
@@ -76,11 +74,11 @@ export default function Timeslider() {
             month: "long",
           });
 
-          queryClient.setQueryData<DisplayDates | any>(
-            dateDisplayKeys.selected,
-            {
-              asOfDate: `${c_month} ${day}, ${year}`,
-            },
+          //--- Update only asOfDate
+          updateDisplayDates(
+            queryClient,
+            "asOfDate",
+            `${c_month} ${day}, ${year}`,
           );
 
           //--- Updating status and date fields for time slider:
