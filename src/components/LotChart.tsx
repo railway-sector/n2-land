@@ -124,13 +124,13 @@ const LotChart = () => {
     queryKey: [
       municipality,
       barangay,
-      superurgenttype,
-      status_field,
-      lotStatusField,
-      ho_field,
-      hoa_field,
-      aa_field,
-      timesliderstate, // Add dependecies so when these layers are changed, re-fetching happens.
+      // superurgenttype,
+      // status_field,
+      // lotStatusField,
+      // ho_field,
+      // hoa_field,
+      // aa_field,
+      // timesliderstate, // Add dependecies so when these layers are changed, re-fetching happens.
     ],
     queryFn: async () => {
       const qSuperrugent_expression =
@@ -181,7 +181,9 @@ const LotChart = () => {
 
       //--- Total handed-over lots
       queryc_lot2.qValues = [municipality, barangay];
-      queryc_lot2.qExpression = `${lotStatusField} <> 8`;
+      queryc_lot2.qExpression = timesliderstate
+        ? `${status_field} <> 8`
+        : `${lotStatusField} <> 8`;
       queryc_lot2.q2Expression = qSuperrugent_expression;
 
       const total_ho_lot = await fieldStatistic({
@@ -227,7 +229,7 @@ const LotChart = () => {
         handedOverPercent: handedover_percent,
       };
     },
-    structuralSharing: false,
+    // structuralSharing: false,
     // staleTime: Infinity,
     // Code below will stop rendering a chart during an initial loading.
     // This simply means enabling this useQuery when either municipality or barangay is true.

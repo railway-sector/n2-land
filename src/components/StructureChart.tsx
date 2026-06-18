@@ -256,53 +256,6 @@ const StructureChart = () => {
           marginBottom: "5%",
         }}
       ></div>
-
-      {/* Permit-to-Enter */}
-      {/* <div
-        style={{
-          display: "flex",
-          // marginTop: "3px",
-          marginLeft: "15px",
-          marginRight: "15px",
-          justifyContent: "space-between",
-        }}
-      >
-        <dl style={{ alignItems: "center", marginLeft: "15px" }}>
-          <dt
-            style={{
-              color: primaryLabelColor,
-              fontSize: `${new_fontSize}px`,
-            }}
-          >
-            PERMIT-TO-ENTER
-          </dt>
-          <dd
-            style={{
-              color: valueLabelColor,
-              fontSize: `${new_valueSize}px`,
-              fontWeight: "bold",
-              fontFamily: "calibri",
-              lineHeight: "1.2",
-              margin: "auto",
-            }}
-          >
-            {ptePercent === 0 ? (
-              <span>{ptePercent}% (0)</span>
-            ) : (
-              <span>
-                {ptePercent}% (
-                {thousands_separators(pteNumber)})
-              </span>
-            )}
-          </dd>
-        </dl>
-        <img
-          src="https://EijiGorilla.github.io/Symbols/Permit-To-Enter.png"
-          alt="Structure Logo"
-          height={`${new_imageSize}%`}
-          width={`${new_imageSize}%`}
-        />
-      </div> */}
     </>
   );
 }; // End of lotChartgs
