@@ -7,14 +7,12 @@ import {
   dateDisplayKeys,
   timesliderKeys,
   datefieldKeys,
-  latestDateKeys,
 } from "../interfaceKeys";
 import type {
   TimesliderFieldsTypes,
   DisplayDates,
   TimeSliderState,
   DateFieldsType,
-  LatestDateType,
 } from "../interfaceKeys";
 
 export default function Timeslider() {
@@ -39,14 +37,7 @@ export default function Timeslider() {
     queryFn: async () => ({}),
     staleTime: Infinity,
   });
-
-  //--- Read latest date
-  const { data: latestDate } = useQuery<LatestDateType | any>({
-    queryKey: latestDateKeys.selected,
-    queryFn: async () => ({}),
-    staleTime: Infinity,
-  });
-  const latestasofdate = latestDate?.latestasofdate;
+  const latestasofdate = dateField?.latestasofdate;
 
   arcgisScene?.viewOnReady(() => {
     const timeSlider: any = document.querySelector("arcgis-time-slider");

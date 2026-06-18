@@ -14,14 +14,9 @@ import {
   lotHandedOverField,
   lotHandedOverAreaField,
   lotStatusField,
-  cutoff_days,
 } from "./uniqueValues";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
-
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import { useQuery } from "@tanstack/react-query";
-import { dateDisplayKeys } from "./interfaceKeys";
-import type { DisplayDates } from "./interfaceKeys";
 
 //---------------------------------------------------------//
 //                Get Initial Dates                        //
@@ -151,33 +146,29 @@ export function lastDateOfMonth(date: Date) {
 }
 
 // Updat date
+
 export async function dateUpdate(category: any) {
   const query = dateTable.createQuery();
-  const queryExpression =
-    "project = 'N2'" + " AND " + "category = '" + category + "'";
-  query.where = queryExpression; // "project = 'N2'" + ' AND ' + "category = 'Land Acquisition'";
+  query.where = `project = 'N2' AND category = '${category}'`;
+  const response = await dateTable.queryFeatures(query);
+  const dates = response.features.map((result: any) => {
+    // get today and date recorded in the table
+    const today = new Date();
+    const date = new Date(result.attributes.date);
 
-  return dateTable.queryFeatures(query).then((response: any) => {
-    const stats = response.features;
-    const dates = stats.map((result: any) => {
-      // get today and date recorded in the table
-      const today = new Date();
-      const date = new Date(result.attributes.date);
+    // Calculate the number of days passed since the last update
+    const time_passed = today.getTime() - date.getTime();
+    const days_passed = Math.round(time_passed / (1000 * 3600 * 24));
 
-      // Calculate the number of days passed since the last update
-      const time_passed = today.getTime() - date.getTime();
-      const days_passed = Math.round(time_passed / (1000 * 3600 * 24));
-
-      const year = date.getFullYear();
-      const month = date.toLocaleString("en-US", {
-        month: "long",
-      });
-      const day = date.getDate();
-      const as_of_date = year < 1990 ? "" : `${month} ${day}, ${year}`;
-      return [as_of_date, days_passed, date];
+    const year = date.getFullYear();
+    const month = date.toLocaleString("en-US", {
+      month: "long",
     });
-    return dates;
+    const day = date.getDate();
+    const as_of_date = year < 1990 ? "" : `${month} ${day}, ${year}`;
+    return [as_of_date, days_passed, date];
   });
+  return dates;
 }
 
 export const dateFormat = (inputDate: any, format: any) => {
@@ -204,31 +195,6 @@ export const dateFormat = (inputDate: any, format: any) => {
 
   return format;
 };
-
-//--- Updated date function
-export const fetchDateInfo = async (categoryName: string) => {
-  const response = await dateUpdate(categoryName);
-  return response;
-};
-
-// Component Implementation
-export function updatedDisplayDates(category: any) {
-  const { data: up_dates } = useQuery<DisplayDates | any>({
-    queryKey: [dateDisplayKeys.selected, category],
-    queryFn: () => fetchDateInfo(category),
-    select: (response) => {
-      // Derive your processed data directly from the response
-      const row = response[0];
-      const isDaysPass = row[1] >= cutoff_days;
-      return {
-        asOfDate: row[0],
-        daysPass: isDaysPass,
-      };
-    },
-    staleTime: Infinity,
-  });
-  return up_dates;
-}
 
 //----------------------------------------------//
 //                 Others                       //

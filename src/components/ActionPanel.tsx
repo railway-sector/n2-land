@@ -23,13 +23,11 @@ import {
   datefieldKeys,
   dateDisplayKeys,
   timesliderKeys,
-  latestDateKeys,
 } from "../interfaceKeys";
 import type {
   DateFieldsType,
   DisplayDates,
   TimeSliderState,
-  LatestDateType,
 } from "../interfaceKeys";
 
 function ActionPanel() {
@@ -51,14 +49,7 @@ function ActionPanel() {
     staleTime: Infinity,
   });
   const date_fields = datefields?.dateFields;
-
-  //--- Read latest date
-  const { data: latestDate } = useQuery<LatestDateType | any>({
-    queryKey: latestDateKeys.selected,
-    queryFn: async () => ({}),
-    staleTime: Infinity,
-  });
-  const latestasofdate = latestDate?.latestasofdate;
+  const latestasofdate = datefields?.latestasofdate;
 
   //--- Manage action panel
   if (activeWidget) {

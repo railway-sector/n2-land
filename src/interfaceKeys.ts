@@ -20,6 +20,7 @@ export const timesliderKeys = {
 //-- date fields
 export interface DateFieldsType {
   dateFields: any;
+  latestasofdate: any;
 }
 
 export const datefieldKeys = {
@@ -47,15 +48,6 @@ export interface DisplayDates {
 
 export const dateDisplayKeys = {
   selected: ["displayDates"] as const,
-};
-
-//--- Latest Date
-export interface LatestDateType {
-  latestasofdate: any;
-}
-
-export const latestDateKeys = {
-  selected: ["displayLatestDate"] as const,
 };
 
 //--- Chart

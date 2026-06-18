@@ -16,7 +16,6 @@ import {
   thousands_separators,
   zoomToLayer,
   queryDefinitionExpression,
-  updatedDisplayDates,
 } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
@@ -33,14 +32,13 @@ import {
   statusLotLabel,
   statusLotQuery,
   superurgent_items,
-  updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
 import { pieChartStatusData, fieldStatistic } from "../ChartGenerator";
 import { affectedAreaValue, chartRenderer } from "../ChartRenderer";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   timesliderFieldKeys,
   locationKeys,
@@ -68,7 +66,6 @@ function maybeDisposeRoot(divId: any) {
 //              Chart Component                //
 //--------------------------------------------//
 const LotChart = () => {
-  const queryClient = useQueryClient();
   const arcgisScene = document.querySelector("arcgis-scene");
 
   //--- Declare useState
@@ -79,12 +76,6 @@ const LotChart = () => {
   );
 
   //--- 0. As of date
-  //--- Updated dates: asofDate and dayspass
-  queryClient.setQueryData<DisplayDates>(
-    dateDisplayKeys.selected,
-    updatedDisplayDates(updatedDateCategoryNames[0]),
-  );
-
   const { data: newAsOfDate } = useQuery<DisplayDates | any>({
     queryKey: dateDisplayKeys.selected,
     queryFn: async () => ({}),
@@ -124,13 +115,13 @@ const LotChart = () => {
     queryKey: [
       municipality,
       barangay,
-      // superurgenttype,
-      // status_field,
-      // lotStatusField,
-      // ho_field,
-      // hoa_field,
-      // aa_field,
-      // timesliderstate, // Add dependecies so when these layers are changed, re-fetching happens.
+      superurgenttype,
+      status_field,
+      lotStatusField,
+      ho_field,
+      hoa_field,
+      aa_field,
+      timesliderstate, // Add dependecies so when these layers are changed, re-fetching happens.
     ],
     queryFn: async () => {
       const qSuperrugent_expression =

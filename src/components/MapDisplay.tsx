@@ -24,14 +24,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   timesliderFieldKeys,
   datefieldKeys,
-  latestDateKeys,
+  dateDisplayKeys,
 } from "../interfaceKeys";
-import { fetchDateInfo, getSortDates } from "../Query";
+import { dateUpdate, getSortDates } from "../Query";
 import { updatedDateCategoryNames } from "../uniqueValues";
 import type {
   TimesliderFieldsTypes,
   DateFieldsType,
-  LatestDateType,
+  DisplayDates,
 } from "../interfaceKeys";
 
 export default function MapDisplay() {
@@ -39,18 +39,19 @@ export default function MapDisplay() {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const arcgisSearch = document.querySelector("arcgis-search") as ArcgisSearch;
 
-  //--- Latest date
-  const { data: latestDate } = useQuery<LatestDateType | any>({
-    queryKey: [latestDateKeys.selected, updatedDateCategoryNames[0]],
-    queryFn: () => fetchDateInfo(updatedDateCategoryNames[0]),
+  //--- As of Date and days Passed
+  const { data: newAsOfDate } = useQuery<DisplayDates | any>({
+    queryKey: [dateDisplayKeys.selected, updatedDateCategoryNames[0]],
+    queryFn: () => dateUpdate(updatedDateCategoryNames[0]),
     select: (response) => {
       return {
-        latestasofdate: response[0][2],
+        asOfDate: response[0][0],
+        daysPass: response[0][1],
       };
     },
     staleTime: Infinity,
   });
-  queryClient.setQueryData<LatestDateType>(latestDateKeys.selected, latestDate);
+  queryClient.setQueryData<DisplayDates>(dateDisplayKeys.selected, newAsOfDate);
 
   //--- Declare only in preparation for timeslider
   const { data: dateList } = useQuery<TimesliderFieldsTypes | any>({
@@ -69,11 +70,16 @@ export default function MapDisplay() {
   const { data: dateField } = useQuery<DateFieldsType | any>({
     queryKey: [datefieldKeys.selected, lotLayer], // lotLayer is a dependency
     queryFn: async () => {
+      const response = await dateUpdate(updatedDateCategoryNames[0]);
       return {
         dateFields: await getSortDates(lotLayer),
+        latestasofdate: response[0][2],
       };
     },
     staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   queryClient.setQueryData<DateFieldsType>(datefieldKeys.selected, dateField);
 

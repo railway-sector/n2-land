@@ -7,7 +7,7 @@ import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
   thousands_separators,
   queryDefinitionExpression,
-  updatedDisplayDates,
+  dateUpdate,
 } from "../Query";
 import {
   nloStatusField,
@@ -21,7 +21,7 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import { nloLayer, queryc_nlo } from "../layers";
 import { pieChartStatusData } from "../ChartGenerator";
 import { chartRenderer } from "../ChartRenderer";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
 import type {
   SelectedLocation,
@@ -42,19 +42,19 @@ function maybeDisposeRoot(divId: any) {
 //              Chart Component                //
 //--------------------------------------------//
 const NloChart = memo(() => {
-  const queryClient = useQueryClient();
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
 
   //--- 0. As of date
-  queryClient.setQueryData<DisplayDates>(
-    dateDisplayKeys.selected,
-    updatedDisplayDates(updatedDateCategoryNames[0]),
-  );
-
   const { data: newAsOfDate } = useQuery<DisplayDates | any>({
-    queryKey: dateDisplayKeys.selected,
-    queryFn: async () => ({}),
+    queryKey: [dateDisplayKeys.selected, updatedDateCategoryNames[0]],
+    queryFn: () => dateUpdate(updatedDateCategoryNames[2]),
+    select: (response) => {
+      return {
+        asOfDate: response[0][0],
+        daysPass: response[0][1],
+      };
+    },
     staleTime: Infinity,
   });
 
