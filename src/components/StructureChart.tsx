@@ -109,9 +109,7 @@ const StructureChart = () => {
         totalNumber: chartData[1],
       };
     },
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    staleTime: Infinity,
   });
 
   //--- Call chart data

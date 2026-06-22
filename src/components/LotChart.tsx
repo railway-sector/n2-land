@@ -218,9 +218,7 @@ const LotChart = () => {
         handedOverPercent: handedover_percent,
       };
     },
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    staleTime: Infinity, // prevents automatic bacground refetching by forexample clicking another tab or browser.
     // structuralSharing: false,
     // staleTime: Infinity,
     // Code below will stop rendering a chart during an initial loading.
