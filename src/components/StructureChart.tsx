@@ -57,6 +57,7 @@ const StructureChart = () => {
     },
     staleTime: Infinity,
   });
+
   //--- 1. Location state
   const { data: selectedLocation } = useQuery<SelectedLocation | any>({
     queryKey: locationKeys.selected,
@@ -82,7 +83,7 @@ const StructureChart = () => {
 
   //--- 2. Streamlined Data Fetching with useQuery
   const { data } = useQuery<ChartResponse | any>({
-    queryKey: [municipality, barangay, structureStatusField],
+    queryKey: [municipality, barangay, structureStatusField, structureLayer],
     queryFn: async () => {
       queryc_struc.qValues = [municipality, barangay];
       queryc_struc.qExpression = `${structureStatusField} >= 1`;
@@ -108,7 +109,9 @@ const StructureChart = () => {
         totalNumber: chartData[1],
       };
     },
-    structuralSharing: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   //--- Call chart data
@@ -158,6 +161,7 @@ const StructureChart = () => {
       am5.Legend.new(root, {
         centerX: am5.percent(50),
         x: am5.percent(50),
+        marginTop: 15,
       }),
     );
     legendRef.current = legend;
@@ -249,10 +253,11 @@ const StructureChart = () => {
       <div
         id={chartID}
         style={{
-          height: "57vh",
+          height: "63vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
-          marginBottom: "5%",
+          // marginBottom: "5%",
+          marginTop: "11%",
         }}
       ></div>
     </>

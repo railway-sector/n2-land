@@ -116,11 +116,9 @@ const LotChart = () => {
       municipality,
       barangay,
       superurgenttype,
+      lotLayer,
       status_field,
       lotStatusField,
-      ho_field,
-      hoa_field,
-      aa_field,
       timesliderstate, // Add dependecies so when these layers are changed, re-fetching happens.
     ],
     queryFn: async () => {
@@ -220,6 +218,9 @@ const LotChart = () => {
         handedOverPercent: handedover_percent,
       };
     },
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     // structuralSharing: false,
     // staleTime: Infinity,
     // Code below will stop rendering a chart during an initial loading.

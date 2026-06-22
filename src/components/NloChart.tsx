@@ -83,7 +83,7 @@ const NloChart = memo(() => {
 
   //--- 2. Streamlined Data Fetching with useQuery
   const { data } = useQuery<ChartResponse | any>({
-    queryKey: [municipality, barangay, nloStatusField],
+    queryKey: [municipality, barangay, nloStatusField, nloLayer],
     queryFn: async () => {
       queryc_nlo.qValues = [municipality, barangay];
       queryc_nlo.qExpression = `${nloStatusField} >= 1`;
@@ -109,7 +109,9 @@ const NloChart = memo(() => {
         totalNumber: chartData[1],
       };
     },
-    structuralSharing: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   //--- Call chart data
