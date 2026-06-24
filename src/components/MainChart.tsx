@@ -6,15 +6,15 @@ import "@esri/calcite-components/components/calcite-panel";
 import "@esri/calcite-components/components/calcite-shell-panel";
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
-import LotChart from "./LotChart";
+import LotChart from "./ChartLot";
 import "../index.css";
-import StructureChart from "./StructureChart";
-import NloChart from "./NloChart";
+import StructureChart from "./ChartStructure";
+import NloChart from "./ChartNlo";
 import ExpropriationList from "./ExpropriationList";
 import { primaryLabelColor } from "../uniqueValues";
 import { useState } from "react";
 
-function MainChart() {
+function ChartMain() {
   const [panelWidth, setPanelWidth] = useState<string>("40%");
   const [panelHeader, setPanelHeader] = useState<string>("Chart");
 
@@ -106,4 +106,4 @@ function MainChart() {
   );
 }
 
-export default MainChart;
+export default ChartMain;

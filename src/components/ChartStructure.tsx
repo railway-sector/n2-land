@@ -1,26 +1,22 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-import { useRef, useState, useEffect, memo } from "react";
-import * as am5 from "@amcharts/amcharts5";
-import * as am5percent from "@amcharts/amcharts5/percent";
-import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
-import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+import { useEffect, useRef, useState } from "react";
 import {
   thousands_separators,
   queryDefinitionExpression,
   dateUpdate,
-} from "../Query";
+} from "../query";
+import "../index.css";
 import {
-  nloStatusField,
   primaryLabelColor,
-  statusNloColor,
-  statusNloQuery,
+  statusStructureColorHex,
+  statusStructureQuery,
+  structureStatusField,
   updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { nloLayer, queryc_nlo } from "../layers";
-import { pieChartStatusData } from "../ChartGenerator";
-import { chartRenderer } from "../ChartRenderer";
+import { occupancyLayer, queryc_struc, structureLayer } from "../layers";
+import { pieChartStatusData } from "../chartGenerator";
+import { chartRenderer } from "../chartRenderer";
 import { useQuery } from "@tanstack/react-query";
 import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
 import type {
@@ -28,27 +24,25 @@ import type {
   ChartResponse,
   DisplayDates,
 } from "../interfaceKeys";
-
-// Dispose function
-function maybeDisposeRoot(divId: any) {
-  am5.array.each(am5.registry.rootElements, function (root) {
-    if (root.dom.id === divId) {
-      root.dispose();
-    }
-  });
-}
+import {
+  chartSetter,
+  legendSetter,
+  // maybeDisposeRoot,
+  rootSetter,
+  seriesSetter,
+} from "../chartSetter";
 
 //--------------------------------------------//
 //              Chart Component                //
 //--------------------------------------------//
-const NloChart = memo(() => {
+const ChartStructure = () => {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
 
   //--- 0. As of date
   const { data: newAsOfDate } = useQuery<DisplayDates | any>({
     queryKey: [dateDisplayKeys.selected, updatedDateCategoryNames[0]],
-    queryFn: () => dateUpdate(updatedDateCategoryNames[2]),
+    queryFn: () => dateUpdate(updatedDateCategoryNames[1]),
     select: (response) => {
       return {
         asOfDate: response[0][0],
@@ -70,37 +64,37 @@ const NloChart = memo(() => {
   //--- Chart parameters
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
-  const new_imageSize = chartPanelwidth * 0.028;
-  const new_pieSeriesScale = 280;
+  const new_imageSize = chartPanelwidth * 0.03;
   const new_asofDateSize = chartPanelwidth * 0.032;
-  const new_pieInnerValueFontSize = "1.3rem";
-  const new_pieInnerLabelFontSize = "0.7em";
+  const new_pieSeriesScale = 220;
+  const new_pieInnerValueFontSize = "1.0rem";
+  const new_pieInnerLabelFontSize = "0.45em";
 
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
-  const chartID = "nlo-chart";
+  const chartID = "structure-chart";
 
   //--- 2. Streamlined Data Fetching with useQuery
   const { data } = useQuery<ChartResponse | any>({
-    queryKey: [municipality, barangay, nloStatusField, nloLayer],
+    queryKey: [municipality, barangay, structureStatusField, structureLayer],
     queryFn: async () => {
-      queryc_nlo.qValues = [municipality, barangay];
-      queryc_nlo.qExpression = `${nloStatusField} >= 1`;
+      queryc_struc.qValues = [municipality, barangay];
+      queryc_struc.qExpression = `${structureStatusField} >= 1`;
 
       queryDefinitionExpression({
-        queryExpression: queryc_nlo.queryExpression(),
-        featureLayer: [nloLayer],
+        queryExpression: queryc_struc.queryExpression(),
+        featureLayer: [structureLayer, occupancyLayer],
       });
 
       //--- Pie chart data
       const chartData = await pieChartStatusData({
-        qChart: queryc_nlo.queryExpression(),
-        layer: nloLayer,
-        statusList: statusNloQuery,
-        statusColor: statusNloColor,
-        statusField: nloStatusField,
-        statisticField: nloStatusField,
+        qChart: queryc_struc.queryExpression(),
+        layer: structureLayer,
+        statusList: statusStructureQuery,
+        statusColor: statusStructureColorHex,
+        statusField: structureStatusField,
+        statisticField: structureStatusField,
         statisticType: "count",
       });
 
@@ -117,55 +111,29 @@ const NloChart = memo(() => {
   const totalNumber = data?.totalNumber || 0;
 
   useEffect(() => {
-    // Dispose previously created root element
-
-    maybeDisposeRoot(chartID);
-
-    const root = am5.Root.new(chartID);
-    root.container.children.clear();
-    root._logo?.dispose();
-
-    // Set themesf
-    // https://www.amcharts.com/docs/v5/concepts/themes/
-    root.setThemes([
-      am5themes_Animated.new(root),
-      am5themes_Responsive.new(root),
-    ]);
-
-    // Create chart
-    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
-    const chart = root.container.children.push(
-      am5percent.PieChart.new(root, {
-        layout: root.verticalLayout,
-        paddingBottom: 40,
-      }),
-    );
+    const root = rootSetter({ chartID: chartID });
+    const chart = chartSetter({ root: root });
     chartRef.current = chart;
 
-    // Create series
-    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
-    const pieSeries = chart.series.push(
-      am5percent.PieSeries.new(root, {
-        name: "Series",
-        categoryField: "category",
-        valueField: "value",
-        //legendLabelText: "[{fill}]{category}[/]",
-        legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
-        radius: am5.percent(45), // outer radius
-        innerRadius: am5.percent(28),
-      }),
-    );
+    const pieSeries = seriesSetter({
+      chart: chart,
+      root: root,
+      categoryField: "category",
+      valueField: "value",
+      legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
+      radius: 40,
+      innerRadius: 28,
+      // scale: 0.5,
+    });
     pieSeriesRef.current = pieSeries;
     chart.series.push(pieSeries);
 
-    // Legend
-    // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
-    const legend = chart.children.push(
-      am5.Legend.new(root, {
-        centerX: am5.percent(50),
-        x: am5.percent(50),
-      }),
-    );
+    const legend = legendSetter({
+      chart: chart,
+      root: root,
+      centerX: 50,
+      x: 50,
+    });
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
@@ -175,17 +143,17 @@ const NloChart = memo(() => {
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      qChart: queryc_nlo,
-      status_field: nloStatusField,
+      qChart: queryc_struc,
+      status_field: structureStatusField,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
       pieSeriesScale: new_pieSeriesScale,
-      pieInnerLabel: "HOUSEHOLDS",
+      pieInnerLabel: "STRUCTURES",
       pieInnerLabelFontSize: new_pieInnerLabelFontSize,
       pieInnerValueFontSize: new_pieInnerValueFontSize,
-      layer: nloLayer,
-      statusArray: statusNloQuery,
+      layer: structureLayer,
+      statusArray: statusStructureQuery,
     });
 
     return () => {
@@ -203,28 +171,27 @@ const NloChart = memo(() => {
       <div
         style={{
           display: "flex",
-          // marginTop: "3px",
           marginLeft: "15px",
           marginRight: "15px",
           justifyContent: "space-between",
         }}
       >
         <img
-          src="https://EijiGorilla.github.io/Symbols/NLO_Logo.svg"
+          src="https://EijiGorilla.github.io/Symbols/House_Logo.svg"
           alt="Structure Logo"
           height={`${new_imageSize}%`}
           width={`${new_imageSize}%`}
-          style={{ paddingTop: "5px", paddingLeft: "5px" }}
+          style={{ paddingTop: "2px" }}
         />
         <dl style={{ alignItems: "center" }}>
           <dt
             style={{
               color: primaryLabelColor,
               fontSize: `${new_fontSize}px`,
-              marginRight: "20px",
+              marginRight: "25px",
             }}
           >
-            TOTAL HOUSEHOLDS
+            TOTAL STRUCTURES
           </dt>
           <dd
             style={{
@@ -240,6 +207,7 @@ const NloChart = memo(() => {
           </dd>
         </dl>
       </div>
+
       <div
         style={{
           color: newAsOfDate?.daysPass === true ? "red" : "gray",
@@ -250,16 +218,20 @@ const NloChart = memo(() => {
       >
         {!newAsOfDate?.asOfDate ? "" : "As of " + newAsOfDate?.asOfDate}
       </div>
+
+      {/* Structure Chart */}
       <div
         id={chartID}
         style={{
-          height: "70vh",
+          height: "63vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
+          // marginBottom: "5%",
+          marginTop: "11%",
         }}
       ></div>
     </>
   );
-}); // End of lotChartgs
+}; // End of lotChartgs
 
-export default NloChart;
+export default ChartStructure;

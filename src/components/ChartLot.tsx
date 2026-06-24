@@ -6,17 +6,13 @@ import {
   queryc_lot,
   queryc_lot3,
 } from "../layers";
-import * as am5 from "@amcharts/amcharts5";
-import * as am5percent from "@amcharts/amcharts5/percent";
-import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
-import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
   highlightLot,
   highlightRemove,
   thousands_separators,
   zoomToLayer,
   queryDefinitionExpression,
-} from "../Query";
+} from "../query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
 import "@esri/calcite-components/dist/components/calcite-checkbox";
@@ -36,8 +32,8 @@ import {
 } from "../uniqueValues";
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
-import { pieChartStatusData, fieldStatistic } from "../ChartGenerator";
-import { affectedAreaValue, chartRenderer } from "../ChartRenderer";
+import { pieChartStatusData, fieldStatistic } from "../chartGenerator";
+import { affectedAreaValue, chartRenderer } from "../chartRenderer";
 import { useQuery } from "@tanstack/react-query";
 import {
   timesliderFieldKeys,
@@ -52,20 +48,17 @@ import type {
   DisplayDates,
   TimeSliderState,
 } from "../interfaceKeys";
-
-// Dispose function
-function maybeDisposeRoot(divId: any) {
-  am5.array.each(am5.registry.rootElements, function (root) {
-    if (root.dom.id === divId) {
-      root.dispose();
-    }
-  });
-}
+import {
+  chartSetter,
+  legendSetter,
+  rootSetter,
+  seriesSetter,
+} from "../chartSetter";
 
 //--------------------------------------------//
 //              Chart Component                //
 //--------------------------------------------//
-const LotChart = () => {
+const ChartLot = () => {
   const arcgisScene = document.querySelector("arcgis-scene");
 
   //--- Declare useState
@@ -218,9 +211,8 @@ const LotChart = () => {
         handedOverPercent: handedover_percent,
       };
     },
-    staleTime: Infinity, // prevents automatic bacground refetching by forexample clicking another tab or browser.
     // structuralSharing: false,
-    // staleTime: Infinity,
+    // staleTime: Infinity, // for lot, turn if off. this always needs to be refetched.
     // Code below will stop rendering a chart during an initial loading.
     // This simply means enabling this useQuery when either municipality or barangay is true.
     // enabled: !!selectedLocation?.municipality || !!selectedLocation?.barangay,
@@ -265,47 +257,32 @@ const LotChart = () => {
 
   //---  Pie Chart Renderer
   useEffect(() => {
-    maybeDisposeRoot(chartID);
-    const root = am5.Root.new(chartID);
-    root.container.children.clear();
-    root._logo?.dispose();
-
-    root.setThemes([
-      am5themes_Animated.new(root),
-      am5themes_Responsive.new(root),
-    ]);
-
-    const chart = root.container.children.push(
-      am5percent.PieChart.new(root, {
-        centerY: am5.percent(25), //-10
-        y: am5.percent(25), // space between pie chart and total lots
-        layout: root.verticalLayout,
-      }),
-    );
+    const root = rootSetter({ chartID: chartID });
+    const chart = chartSetter({ root: root, y: 25 });
     chartRef.current = chart;
 
-    const pieSeries = chart.series.push(
-      am5percent.PieSeries.new(root, {
-        name: "Series",
-        categoryField: "category",
-        valueField: "value",
-        legendLabelText:
-          '{category}[/] ([#C9CC3F; bold]{valuePercentTotal.formatNumber("#.")}%[/]) ',
-        radius: am5.percent(45), // outer radius
-        innerRadius: am5.percent(28),
-      }),
-    );
+    const pieSeries = seriesSetter({
+      chart: chart,
+      root: root,
+      categoryField: "category",
+      valueField: "value",
+      legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
+      radius: 45,
+      innerRadius: 28,
+      // scale: 1.7,
+    });
     pieSeriesRef.current = pieSeries;
     chart.series.push(pieSeries);
 
-    const legend = chart.children.push(
-      am5.Legend.new(root, {
-        centerX: am5.percent(50),
-        x: am5.percent(50),
-        scale: 1.03,
-      }),
-    );
+    const legend = legendSetter({
+      chart: chart,
+      root: root,
+      centerX: 50,
+      x: 50,
+      scale: 1.03,
+    });
     legendRef.current = legend;
+    legend.data.setAll(pieSeries.dataItems);
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
@@ -557,4 +534,4 @@ const LotChart = () => {
   );
 }; // End of lotChartgs
 
-export default LotChart;
+export default ChartLot;

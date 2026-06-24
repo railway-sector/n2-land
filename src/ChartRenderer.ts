@@ -2,7 +2,7 @@ import * as am5 from "@amcharts/amcharts5";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Query from "@arcgis/core/rest/support/Query";
-import { thousands_separators } from "./Query";
+import { thousands_separators } from "./query";
 
 //---- Dynamic chart size
 export function responsiveChart(

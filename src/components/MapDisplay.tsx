@@ -26,7 +26,7 @@ import {
   datefieldKeys,
   dateDisplayKeys,
 } from "../interfaceKeys";
-import { dateUpdate, getSortDates } from "../Query";
+import { dateUpdate, getSortDates } from "../query";
 import { updatedDateCategoryNames } from "../uniqueValues";
 import type {
   TimesliderFieldsTypes,

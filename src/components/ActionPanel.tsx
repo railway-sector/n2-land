@@ -16,7 +16,7 @@ import {
   prowOthersLayer,
 } from "../layers";
 import HandedOverAreaChart from "./HandedOverAreaChart";
-import { updateDisplayDates, updateLotSymbology } from "../Query";
+import { updateDisplayDates, updateLotSymbology } from "../query";
 import Timeslider from "./Timeslider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { datefieldKeys, timesliderKeys } from "../interfaceKeys";

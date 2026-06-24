@@ -1,5 +1,5 @@
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { updateDisplayDates, updateLotSymbology } from "../Query";
+import { updateDisplayDates, updateLotSymbology } from "../query";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
