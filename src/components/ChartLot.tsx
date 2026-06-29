@@ -258,7 +258,7 @@ const ChartLot = () => {
   //---  Pie Chart Renderer
   useEffect(() => {
     const root = rootSetter({ chartID: chartID });
-    const chart = chartSetter({ root: root, y: 25 });
+    const chart = chartSetter({ root: root, y: 10 });
     chartRef.current = chart;
 
     const pieSeries = seriesSetter({
@@ -279,10 +279,10 @@ const ChartLot = () => {
       root: root,
       centerX: 50,
       x: 50,
-      scale: 1.03,
+      scale: 1.0,
     });
     legendRef.current = legend;
-    legend.data.setAll(pieSeries.dataItems);
+    legend.setAll({ marginBottom: 10 });
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
