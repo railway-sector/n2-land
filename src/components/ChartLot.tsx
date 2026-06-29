@@ -5,6 +5,8 @@ import {
   queryc_lot2,
   queryc_lot,
   queryc_lot3,
+  piechart,
+  piechartaa,
 } from "../layers";
 import {
   highlightLot,
@@ -12,6 +14,8 @@ import {
   thousands_separators,
   zoomToLayer,
   queryDefinitionExpression,
+  pieChartData,
+  fieldStatistic,
 } from "../query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
@@ -24,7 +28,6 @@ import {
   lotStatusField,
   primaryLabelColor,
   querySuperUrgent,
-  statusLotColor,
   statusLotLabel,
   statusLotQuery,
   superurgent_items,
@@ -32,7 +35,6 @@ import {
 } from "../uniqueValues";
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
-import { pieChartStatusData, fieldStatistic } from "../chartGenerator";
 import { affectedAreaValue, chartRenderer } from "../chartRenderer";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -103,6 +105,9 @@ const ChartLot = () => {
   });
   const timesliderstate = time?.timesliderstate;
 
+  //--- New status field by timeslider state
+  const stats_field = timesliderstate ? status_field : lotStatusField;
+
   //--- 2. Streamlined Data Fetching with useQuery
   const { data } = useQuery<ChartResponse | any>({
     queryKey: [
@@ -127,13 +132,13 @@ const ChartLot = () => {
       });
 
       //--- Pie chart data
-      const chartData = await pieChartStatusData({
-        qChart: queryc_lot.queryExpression(),
+      const chartData = await pieChartData({
+        piechart: piechart,
+        qChart: queryc_lot,
         layer: lotLayer,
         statusList: statusLotQuery,
-        statusColor: statusLotColor,
-        statusField: timesliderstate ? status_field : lotStatusField,
-        statisticField: timesliderstate ? status_field : lotStatusField,
+        statusField: stats_field,
+        statisticField: stats_field,
         statisticType: "count",
       });
 
@@ -182,12 +187,12 @@ const ChartLot = () => {
         : `${lotStatusField} >= 1`;
       queryc_lot3.q2Expression = qSuperrugent_expression;
 
-      const affected_area_pie = await pieChartStatusData({
-        qChart: queryc_lot3.queryExpression(),
+      const affected_area_pie = await pieChartData({
+        piechart: piechartaa,
+        qChart: queryc_lot3,
         layer: lotLayer,
         statusList: statusLotQuery,
-        statusColor: statusLotColor,
-        statusField: timesliderstate ? status_field : lotStatusField,
+        statusField: stats_field,
         statisticField: timesliderstate ? aa_field : affectedAreaField,
         statisticType: "sum",
       });
@@ -293,7 +298,7 @@ const ChartLot = () => {
       root: root,
       qChart: queryc_lot,
       q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
-      status_field: timesliderstate ? status_field : lotStatusField,
+      status_field: stats_field,
       arcgisScene: arcgisScene,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,

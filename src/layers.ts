@@ -47,6 +47,43 @@ import {
   primaryLabelColor,
 } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
+import ChartPieSeries from "chart-pie-series";
+
+export const piechart = new ChartPieSeries(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const piechartaa = new ChartPieSeries(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const piechart_struc = new ChartPieSeries(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const piechart_nlo = new ChartPieSeries(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+);
 
 export const queryc_lot = new QueryExpressionLayers(
   [undefined, undefined],

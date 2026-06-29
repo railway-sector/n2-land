@@ -3,19 +3,23 @@ import {
   thousands_separators,
   queryDefinitionExpression,
   dateUpdate,
+  pieChartData,
 } from "../query";
 import "../index.css";
 import {
   primaryLabelColor,
-  statusStructureColorHex,
   statusStructureQuery,
   structureStatusField,
   updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { occupancyLayer, queryc_struc, structureLayer } from "../layers";
-import { pieChartStatusData } from "../chartGenerator";
+import {
+  occupancyLayer,
+  piechart_struc,
+  queryc_struc,
+  structureLayer,
+} from "../layers";
 import { chartRenderer } from "../chartRenderer";
 import { useQuery } from "@tanstack/react-query";
 import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
@@ -88,11 +92,11 @@ const ChartStructure = () => {
       });
 
       //--- Pie chart data
-      const chartData = await pieChartStatusData({
-        qChart: queryc_struc.queryExpression(),
+      const chartData = await pieChartData({
+        piechart: piechart_struc,
+        qChart: queryc_struc,
         layer: structureLayer,
         statusList: statusStructureQuery,
-        statusColor: statusStructureColorHex,
         statusField: structureStatusField,
         statisticField: structureStatusField,
         statisticType: "count",

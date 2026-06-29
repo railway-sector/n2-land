@@ -5,18 +5,17 @@ import {
   thousands_separators,
   queryDefinitionExpression,
   dateUpdate,
+  pieChartData,
 } from "../query";
 import {
   nloStatusField,
   primaryLabelColor,
-  statusNloColor,
   statusNloQuery,
   updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { nloLayer, queryc_nlo } from "../layers";
-import { pieChartStatusData } from "../chartGenerator";
+import { nloLayer, piechart_nlo, queryc_nlo } from "../layers";
 import { chartRenderer } from "../chartRenderer";
 import { useQuery } from "@tanstack/react-query";
 import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
@@ -98,11 +97,11 @@ const ChartNlo = memo(() => {
       });
 
       //--- Pie chart data
-      const chartData = await pieChartStatusData({
-        qChart: queryc_nlo.queryExpression(),
+      const chartData = await pieChartData({
+        piechart: piechart_nlo,
+        qChart: queryc_nlo,
         layer: nloLayer,
         statusList: statusNloQuery,
-        statusColor: statusNloColor,
         statusField: nloStatusField,
         statisticField: nloStatusField,
         statisticType: "count",
