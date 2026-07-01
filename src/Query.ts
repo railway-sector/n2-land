@@ -22,6 +22,15 @@ import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 import Query from "@arcgis/core/rest/support/Query";
 import type { statisticsType } from "./uniqueValues";
 
+//---------------------------------------------------------//
+//                 Add Layers to Map                      //
+//---------------------------------------------------------//
+export function addLayersToMap(map: any, layersList: any[]) {
+  layersList.forEach((layer: any) => {
+    map.add(layer);
+  });
+}
+
 //--- Update asOfDate and/or daysPass
 // This only updates either 'asOfDate' or 'daysPass'
 export function updateDisplayDates(

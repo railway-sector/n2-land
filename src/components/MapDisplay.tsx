@@ -18,6 +18,7 @@ import {
   ngcp2_groupLayer,
   lotLayer,
   meralco_tss10_groupLayer,
+  sources,
 } from "../layers";
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -26,7 +27,7 @@ import {
   datefieldKeys,
   dateDisplayKeys,
 } from "../interfaceKeys";
-import { dateUpdate, getSortDates } from "../query";
+import { addLayersToMap, dateUpdate, getSortDates } from "../query";
 import { updatedDateCategoryNames } from "../uniqueValues";
 import type {
   TimesliderFieldsTypes,
@@ -85,46 +86,16 @@ export default function MapDisplay() {
 
   //--- Add layers to scene view
   arcgisScene?.viewOnReady(() => {
-    arcgisScene?.map?.add(pierAccessLayer);
-    arcgisScene?.map?.add(lotGroupLayer);
-    arcgisScene?.map?.add(ngcp2_groupLayer);
-    arcgisScene?.map?.add(structureLayer);
-    arcgisScene?.map?.add(nloLoOccupancyGroupLayer);
-    arcgisScene?.map?.add(meralco_tss10_groupLayer);
-    arcgisScene?.map?.add(alignmentGroupLayer);
-    arcgisScene?.map?.add(stationLayer);
-
-    // Search components
-    const sources: any = [
-      {
-        layer: lotLayer,
-        searchFields: ["LotID"],
-        displayField: "LotID",
-        exactMatch: false,
-        outFields: ["LotID"],
-        name: "Lot ID",
-        placeholder: "example: 10083",
-      },
-      {
-        layer: structureLayer,
-        searchFields: ["StrucID"],
-        displayField: "StrucID",
-        exactMatch: false,
-        outFields: ["StrucID"],
-        name: "Structure ID",
-        placeholder: "example: NSRP-01-02-ML007",
-      },
-      {
-        layer: pierAccessLayer,
-        searchFields: ["PierNumber"],
-        displayField: "PierNumber",
-        exactMatch: false,
-        outFields: ["PierNumber"],
-        name: "Pier No",
-        zoomScale: 1000,
-        placeholder: "example: P-288",
-      },
-    ];
+    addLayersToMap(arcgisScene?.map, [
+      pierAccessLayer,
+      lotGroupLayer,
+      ngcp2_groupLayer,
+      structureLayer,
+      nloLoOccupancyGroupLayer,
+      meralco_tss10_groupLayer,
+      alignmentGroupLayer,
+      stationLayer,
+    ]);
 
     arcgisSearch.allPlaceholder = "LotID, StructureID, Chainage";
     arcgisSearch.includeDefaultSourcesDisabled = true;
