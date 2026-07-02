@@ -71,7 +71,7 @@ export const statusLotColor = [
   "#ffaa00",
   "#FF5733",
   "#70AD47",
-  "#FF0000",
+  "#6f0000", // "#940000", "#560d0d" "#FF0000",
   "#B2B2B2",
 ];
 
