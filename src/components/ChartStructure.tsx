@@ -114,6 +114,8 @@ const ChartStructure = () => {
   const chartData = data?.chartData || [];
   const totalNumber = data?.totalNumber || 0;
 
+  console.log(chartData);
+
   useEffect(() => {
     const root = rootSetter({ chartID: chartID });
     const chart = chartSetter({ root: root });
@@ -124,6 +126,7 @@ const ChartStructure = () => {
       root: root,
       categoryField: "category",
       valueField: "value",
+      legendLabelText: "{category}",
       legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
       radius: 40,
       innerRadius: 28,

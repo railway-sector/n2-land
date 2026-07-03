@@ -57,29 +57,64 @@ export default function DropdownData() {
 
   // Style CSS
   const customstyles = {
-    option: (styles: any, { isFocused, isSelected }: any) => {
-      // const color = chroma(data.color);
-      return {
-        ...styles,
-        backgroundColor: isFocused
-          ? "#999999"
-          : isSelected
-            ? "#2b2b2b"
-            : "#2b2b2b",
-        color: "#ffffff",
-        width: "200px",
-      };
-    },
-
-    control: (defaultStyles: any) => ({
+    container: (defaultStyles: any) => ({
+      ...defaultStyles,
+      width: "180px",
+    }),
+    control: (defaultStyles: any, { isDisabled, isFocused }: any) => ({
+      ...defaultStyles,
+      backgroundColor: isDisabled ? "#232323" : "#2b2b2b",
+      borderColor: isFocused ? "#6aa9ff" : "#444444",
+      borderRadius: "6px",
+      minHeight: "36px",
+      boxShadow: "none",
+      opacity: isDisabled ? 0.6 : 1,
+      "&:hover": {
+        borderColor: isFocused ? "#6aa9ff" : "#5a5a5a",
+      },
+    }),
+    placeholder: (defaultStyles: any) => ({
+      ...defaultStyles,
+      color: "#9a9a9a",
+    }),
+    singleValue: (defaultStyles: any) => ({
+      ...defaultStyles,
+      color: "#ffffff",
+    }),
+    input: (defaultStyles: any) => ({
+      ...defaultStyles,
+      color: "#ffffff",
+    }),
+    indicatorSeparator: (defaultStyles: any) => ({
+      ...defaultStyles,
+      backgroundColor: "#444444",
+    }),
+    dropdownIndicator: (defaultStyles: any) => ({
+      ...defaultStyles,
+      color: "#9a9a9a",
+      "&:hover": { color: "#ffffff" },
+    }),
+    clearIndicator: (defaultStyles: any) => ({
+      ...defaultStyles,
+      color: "#9a9a9a",
+      "&:hover": { color: "#ffffff" },
+    }),
+    menu: (defaultStyles: any) => ({
       ...defaultStyles,
       backgroundColor: "#2b2b2b",
-      borderColor: "#949494",
-      color: "#ffffff",
-      touchUi: false,
-      width: "200px",
+      border: "1px solid #444444",
+      overflow: "hidden",
     }),
-    singleValue: (defaultStyles: any) => ({ ...defaultStyles, color: "#fff" }),
+    option: (defaultStyles: any, { isFocused, isSelected }: any) => ({
+      ...defaultStyles,
+      backgroundColor: isFocused
+        ? "#3a3a3a"
+        : isSelected
+          ? "#353535"
+          : "#2b2b2b",
+      color: "#ffffff",
+      cursor: "pointer",
+    }),
   };
 
   return (
@@ -100,6 +135,7 @@ export default function DropdownData() {
         options={municipalList && municipalList}
         onChange={handleMunicipalityChange}
         getOptionLabel={(x: any) => x.field1}
+        isClearable
         styles={customstyles}
       />
       <br />
@@ -120,6 +156,7 @@ export default function DropdownData() {
         options={barangayList}
         onChange={handleBarangayChange}
         getOptionLabel={(x: any) => x.name}
+        isClearable
         styles={customstyles}
       />
     </div>

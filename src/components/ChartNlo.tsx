@@ -130,6 +130,7 @@ const ChartNlo = memo(() => {
       root: root,
       categoryField: "category",
       valueField: "value",
+      legendLabelText: "{category}",
       legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
       radius: 45,
       innerRadius: 28,
