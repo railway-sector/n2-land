@@ -61,23 +61,9 @@ export function affectedAreaValue(
   legend.valueLabels.template.adapters.add("text", (text: any, target: any) => {
     const category = target.dataItem?.dataContext?.category;
     if (target.dataItem) {
-      return category === statusLotLabel[0]
+      return statusLotLabel.includes(category)
         ? affected_area_label(affectAreaPie, category)
-        : category === statusLotLabel[1]
-          ? affected_area_label(affectAreaPie, category)
-          : category === statusLotLabel[2]
-            ? affected_area_label(affectAreaPie, category)
-            : category === statusLotLabel[3]
-              ? affected_area_label(affectAreaPie, category)
-              : category === statusLotLabel[4]
-                ? affected_area_label(affectAreaPie, category)
-                : category === statusLotLabel[5]
-                  ? affected_area_label(affectAreaPie, category)
-                  : category === statusLotLabel[6]
-                    ? affected_area_label(affectAreaPie, category)
-                    : category === statusLotLabel[7]
-                      ? affected_area_label(affectAreaPie, category)
-                      : "{value}";
+        : "{value}";
     }
 
     return text;

@@ -120,7 +120,7 @@ interface pieChartDataType {
   statusList: any;
   statusField: any;
   statisticField: any;
-  statisticType: "sum" | "count";
+  statisticType: any;
 }
 export async function pieChartData({
   piechart,

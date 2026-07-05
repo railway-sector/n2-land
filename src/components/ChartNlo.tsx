@@ -6,6 +6,7 @@ import {
   queryDefinitionExpression,
   dateUpdate,
   pieChartData,
+  fieldStatistic,
 } from "../query";
 import {
   nloStatusField,
@@ -107,17 +108,24 @@ const ChartNlo = memo(() => {
         statisticType: "count",
       });
 
+      const totaln = await fieldStatistic({
+        qChart: queryc_nlo.queryExpression(),
+        layer: nloLayer,
+        statisticField: nloStatusField,
+        statisticType: "count",
+      });
+
       return {
         chartData: chartData[0] || [],
-        totalNumber: chartData[1],
+        totalNumber: totaln ?? 0,
       };
     },
     staleTime: Infinity,
   });
 
   //--- Call chart data
-  const chartData = data?.chartData || [];
-  const totalNumber = data?.totalNumber || 0;
+  const chartData = data?.chartData ?? [];
+  const totalNumber = data?.totalNumber ?? 0;
 
   useEffect(() => {
     maybeDisposeRoot(chartID);

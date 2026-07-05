@@ -1,134 +1,131 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Select from "react-select";
 import "../index.css";
-import GenerateDropdownData from "npm-dropdown-package";
+import GenerateDropdownData from "dropdown-pkg-arcgis";
 import { lotLayer } from "../layers";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { locationKeys } from "../interfaceKeys";
 import type { SelectedLocation } from "../interfaceKeys";
 
+const theme = {
+  bg: "#2b2b2b",
+  bgDisabled: "#232323",
+  border: "#444444",
+  borderHover: "#5a5a5a",
+  borderFocus: "#6aa9ff",
+  text: "#ffffff",
+  textMuted: "#9a9a9a",
+  optionFocused: "#3a3a3a",
+  optionSelected: "#353535",
+};
+
+const customStyles = {
+  container: (s: any) => ({ ...s, width: "180px" }),
+  control: (s: any, { isDisabled, isFocused }: any) => ({
+    ...s,
+    backgroundColor: isDisabled ? theme.bgDisabled : theme.bg,
+    borderColor: isFocused ? theme.borderFocus : theme.border,
+    borderRadius: "6px",
+    minHeight: "36px",
+    boxShadow: "none",
+    opacity: isDisabled ? 0.6 : 1,
+    "&:hover": {
+      borderColor: isFocused ? theme.borderFocus : theme.borderHover,
+    },
+  }),
+  placeholder: (s: any) => ({ ...s, color: theme.textMuted }),
+  singleValue: (s: any) => ({ ...s, color: theme.text }),
+  input: (s: any) => ({ ...s, color: theme.text }),
+  indicatorSeparator: (s: any) => ({ ...s, backgroundColor: theme.border }),
+  dropdownIndicator: (s: any) => ({
+    ...s,
+    color: theme.textMuted,
+    "&:hover": { color: theme.text },
+  }),
+  clearIndicator: (s: any) => ({
+    ...s,
+    color: theme.textMuted,
+    "&:hover": { color: theme.text },
+  }),
+  menu: (s: any) => ({
+    ...s,
+    backgroundColor: theme.bg,
+    border: `1px solid ${theme.border}`,
+    overflow: "hidden",
+  }),
+  option: (s: any, { isFocused, isSelected }: any) => ({
+    ...s,
+    backgroundColor: isFocused
+      ? theme.optionFocused
+      : isSelected
+        ? theme.optionSelected
+        : theme.bg,
+    color: theme.text,
+    cursor: "pointer",
+  }),
+};
+
 export default function DropdownData() {
   const queryClient = useQueryClient();
 
-  const [barangayList, setBarangayList] = useState<any>();
-  const [municipalSelected, setMunicipalSelected] = useState<any>();
-  const [barangaySelected, setBarangaySelected] = useState<any>({ name: "" });
+  const [municipalSelected, setMunicipalSelected] = useState<any | null>(null);
+  const [barangaySelected, setBarangaySelected] = useState<any | null>(null);
 
   const { data: municipalList } = useQuery<any>({
     queryKey: ["dropdownData"], // Do not add lotLayer as a dependency. The dropdown list will not be updated properly.
     queryFn: async () => {
-      const dropdownData = new GenerateDropdownData(
+      return await new GenerateDropdownData(
         [lotLayer],
         ["Municipality", "Barangay"],
-      );
-      return await dropdownData.dropDownQuery();
+      ).dropDownQuery();
     },
-    staleTime: Infinity, // never refetch in the backround. If not Inifity, it will refetch.
-    // gcTime: Infinity,
+    staleTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
 
-  // this instantly updates the global cache
-  function updateMunicipalBarangay(
-    mobj_field: SelectedLocation["municipality"],
-    bobj_field: SelectedLocation["barangay"],
-  ) {
-    return queryClient.setQueryData<SelectedLocation>(locationKeys.selected, {
-      municipality: mobj_field,
-      barangay: bobj_field,
-    });
+  //--- Without useMemo, the code above returns and collects [] in memory every time
+  //--- the component renders => waster of memory.
+  const barangayList = useMemo(
+    () => municipalSelected?.field2 ?? [],
+    [municipalSelected],
+  );
+
+  //--- Function to instantly update the global cache
+  function setSelectedLocation(patch: Partial<SelectedLocation>) {
+    queryClient.setQueryData<SelectedLocation>(
+      locationKeys.selected,
+      (prev) => ({
+        municipality: prev?.municipality ?? null,
+        barangay: prev?.barangay ?? null,
+        ...patch,
+      }),
+    );
   }
 
-  // handle change event of the Municipality dropdown
-  const handleMunicipalityChange = (obj: any) => {
-    updateMunicipalBarangay(obj.field1, undefined);
+  //--- Update Municipalicty
+  const handleMunicipalityChange = (obj: any | null) => {
+    setSelectedLocation({ municipality: obj?.field1 ?? null, barangay: null });
     setMunicipalSelected(obj);
-    setBarangayList(obj.field2);
-    setBarangaySelected({ name: "" });
+    setBarangaySelected(null);
   };
 
-  // handle change event of the barangay dropdownff
-  const handleBarangayChange = (obj: any) => {
-    updateMunicipalBarangay(municipalSelected?.field1, obj.name);
+  //--- Update Barangay
+  const handleBarangayChange = (obj: any | null) => {
+    setSelectedLocation({ barangay: obj?.name ?? null });
     setBarangaySelected(obj);
   };
 
-  // Style CSS
-  const customstyles = {
-    container: (defaultStyles: any) => ({
-      ...defaultStyles,
-      width: "180px",
-    }),
-    control: (defaultStyles: any, { isDisabled, isFocused }: any) => ({
-      ...defaultStyles,
-      backgroundColor: isDisabled ? "#232323" : "#2b2b2b",
-      borderColor: isFocused ? "#6aa9ff" : "#444444",
-      borderRadius: "6px",
-      minHeight: "36px",
-      boxShadow: "none",
-      opacity: isDisabled ? 0.6 : 1,
-      "&:hover": {
-        borderColor: isFocused ? "#6aa9ff" : "#5a5a5a",
-      },
-    }),
-    placeholder: (defaultStyles: any) => ({
-      ...defaultStyles,
-      color: "#9a9a9a",
-    }),
-    singleValue: (defaultStyles: any) => ({
-      ...defaultStyles,
-      color: "#ffffff",
-    }),
-    input: (defaultStyles: any) => ({
-      ...defaultStyles,
-      color: "#ffffff",
-    }),
-    indicatorSeparator: (defaultStyles: any) => ({
-      ...defaultStyles,
-      backgroundColor: "#444444",
-    }),
-    dropdownIndicator: (defaultStyles: any) => ({
-      ...defaultStyles,
-      color: "#9a9a9a",
-      "&:hover": { color: "#ffffff" },
-    }),
-    clearIndicator: (defaultStyles: any) => ({
-      ...defaultStyles,
-      color: "#9a9a9a",
-      "&:hover": { color: "#ffffff" },
-    }),
-    menu: (defaultStyles: any) => ({
-      ...defaultStyles,
-      backgroundColor: "#2b2b2b",
-      border: "1px solid #444444",
-      overflow: "hidden",
-    }),
-    option: (defaultStyles: any, { isFocused, isSelected }: any) => ({
-      ...defaultStyles,
-      backgroundColor: isFocused
-        ? "#3a3a3a"
-        : isSelected
-          ? "#353535"
-          : "#2b2b2b",
-      color: "#ffffff",
-      cursor: "pointer",
-    }),
-  };
-
   return (
-    <div style={{ display: "flex", flexDirection: "row", margin: "auto" }}>
-      <div
-        style={{
-          color: "white",
-          fontSize: "0.85rem",
-          margin: "auto",
-          paddingRight: "0.5rem",
-        }}
-      >
-        Municipality
-      </div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        margin: "auto",
+        gap: "12px",
+      }}
+    >
       <Select
         placeholder="Select Municipality"
         value={municipalSelected}
@@ -136,20 +133,9 @@ export default function DropdownData() {
         onChange={handleMunicipalityChange}
         getOptionLabel={(x: any) => x.field1}
         isClearable
-        styles={customstyles}
+        styles={customStyles}
       />
       <br />
-      <div
-        style={{
-          color: "white",
-          fontSize: "0.85rem",
-          margin: "auto",
-          paddingRight: "0.5rem",
-          marginLeft: "10px",
-        }}
-      >
-        Barangay
-      </div>
       <Select
         placeholder="Select Barangay"
         value={barangaySelected}
@@ -157,7 +143,7 @@ export default function DropdownData() {
         onChange={handleBarangayChange}
         getOptionLabel={(x: any) => x.name}
         isClearable
-        styles={customstyles}
+        styles={customStyles}
       />
     </div>
   );

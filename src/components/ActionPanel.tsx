@@ -45,6 +45,8 @@ function ActionPanel() {
 
   //--- Manage action panel
   if (activeWidget) {
+    // if (!shellPanel) return;
+
     const actionActiveWidget: any = document.querySelector(
       `[data-panel-id=${activeWidget}]`,
     );

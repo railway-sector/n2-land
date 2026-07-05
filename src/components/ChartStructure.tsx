@@ -4,6 +4,7 @@ import {
   queryDefinitionExpression,
   dateUpdate,
   pieChartData,
+  fieldStatistic,
 } from "../query";
 import "../index.css";
 import {
@@ -102,17 +103,24 @@ const ChartStructure = () => {
         statisticType: "count",
       });
 
+      const totaln = await fieldStatistic({
+        qChart: queryc_struc.queryExpression(),
+        layer: structureLayer,
+        statisticField: structureStatusField,
+        statisticType: "count",
+      });
+
       return {
-        chartData: chartData[0] || [],
-        totalNumber: chartData[1],
+        chartData: chartData[0] ?? [],
+        totalNumber: totaln ?? 0,
       };
     },
     staleTime: Infinity,
   });
 
   //--- Call chart data
-  const chartData = data?.chartData || [];
-  const totalNumber = data?.totalNumber || 0;
+  const chartData = data?.chartData ?? [];
+  const totalNumber = data?.totalNumber ?? 0;
 
   useEffect(() => {
     const root = rootSetter({ chartID: chartID });

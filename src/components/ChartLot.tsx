@@ -207,12 +207,12 @@ const ChartLot = () => {
       }
 
       return {
-        chartData: chartData[0] || [],
+        chartData: chartData[0] ?? [],
         lotNumber: totaln,
         totalAffectedArea: total_affected_area,
         handedOverArea: total_ho_area,
         handedOverNumber: total_ho_lot,
-        affectedAreaPie: affected_area_pie[0] || [],
+        affectedAreaPie: affected_area_pie[0] ?? [],
         handedOverPercent: handedover_percent,
       };
     },
@@ -223,13 +223,13 @@ const ChartLot = () => {
     // enabled: !!selectedLocation?.municipality || !!selectedLocation?.barangay,
   });
   //--- Call chart data
-  const chartData = data?.chartData || [];
-  const lotNumber = data?.lotNumber || 0;
-  const totalAffectedArea = data?.totalAffectedArea || 0;
-  const totalHandedOver = data?.handedOverNumber || 0;
-  const totalHandedOverPercent = data?.handedOverPercent || 0;
-  const totalHandedOverArea = data?.handedOverArea || 0;
-  const affectedAreaStatus = data?.affectedAreaPie || [];
+  const chartData = data?.chartData ?? [];
+  const lotNumber = data?.lotNumber ?? 0;
+  const totalAffectedArea = data?.totalAffectedArea ?? 0;
+  const totalHandedOver = data?.handedOverNumber ?? 0;
+  const totalHandedOverPercent = data?.handedOverPercent ?? 0;
+  const totalHandedOverArea = data?.handedOverArea ?? 0;
+  const affectedAreaStatus = data?.affectedAreaPie ?? [];
 
   //------------------------------------------------------------//
   //              Pie chart rendering declaration               //
