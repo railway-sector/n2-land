@@ -1,1 +1,0 @@
-import{fp as a,aZ as c}from"./index-BwaIm5PY.js";function d(){const r=new WeakMap,s=(e,o)=>{const t=r.get(e);t&&(t.delete(o),t.size===0&&r.delete(e))};return{register:(e,o)=>(a(r,e,()=>new Set).add(o),c(()=>s(e,o))),forEveryOther(e,o,t){const n=r.get(e);if(n)for(const f of n)f!==o&&t(f)}}}export{d as o};
