@@ -4,6 +4,35 @@ import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Query from "@arcgis/core/rest/support/Query";
 import { thousands_separators } from "./query";
 
+interface CommonTypes {
+  pieSeries: any;
+  statusArray: StatusQueryItem[];
+  status_field: string;
+  qChart: any;
+  q2Expression?: string;
+  layer: FeatureLayer;
+  view: any; // arcgisScene?.view
+}
+
+//---- Pie Chart renderer
+interface chartType extends CommonTypes {
+  chart: any;
+  legend: any;
+  root: any;
+  updateChartPanelwidth: any;
+  data: any;
+  seriesScale: any;
+  innerLabel?: string | any;
+  innerLabelFontSize?: string | any;
+  innerValueFontSize?: string | any;
+}
+
+interface StatusQueryItem {
+  category: string;
+  value: number | string;
+  color: string;
+}
+
 //---- Dynamic chart size
 export function responsiveChart(
   chart: any,
@@ -17,6 +46,7 @@ export function responsiveChart(
     const new_pieSeries_scale = width / pieSeriesScale;
     const new_legendMarkerSize = width * 0.045;
 
+    //--- legend and pieSeries properties to be dynamically changed
     legend.labels.template.setAll({
       width: availableSpace,
       maxWidth: availableSpace,
@@ -70,32 +100,7 @@ export function affectedAreaValue(
   });
 }
 
-//---- Pie Chart renderer
-interface chartType {
-  chart: any;
-  pieSeries: any;
-  legend: any;
-  root: any;
-  qChart: any;
-  q1Value?: any;
-  q1Field?: any;
-  q2Value?: any;
-  q2Field?: any;
-  q3Value?: any;
-  q3Field?: any;
-  q2Expression?: any;
-  status_field: any;
-  arcgisScene: any;
-  updateChartPanelwidth: any;
-  data: any;
-  pieSeriesScale: any;
-  pieInnerLabel?: any;
-  pieInnerLabelFontSize?: any;
-  pieInnerValueFontSize?: any;
-  layer: FeatureLayer;
-  statusArray: any;
-}
-
+//--- Chart Renderer
 export function chartRenderer({
   chart,
   pieSeries,
@@ -104,22 +109,95 @@ export function chartRenderer({
   qChart,
   q2Expression,
   status_field,
-  arcgisScene,
+  view,
   updateChartPanelwidth,
   data,
-  pieSeriesScale,
-  pieInnerLabel,
-  pieInnerLabelFontSize,
-  pieInnerValueFontSize,
+  seriesScale,
+  innerLabel,
+  innerLabelFontSize,
+  innerValueFontSize,
   layer,
   statusArray,
 }: chartType) {
+  //--- Pie series property
+  pieSeriesProperties(
+    root,
+    data,
+    pieSeries,
+    innerLabel,
+    innerLabelFontSize,
+    innerValueFontSize,
+  );
+
+  //--- Legend properties
+  legendProperties(legend);
+
+  //--- Click pie series
+  clickSeries({
+    pieSeries,
+    statusArray,
+    status_field,
+    qChart,
+    q2Expression,
+    layer,
+    view,
+  });
+
+  //--- Responseive chart
+  responsiveChart(chart, pieSeries, legend, seriesScale);
+  chart.onPrivate("width", (width: any) => {
+    updateChartPanelwidth(width);
+  });
+
+  pieSeries.appear(1000, 100);
+}
+
+//--- Click event function
+function clickSeries({
+  pieSeries,
+  statusArray,
+  status_field,
+  qChart,
+  q2Expression,
+  layer,
+  view,
+}: CommonTypes) {
+  pieSeries.slices.template.events.on("click", (ev: any) => {
+    const selected: any = ev.target.dataItem?.dataContext;
+    const find = statusArray.find(
+      (emp: any) => emp.category === selected.category,
+    );
+    const statusSelected = find?.value;
+    const queryField =
+      typeof statusSelected === "number"
+        ? `${status_field} = ${statusSelected}`
+        : `${status_field} = '${statusSelected}'`;
+
+    qChart.qExpression = queryField;
+    qChart.q2Expression = q2Expression ?? undefined;
+
+    highlightFilterLayerView({
+      layer,
+      view,
+      qChart,
+    });
+  });
+}
+
+//--- Pie series propertie function
+function pieSeriesProperties(
+  root: any,
+  data: any,
+  pieSeries: any,
+  innerLabel: string,
+  innerLabelFontX: any,
+  innerValueFontX: any,
+) {
   // values inside a donut
   let inner_label = pieSeries.children.push(
     am5.Label.new(root, {
-      text: `[#ffffff]{valueSum}[/]\n[fontSize: ${pieInnerLabelFontSize}; #d3d3d3; verticalAlign: super]${pieInnerLabel}[/]`,
-      // text: "[#ffffff]{valueSum}[/]\n[fontSize: 0.45em; #d3d3d3; verticalAlign: super]PRIVATE LOTS[/]",
-      fontSize: `${pieInnerValueFontSize}`,
+      text: `[#ffffff]{valueSum}[/]\n[fontSize: ${innerLabelFontX}; #d3d3d3; verticalAlign: super]${innerLabel}[/]`,
+      fontSize: `${innerValueFontX}`,
       centerX: am5.percent(50),
       centerY: am5.percent(40),
       populateText: true,
@@ -147,28 +225,6 @@ export function chartRenderer({
   pieSeries.labels.template.set("visible", false);
   pieSeries.ticks.template.set("visible", false);
 
-  // EventDispatcher is disposed at SpriteEventDispatcher...
-  // It looks like this error results from clicking events
-  pieSeries.slices.template.events.on("click", (ev: any) => {
-    const Selected: any = ev.target.dataItem?.dataContext;
-    const Category = Selected.category;
-    const find = statusArray.find((emp: any) => emp.category === Category);
-    const statusSelected = find?.value;
-    const isStringOrNumber = typeof statusSelected === "number";
-    const queryField = isStringOrNumber
-      ? `${status_field} = ${statusSelected}`
-      : `${status_field} = '${statusSelected}'`;
-
-    qChart.qExpression = queryField;
-    qChart.q2Expression = q2Expression;
-
-    highlightFilterLayerView({
-      layer: layer,
-      view: arcgisScene?.view,
-      qChart: qChart,
-    });
-  });
-
   pieSeries.data.setAll(data);
 
   // Disabling labels and ticksll
@@ -182,29 +238,10 @@ export function chartRenderer({
     visible: false,
     scale: 0,
   });
+}
 
-  // Legend
-  // Change the size of legend markers
-  legend.markers.template.setAll({
-    width: 17,
-    height: 17,
-  });
-
-  // Change the marker shape
-  legend.markerRectangles.template.setAll({
-    cornerRadiusTL: 10,
-    cornerRadiusTR: 10,
-    cornerRadiusBL: 10,
-    cornerRadiusBR: 10,
-  });
-
-  responsiveChart(chart, pieSeries, legend, pieSeriesScale);
-  chart.onPrivate("width", (width: any) => {
-    updateChartPanelwidth(width);
-  });
-
-  // Change legend labelling properties
-  // To have responsive font size, do not set font size
+//--- Legend property function
+function legendProperties(legend: any) {
   legend.labels.template.setAll({
     oversizedBehavior: "truncate",
     fill: am5.color("#ffffff"),
@@ -220,11 +257,22 @@ export function chartRenderer({
     paddingBottom: 1,
   });
 
-  pieSeries.appear(1000, 100);
+  legend.markers.template.setAll({
+    width: 17,
+    height: 17,
+  });
+
+  legend.markerRectangles.template.setAll({
+    cornerRadiusTL: 10,
+    cornerRadiusTR: 10,
+    cornerRadiusBL: 10,
+    cornerRadiusBR: 10,
+  });
 }
 
+//--- Layer view function
 type layerViewQueryProps = {
-  layer?: any;
+  layer?: FeatureLayer | any;
   qExpression?: any;
   view: any;
   qChart?: any;
@@ -235,7 +283,7 @@ export const highlightFilterLayerView = async ({
   view,
   qChart,
 }: layerViewQueryProps) => {
-  const query = layer.createQuery();
+  const query = layer?.createQuery();
   const qe = qChart.queryExpression();
   query.where = qe;
   let highlightSelect: any;

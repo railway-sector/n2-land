@@ -7,13 +7,7 @@ import {
   lotLayer,
   lotLayerRendererUniqueValueInfos,
 } from "./layers";
-import {
-  affectedAreaField,
-  cpField,
-  lotHandedOverField,
-  lotHandedOverAreaField,
-  lotStatusField,
-} from "./uniqueValues";
+import { cpField, lotHandedOverField, lotStatusField } from "./uniqueValues";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import type { QueryClient } from "@tanstack/react-query";
@@ -173,37 +167,46 @@ export async function fieldStatistic({
 //---------------------------------------------//
 //           Lot (handed over area)            //
 //---------------------------------------------//
-export async function generateHandedOverAreaData() {
-  const total_affected_area = new StatisticDefinition({
-    onStatisticField: affectedAreaField,
-    outStatisticFieldName: "total_affected_area",
-    statisticType: "sum",
-  });
+interface HandedOverArea {
+  aa_field: any;
+  hoa_field: any;
+  cp_list: any;
+  layer: any;
+}
+export async function handedOverAreaByContractp({
+  aa_field,
+  hoa_field,
+  cp_list,
+  layer,
+}: HandedOverArea) {
+  return await Promise.all(
+    cp_list.map(async (cp: any) => {
+      const aa = new StatisticDefinition({
+        onStatisticField: aa_field,
+        outStatisticFieldName: "aa",
+        statisticType: "sum",
+      });
 
-  const total_handedover_area = new StatisticDefinition({
-    onStatisticField: lotHandedOverAreaField,
-    outStatisticFieldName: "total_handedover_area",
-    statisticType: "sum",
-  });
+      const hoa = new StatisticDefinition({
+        onStatisticField: hoa_field,
+        outStatisticFieldName: "hoa",
+        statisticType: "sum",
+      });
 
-  const query = lotLayer.createQuery();
-  query.where = `${cpField} IS NOT NULL`;
-  query.outStatistics = [total_affected_area, total_handedover_area];
-  query.orderByFields = [cpField];
-  query.groupByFieldsForStatistics = [cpField];
+      const query = layer.createQuery();
+      query.where = `CP = '${cp}' AND ${cpField} IS NOT NULL`;
+      query.outStatistics = [aa, hoa];
 
-  const response = await lotLayer.queryFeatures(query);
-  const stats = response.features;
-  const data = stats.map((result: any) => {
-    const attributes = result.attributes;
-    const affected = attributes.total_affected_area;
-    const handedOver = attributes.total_handedover_area;
-    return Object.assign({
-      category: attributes.CP,
-      value: ((handedOver / affected) * 100).toFixed(0),
-    });
-  });
-  return data;
+      const response = await layer?.queryFeatures(query);
+      const attributes = response.features[0].attributes;
+      const perc = ((attributes.hoa / attributes.aa) * 100).toFixed(0);
+
+      return {
+        category: cp,
+        value: perc ?? 0,
+      };
+    }),
+  );
 }
 
 //----------------------------------------//
@@ -225,71 +228,43 @@ export function updateLotSymbology(new_date_field: any) {
 //----------------------------------------//
 //------        Date and Month       -----//
 //----------------------------------------//
-export function lastDateOfMonth(date: Date) {
-  const old_date = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  const year = old_date.getFullYear();
-  const month = old_date.getMonth() + 1;
-  const day = old_date.getDate();
-  const final_date = `${year}-${month}-${day}`;
-
-  return final_date;
+export function yearMonthDay(date: Date) {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+  };
 }
 
-// Updat date
-
+//--- Update date
 export async function dateUpdate(category: any) {
   const query = dateTable.createQuery();
   query.where = `project = 'N2' AND category = '${category}'`;
+
   const response = await dateTable.queryFeatures(query);
   const dates = response.features.map((result: any) => {
-    // get today and date recorded in the table
     const today = new Date();
     const date = new Date(result.attributes.date);
 
-    // Calculate the number of days passed since the last update
+    //-- Calculate the number of days passed since the last update
     const time_passed = today.getTime() - date.getTime();
     const days_passed = Math.round(time_passed / (1000 * 3600 * 24));
 
-    const year = date.getFullYear();
+    const year = yearMonthDay(date).year;
     const month = date.toLocaleString("en-US", {
       month: "long",
     });
-    const day = date.getDate();
+    const day = yearMonthDay(date).day;
     const as_of_date = year < 1990 ? "" : `${month} ${day}, ${year}`;
     return [as_of_date, days_passed, date];
   });
   return dates;
 }
 
-export const dateFormat = (inputDate: any, format: any) => {
-  //parse the input date
-  const date = new Date(inputDate);
-
-  //extract the parts of the date
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-
-  //replace the month
-  format = format.replace("MM", month.toString().padStart(2, "0"));
-
-  //replace the year
-  if (format.indexOf("yyyy") > -1) {
-    format = format.replace("yyyy", year.toString());
-  } else if (format.indexOf("yy") > -1) {
-    format = format.replace("yy", year.toString().substr(2, 2));
-  }
-
-  //replace the day
-  format = format.replace("dd", day.toString().padStart(2, "0"));
-
-  return format;
-};
-
 //----------------------------------------------//
 //                 Others                       //
 //----------------------------------------------//
-// Thousand separators function
+//--- Thousand separators function
 export function thousands_separators(num: any) {
   if (num) {
     const num_parts = num.toString().split(".");
@@ -299,8 +274,8 @@ export function thousands_separators(num: any) {
     return 0;
   }
 }
-// Zoom to Layer
-// const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
+
+//--- Zoom to Layer
 export function zoomToLayer(layer: any, view: any) {
   return layer.queryExtent().then((response: any) => {
     view
@@ -316,46 +291,35 @@ export function zoomToLayer(layer: any, view: any) {
   });
 }
 
+//--- Highlight lot
 let highlight: any;
-export function highlightLot(layer: any, view: any) {
-  view?.whenLayerView(layer).then((urgentLayerView: any) => {
-    const query = layer.createQuery();
-    layer.queryFeatures(query).then((results: any) => {
-      const length = results.features.length;
-      const objID = [];
-      for (let i = 0; i < length; i++) {
-        const obj = results.features[i].attributes.OBJECTID;
-        objID.push(obj);
-      }
+export async function highlightLot(layer: any, view: any) {
+  const query = layer.createQuery();
 
-      if (highlight) {
-        highlight.remove();
-      }
-      highlight = urgentLayerView.highlight(objID);
-    });
-  });
+  const layerView = await view?.whenLayerView(layer);
+  const results = await layer?.queryObjectIds(query);
+
+  if (highlight) {
+    highlight.remove();
+  }
+  highlight = layerView.highlight(results);
 }
 
-export function highlightHandedOverLot(layer: any, view: any) {
-  view?.whenLayerView(layer).then((urgentLayerView: any) => {
-    const query = layer.createQuery();
-    query.where = `${lotHandedOverField} = 1 AND ${lotStatusField} <> 8`;
-    layer.queryFeatures(query).then((results: any) => {
-      const length = results.features.length;
-      const objID = [];
-      for (let i = 0; i < length; i++) {
-        const obj = results.features[i].attributes.OBJECTID;
-        objID.push(obj);
-      }
+//--- Highlight handed-over lot
+export async function highlightHandedOverLot(layer: any, view: any) {
+  const query = layer.createQuery();
+  query.where = `${lotHandedOverField} = 1 AND ${lotStatusField} <> 8`;
 
-      if (highlight) {
-        highlight.remove();
-      }
-      highlight = urgentLayerView.highlight(objID);
-    });
-  });
+  const layerView = view?.whenLayerView(layer);
+  const results = await layer?.queryObjectIds(query);
+
+  if (highlight) {
+    highlight.remove();
+  }
+  highlight = layerView.highlight(results);
 }
 
+//--- Remove highlight
 export function highlightRemove() {
   if (highlight) {
     highlight.remove();

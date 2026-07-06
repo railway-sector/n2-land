@@ -4,6 +4,9 @@ import ActionButton from "@arcgis/core/support/actions/ActionButton";
 export type statisticsType = "count" | "sum";
 export type TypeFieldType = "number" | "string";
 
+//--- cp list
+export const cp_list = ["N-01", "N-02", "N-03", "N-04", "N-05"];
+
 // Chart width
 export const chart_width = "26vw";
 export const chart_box_width = 250;
@@ -57,10 +60,10 @@ export const statusLotLabel = [
 ];
 
 export const statusLotNumber = statusLotLabel.map((stat, index) => {
-  return Object.assign({
+  return {
     category: stat,
     value: index + 1,
-  });
+  };
 });
 
 // export const statusLotColor = ['#00734d', '#0070ff', '#ffff00', '#ffaa00', '#ff0000'];
@@ -76,11 +79,11 @@ export const statusLotColor = [
 ];
 
 export const statusLotQuery = statusLotLabel.map((status, index) => {
-  return Object.assign({
+  return {
     category: status,
     value: index + 1,
     color: statusLotColor[index],
-  });
+  };
 });
 
 // Permit to Enter for lot
@@ -91,11 +94,11 @@ export const statusLotEndorsedLabel = ["Not Endorsed", "Endorsed", "NA"];
 export const statusLotEndorsedColor = ["#ff0000", "#006eff", "#d3d3d3"];
 export const statusLotEndorsedQuery = statusLotEndorsedLabel.map(
   (status, index) => {
-    return Object.assign({
+    return {
       category: status,
       value: index,
       color: statusLotEndorsedColor[index],
-    });
+    };
   },
 );
 
@@ -135,12 +138,12 @@ export const statusStructureColorRgb = [
 
 export const statusStructureQuery = statusStructureLabel.map(
   (status, index) => {
-    return Object.assign({
+    return {
       category: status,
       value: index + 1,
       colorLayer: statusStructureColorRgb[index],
       color: statusStructureColorHex[index],
-    });
+    };
   },
 );
 
@@ -179,11 +182,11 @@ export const statusNloSymbolRef = [
 ];
 
 export const statusNloQuery = statusNloLabel.map((status, index) => {
-  return Object.assign({
+  return {
     category: status,
     value: index + 1,
     color: statusNloColor[index],
-  });
+  };
 });
 
 // Structure Ownership

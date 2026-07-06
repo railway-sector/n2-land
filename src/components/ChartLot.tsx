@@ -216,11 +216,6 @@ const ChartLot = () => {
         handedOverPercent: handedover_percent,
       };
     },
-    // structuralSharing: false,
-    // staleTime: Infinity, // for lot, turn if off. this always needs to be refetched.
-    // Code below will stop rendering a chart during an initial loading.
-    // This simply means enabling this useQuery when either municipality or barangay is true.
-    // enabled: !!selectedLocation?.municipality || !!selectedLocation?.barangay,
   });
   //--- Call chart data
   const chartData = data?.chartData ?? [];
@@ -236,7 +231,7 @@ const ChartLot = () => {
   //------------------------------------------------------------//
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
-  const new_imageSize = chartPanelwidth * 0.03;
+  const new_imageSize = chartPanelwidth * 0.028;
   const new_sementedListSize = chartPanelwidth * 0.55;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieSeriesScale = 220;
@@ -300,13 +295,13 @@ const ChartLot = () => {
       qChart: queryc_lot,
       q2Expression: superurgenttype === "OFF" ? undefined : querySuperUrgent,
       status_field: stats_field,
-      arcgisScene: arcgisScene,
+      view: arcgisScene?.view,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
-      pieSeriesScale: new_pieSeriesScale,
-      pieInnerLabel: "PRIVATE LOTS",
-      pieInnerLabelFontSize: new_pieInnerLabelFontSize,
-      pieInnerValueFontSize: new_pieInnerValueFontSize,
+      seriesScale: new_pieSeriesScale,
+      innerLabel: "PRIVATE LOTS",
+      innerLabelFontSize: new_pieInnerLabelFontSize,
+      innerValueFontSize: new_pieInnerValueFontSize,
       layer: lotLayer,
       statusArray: statusLotQuery,
     });
@@ -336,7 +331,7 @@ const ChartLot = () => {
         }}
       >
         <img
-          src="https://EijiGorilla.github.io/Symbols/Land_logo.png"
+          src="https://eijigorilla.github.io/Symbols/Land_Acquisition/Land_Logo2.png"
           alt="Land Logo"
           height={`${new_imageSize}%`}
           width={`${new_imageSize}%`}

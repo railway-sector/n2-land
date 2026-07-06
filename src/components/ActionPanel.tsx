@@ -15,7 +15,7 @@ import {
   ngcp_working_area,
   prowOthersLayer,
 } from "../layers";
-import HandedOverAreaChart from "./HandedOverAreaChart";
+import HandedOverAreaChart from "./ChartHandedOverArea";
 import { updateDisplayDates, updateLotSymbology } from "../query";
 import Timeslider from "./Timeslider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -290,7 +290,7 @@ function ActionPanel() {
         <calcite-panel data-panel-id="timeslider" hidden></calcite-panel>
 
         <calcite-panel heading="Description" data-panel-id="information" hidden>
-          {nextWidget === "information" ? (
+          {nextWidget === "information" && (
             <div style={{ paddingLeft: "20px" }}>
               This smart map shows the progress on the following:
               <ul>
@@ -306,8 +306,6 @@ function ActionPanel() {
                 </li>
               </div>
             </div>
-          ) : (
-            <div className="informationDiv" hidden></div>
           )}
         </calcite-panel>
       </calcite-shell-panel>

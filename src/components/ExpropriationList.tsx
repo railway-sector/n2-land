@@ -17,6 +17,8 @@ import "../index.css";
 import { useQuery } from "@tanstack/react-query";
 import { locationKeys } from "../interfaceKeys";
 import type { SelectedLocation } from "../interfaceKeys";
+import type FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import { useMemo } from "react";
 
 //--- Zoom in to selected lot from expropriation list
 let highlightSelect: any;
@@ -42,6 +44,33 @@ async function resultClickHandler(event: any) {
   });
 }
 
+//--- queryFeatures function
+interface QueryFeaturesType {
+  layer: FeatureLayer;
+  queryc: any;
+  municipality: string;
+  barangay: string;
+  statusV: number;
+}
+
+async function queryFeatures({
+  layer,
+  queryc,
+  municipality,
+  barangay,
+  statusV,
+}: QueryFeaturesType) {
+  const query = lotLayer.createQuery();
+
+  queryc.qValues = [municipality, barangay];
+  queryc.qExpression = `${lotStatusField} = ${statusV}`;
+  query.where = queryc.queryExpression();
+  query.outFields = ["*"];
+  query.returnGeometry = true;
+
+  return await layer?.queryFeatures(query);
+}
+
 //--- List component
 const ExpropriationList = () => {
   //--- 1. Location state
@@ -59,41 +88,45 @@ const ExpropriationList = () => {
   );
   const statusExproValue = find[0]?.value;
 
-  //--- queryFeatures function
-  async function queryFeatures() {
-    const query = lotLayer.createQuery();
-
-    querycExpro.qValues = [municipality, barangay];
-    querycExpro.qExpression = `${lotStatusField} = ${statusExproValue}`;
-    query.where = querycExpro.queryExpression();
-    query.outFields = ["*"];
-    query.returnGeometry = true;
-
-    return await lotLayer?.queryFeatures(query);
-  }
-
   //--- Obtain queried Features
   const { data } = useQuery<any>({
     queryKey: [municipality, barangay, lotStatusField],
-    queryFn: () => queryFeatures(),
+    queryFn: () =>
+      queryFeatures({
+        layer: lotLayer,
+        queryc: querycExpro,
+        municipality,
+        barangay,
+        statusV: statusExproValue,
+      }),
     select: (response) => {
       return response.features;
     },
   });
 
-  const exproItem = data
-    ? data.map((feature: any, index: number) => {
-        const attributes = feature.attributes;
-        return {
-          id: index,
-          lotid: attributes.LotID,
-          landowner: attributes.LandOwner,
-          municipality: attributes.Municipality,
-          cp: attributes.CP,
-          objectid: attributes.OBJECTID,
-        };
-      })
-    : [];
+  const exproItem =
+    data &&
+    data.map((feature: any, index: number) => {
+      const attributes = feature.attributes;
+      return {
+        id: index,
+        lotid: attributes.LotID,
+        landowner: attributes.LandOwner,
+        municipality: attributes.Municipality,
+        cp: attributes.CP,
+        objectid: attributes.OBJECTID,
+      };
+    });
+
+  //--- When exproItem is not changed, do not render
+  const uniqueExproItems = useMemo(() => {
+    if (!exproItem) return [];
+    const seen = new Map<any, any>();
+    for (const item of exproItem) {
+      if (!seen.has(item.objectid)) seen.set(item.objectid, item);
+    }
+    return [...seen.values()]; //--- extract only values (not key)
+  }, [exproItem]);
 
   return (
     <>
@@ -103,56 +136,43 @@ const ExpropriationList = () => {
         displayMode="nested"
         style={{ width: chart_width }}
       >
-        {exproItem && // Extract unique objects from the array
-          exproItem
-            .filter(
-              (ele: any, ind: any) =>
-                ind ===
-                exproItem.findIndex(
-                  (elem: any) => elem.objectid === ele.objectid,
-                ),
-            )
-            .map((result: any) => {
-              return (
-                // need 'key' to upper div and inside CalciteListItem
-                <calcite-list-item
-                  key={result.id}
-                  expanded
-                  label={result.lotid}
-                  description={result.landowner}
-                  value={result.objectid}
-                  selected={undefined}
-                  oncalciteListItemSelect={(event: any) =>
-                    resultClickHandler(event)
-                  }
-                  style={{ "--calcite-list-label-text-color": "red" }}
-                >
-                  <calcite-chip
-                    value={result.cp}
-                    label={""}
-                    slot="content-end"
-                    scale="s"
-                    id="exproListChip"
-                  >
-                    <calcite-avatar
-                      full-name={result.municipality}
-                      scale="s"
-                      style={{ marginTop: "3px" }}
-                    ></calcite-avatar>
-                    <span
-                      style={{
-                        top: -7,
-                        bottom: 1,
-                        position: "relative",
-                        paddingLeft: "3px",
-                      }}
-                    >
-                      {result.cp}
-                    </span>
-                  </calcite-chip>
-                </calcite-list-item>
-              );
-            })}
+        {uniqueExproItems.map((result: any) => (
+          // need 'key' to upper div and inside CalciteListItem
+          <calcite-list-item
+            key={result.id}
+            expanded
+            label={result.lotid}
+            description={result.landowner}
+            value={result.objectid}
+            selected={undefined}
+            oncalciteListItemSelect={(event: any) => resultClickHandler(event)}
+            style={{ "--calcite-list-label-text-color": "red" }}
+          >
+            <calcite-chip
+              value={result.cp}
+              label={""}
+              slot="content-end"
+              scale="s"
+              id="exproListChip"
+            >
+              <calcite-avatar
+                full-name={result.municipality}
+                scale="s"
+                style={{ marginTop: "3px" }}
+              ></calcite-avatar>
+              <span
+                style={{
+                  top: -7,
+                  bottom: 1,
+                  position: "relative",
+                  paddingLeft: "3px",
+                }}
+              >
+                {result.cp}
+              </span>
+            </calcite-chip>
+          </calcite-list-item>
+        ))}
       </calcite-list>
     </>
   );

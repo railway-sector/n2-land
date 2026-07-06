@@ -1,5 +1,5 @@
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { updateDisplayDates, updateLotSymbology } from "../query";
+import { updateDisplayDates, updateLotSymbology, yearMonthDay } from "../query";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -65,9 +65,9 @@ export default function Timeslider() {
       () => timeSlider?.timeExtent,
       (timeExtent) => {
         if (timeExtent) {
-          const year = timeExtent.end.getFullYear();
-          const month = timeExtent.end.getMonth() + 1;
-          const day = timeExtent.end.getDate();
+          const year = yearMonthDay(timeExtent.end).year;
+          const month = yearMonthDay(timeExtent.end).month;
+          const day = yearMonthDay(timeExtent.end).day;
 
           //--- for 'As of' date in chart panel
           const c_month = timeExtent.end.toLocaleString("en-US", {
