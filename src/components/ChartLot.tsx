@@ -226,9 +226,6 @@ const ChartLot = () => {
   const totalHandedOverArea = data?.handedOverArea ?? 0;
   const affectedAreaStatus = data?.affectedAreaPie ?? [];
 
-  //------------------------------------------------------------//
-  //              Pie chart rendering declaration               //
-  //------------------------------------------------------------//
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
   const new_imageSize = chartPanelwidth * 0.028;
