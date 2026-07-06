@@ -324,7 +324,6 @@ const ChartLot = () => {
           marginLeft: "15px",
           marginRight: "15px",
           justifyContent: "space-between",
-          marginBottom: "5px",
         }}
       >
         <img
@@ -453,6 +452,7 @@ const ChartLot = () => {
           height: "57vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
+          marginTop: "2%",
           marginBottom: "1%",
           opacity: isLoading ? 0 : 1,
         }}
@@ -465,7 +465,7 @@ const ChartLot = () => {
           marginLeft: "15px",
           marginRight: "15px",
           justifyContent: "space-between",
-          marginBottom: "10px",
+          marginBottom: "5px",
         }}
       >
         <div
