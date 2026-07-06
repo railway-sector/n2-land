@@ -275,7 +275,8 @@ export function thousands_separators(num: any) {
   }
 }
 
-//--- Zoom to Layer
+//--- Zoom to Layer (test later)
+//------------------------------
 export function zoomToLayer(layer: any, view: any) {
   return layer.queryExtent().then((response: any) => {
     view
