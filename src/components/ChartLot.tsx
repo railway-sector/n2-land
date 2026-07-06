@@ -228,7 +228,7 @@ const ChartLot = () => {
 
   const new_fontSize = chartPanelwidth / 22.3;
   const new_valueSize = new_fontSize * 1.55;
-  const new_imageSize = chartPanelwidth * 0.028;
+  const new_imageSize = chartPanelwidth * 0.025;
   const new_sementedListSize = chartPanelwidth * 0.55;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_pieSeriesScale = 220;
