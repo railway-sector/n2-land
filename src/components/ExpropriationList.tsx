@@ -71,7 +71,7 @@ async function queryFeatures({
   return await layer?.queryFeatures(query);
 }
 
-//--- List component
+//--- Component for expropriation List
 const ExpropriationList = () => {
   //--- 1. Location state
   const { data: selectedLocation } = useQuery<SelectedLocation | any>({

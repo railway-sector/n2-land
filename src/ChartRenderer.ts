@@ -4,6 +4,7 @@ import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Query from "@arcgis/core/rest/support/Query";
 import { thousands_separators } from "./query";
 
+//-- Define interface
 interface CommonTypes {
   pieSeries: any;
   statusArray: StatusQueryItem[];
