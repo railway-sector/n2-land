@@ -15,7 +15,6 @@ import IconSymbol3DLayer from "@arcgis/core/symbols/IconSymbol3DLayer";
 import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
-
 import {
   statusLotEndorsedLabel,
   statusLotEndorsedQuery,

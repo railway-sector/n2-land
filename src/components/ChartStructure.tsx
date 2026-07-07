@@ -21,7 +21,6 @@ import {
   queryc_struc,
   structureLayer,
 } from "../layers";
-import { chartRenderer } from "../chartRenderer";
 import { useQuery } from "@tanstack/react-query";
 import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
 import type {
@@ -36,6 +35,7 @@ import {
   rootSetter,
   seriesSetter,
 } from "../chartSetter";
+import ChartPieSeriesRender from "chart-pie-series-render";
 
 //--------------------------------------------//
 //              Chart Component                //
@@ -77,7 +77,6 @@ const ChartStructure = () => {
 
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
-  const chartRef = useRef<unknown | any | undefined>({});
   const chartID = "structure-chart";
 
   //--- 2. Streamlined Data Fetching with useQuery
@@ -125,7 +124,6 @@ const ChartStructure = () => {
   useEffect(() => {
     const root = rootSetter({ chartID: chartID });
     const chart = chartSetter({ root: root });
-    chartRef.current = chart;
 
     const pieSeries = seriesSetter({
       chart: chart,
@@ -151,23 +149,25 @@ const ChartStructure = () => {
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
-    chartRenderer({
-      chart: chart,
-      pieSeries: pieSeries,
-      legend: legend,
-      root: root,
-      qChart: queryc_struc,
-      status_field: structureStatusField,
-      view: arcgisScene?.view,
-      updateChartPanelwidth: setChartPanelwidth,
-      data: chartData,
-      seriesScale: new_pieSeriesScale,
-      innerLabel: "STRUCTURES",
-      innerLabelFontSize: new_pieInnerLabelFontSize,
-      innerValueFontSize: new_pieInnerValueFontSize,
-      layer: structureLayer,
-      statusArray: statusStructureQuery,
-    });
+    const crender = new ChartPieSeriesRender(
+      chart,
+      pieSeries,
+      legend,
+      root,
+      queryc_struc,
+      undefined,
+      structureStatusField,
+      arcgisScene?.view,
+      setChartPanelwidth,
+      chartData,
+      new_pieSeriesScale,
+      "STRUCTURES",
+      new_pieInnerLabelFontSize,
+      new_pieInnerValueFontSize,
+      structureLayer,
+      statusStructureQuery,
+    );
+    crender.chartDataRenderer();
 
     return () => {
       root.dispose();
