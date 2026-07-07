@@ -217,6 +217,9 @@ const ChartLot = () => {
         handedOverPercent: handedover_percent,
       };
     },
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   //--- Call chart data
   const chartData = data?.chartData ?? [];
