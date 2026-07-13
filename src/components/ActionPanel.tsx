@@ -17,7 +17,12 @@ import {
   prowOthersLayer,
 } from "../layers";
 import HandedOverAreaChart from "./ChartHandedOverArea";
-import { toAsofdate, updateLotSymbology, useDateFields } from "../query";
+import {
+  toAsofdate,
+  updateLotSymbology,
+  useDateFields,
+  zoomToFullExtent,
+} from "../query";
 import Timeslider from "./Timeslider";
 import { MyContext } from "../contexts/MyContext";
 
@@ -32,6 +37,13 @@ function ActionPanel() {
   //-----------------------------------------
   const [activeWidget, setActiveWidget] = useState(null);
   const [nextWidget, setNextWidget] = useState(null);
+
+  //--- Click action handler function for active & next widget
+  const handleActionClick = (event: any) => {
+    const id = event.target.id;
+    setNextWidget(id);
+    setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
+  };
 
   //--- Line & Area measurement widget
   const directLineMeasure = document.querySelector(
@@ -120,10 +132,7 @@ function ActionPanel() {
             text="layers"
             id="layers"
             //textEnabled={true}
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -131,10 +140,7 @@ function ActionPanel() {
             icon="basemap"
             text="basemaps"
             id="basemaps"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -142,10 +148,7 @@ function ActionPanel() {
             icon="graph-bar-side-by-side"
             text="Handed-Over Area"
             id="handedover-charts"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -153,10 +156,7 @@ function ActionPanel() {
             icon="measure-line"
             text="Line Measurement"
             id="directline-measure"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -164,10 +164,7 @@ function ActionPanel() {
             icon="measure-area"
             text="Area Measurement"
             id="area-measure"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -175,10 +172,7 @@ function ActionPanel() {
             icon="sliders-horizontal"
             text="Land Status Change"
             id="timeslider"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -186,10 +180,7 @@ function ActionPanel() {
             icon="information"
             text="Information"
             id="information"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
         </calcite-action-bar>
 
@@ -205,35 +196,11 @@ function ActionPanel() {
             onarcgisTriggerAction={(event: any) => {
               const { id } = event.detail.action;
               if (id === "full-extent-ngcpwa") {
-                if (ngcp_working_area.fullExtent) {
-                  arcgisScene
-                    ?.goTo(ngcp_working_area.fullExtent)
-                    .catch((error: any) => {
-                      if (error.name !== "AbortError") {
-                        console.error(error);
-                      }
-                    });
-                }
+                zoomToFullExtent(ngcp_working_area, arcgisScene?.view);
               } else if (id === "full-extent-ngcptagged") {
-                if (ngcp_tagged_structureLayer.fullExtent) {
-                  arcgisScene
-                    ?.goTo(ngcp_tagged_structureLayer.fullExtent)
-                    .catch((error) => {
-                      if (error.name !== "AbortError") {
-                        console.error(error);
-                      }
-                    });
-                }
+                zoomToFullExtent(ngcp_tagged_structureLayer, arcgisScene?.view);
               } else if (id === "full-extent-sapangbalenriver") {
-                if (prowOthersLayer.fullExtent) {
-                  arcgisScene
-                    ?.goTo(prowOthersLayer.fullExtent)
-                    .catch((error) => {
-                      if (error.name !== "AbortError") {
-                        console.error(error);
-                      }
-                    });
-                }
+                zoomToFullExtent(prowOthersLayer, arcgisScene?.view);
               }
             }}
           ></arcgis-layer-list>

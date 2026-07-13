@@ -1012,46 +1012,34 @@ export const ngcp_tagged_renderer = new SimpleRenderer({
   }),
 });
 
-// Layter list
+//----------------------------------------------//
+//                Layer List                    //
+//----------------------------------------------//
+function zoomToAction(id: string) {
+  return new Collection([
+    new Collection([
+      new ActionButton({
+        title: "Zoom to Area",
+        icon: "zoom-in-fixed",
+        id: id,
+      }),
+    ]),
+  ]);
+}
+
 export async function defineActions(event: any) {
   const { item } = event;
 
-  if (item.title === "Sapang Balen River Realignment") {
-    item.actionsSections = new Collection([
-      new Collection([
-        new ActionButton({
-          title: "Zoom to Area",
-          icon: "zoom-in-fixed",
-          id: "full-extent-sapangbalenriver",
-        }),
-      ]),
-    ]);
+  if (item.title === "Additional Area due to Sapang Balen River Training") {
+    item.actionsSections = zoomToAction("full-extent-sapangbalenriver");
   }
 
   if (item.title === "NGCP Pole Relocation Working Area") {
-    item.actionsSections = new Collection([
-      new Collection([
-        new ActionButton({
-          title: "Zoom to Area",
-          icon: "zoom-in-fixed",
-          id: "full-extent-ngcpwa",
-        }),
-      ]),
-    ]);
+    item.actionsSections = zoomToAction("full-extent-ngcpwa");
   }
 
   if (item.title === "NGCP Pole Relocation Tagged Structures") {
-    item.actionsSections = new Collection([
-      new Collection([
-        new ActionButton({
-          title: "Zoom to Area",
-          icon: "zoom-in-fixed",
-          id: "full-extent-ngcptagged",
-        }),
-      ]),
-    ]);
-
-    // highlightLot(ngcp_tagged_structureLayer);
+    item.actionsSections = zoomToAction("full-extent-ngcptagged");
   }
 
   if (item.layer.type !== "group") {

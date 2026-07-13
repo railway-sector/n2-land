@@ -382,7 +382,6 @@ export function thousands_separators(num: any) {
 }
 
 //--- Zoom to Layer (test later)
-//------------------------------
 export function zoomToLayer(layer: any, view: any) {
   return layer.queryExtent().then((response: any) => {
     view
@@ -396,6 +395,16 @@ export function zoomToLayer(layer: any, view: any) {
         }
       });
   });
+}
+
+//--- Zoom to fullExtet
+export function zoomToFullExtent(layer: any, view: any) {
+  layer.fullExtent &&
+    view?.goTo(layer.fullExtent).catch((error: any) => {
+      if (error.name !== "AbortError") {
+        console.error(error);
+      }
+    });
 }
 
 //--- Highlight lot
