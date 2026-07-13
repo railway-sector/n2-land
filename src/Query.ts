@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable no-unsafe-optional-chaining */
+import { dateTable, lotLayer } from "./layers";
 import {
-  dateTable,
-  lotDefaultSymbol,
-  lotLayer,
-  lotLayerRendererUniqueValueInfos,
-} from "./layers";
-import { cpField, lotHandedOverField, lotStatusField } from "./uniqueValues";
+  cp_f,
+  lot_ho_f,
+  lot_status_f,
+  lot_symbol,
+  lot_uniqueV,
+} from "./uniqueValues";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import type { QueryClient } from "@tanstack/react-query";
-import { dateDisplayKeys, type DisplayDates } from "./interfaceKeys";
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 import Query from "@arcgis/core/rest/support/Query";
-import type { statisticsType } from "./uniqueValues";
+import { useQuery } from "@tanstack/react-query";
+import { datefieldKeys } from "./interfaceKeys";
+import type { DateFieldsType } from "./interfaceKeys";
+import QueryExpressionLayers from "query-layers-expression";
+import type { statisticsType } from "./interfaceKeys";
 
 //---------------------------------------------------------//
 //                 Add Layers to Map                      //
@@ -23,53 +26,6 @@ export function addLayersToMap(map: any, layersList: any[]) {
   layersList.forEach((layer: any) => {
     map.add(layer);
   });
-}
-
-//--- Update asOfDate and/or daysPass
-// This only updates either 'asOfDate' or 'daysPass'
-export function updateDisplayDates(
-  queryClient: QueryClient,
-  fieldToUpdate: "asOfDate" | "daysPass",
-  value: string,
-) {
-  queryClient.setQueryData<DisplayDates>(
-    dateDisplayKeys.selected,
-    (oldData: any) => ({
-      ...oldData, // Retains whichever field is NOT being updated
-      [fieldToUpdate]: value,
-    }),
-  );
-}
-
-//---------------------------------------------------------//
-//                Get Initial Dates                        //
-//---------------------------------------------------------//
-export async function getSortDates(layer: any) {
-  const all_fields: string[] = [];
-  layer?.fields.map((field: any) => {
-    all_fields.push(field.name);
-  });
-
-  const date_fields = all_fields.filter(
-    (field: any) => field.startsWith("x") && !isNaN(field.slice(1)),
-  );
-
-  // Re-order date fields in ascending order
-  date_fields.sort((a: any, b: any) => {
-    const a_date: any = new Date(
-      Number(a.slice(1, 5)),
-      Number(a.slice(5, 7)) - 1,
-      Number(a.slice(7, 9)),
-    );
-    const b_date: any = new Date(
-      Number(b.slice(1, 5)),
-      Number(b.slice(5, 7)) - 1,
-      Number(b.slice(7, 9)),
-    );
-    return a_date - b_date;
-  });
-
-  return date_fields;
 }
 
 //---------------------------------------------------------//
@@ -92,12 +48,10 @@ export function queryDefinitionExpression({
         featureLayer.forEach((layer) => {
           if (layer) {
             layer.definitionExpression = queryExpression;
-            // layer.visible = true;
           }
         });
       } else {
         featureLayer.definitionExpression = queryExpression;
-        // featureLayer.visible = true;
       }
     }
   }
@@ -106,7 +60,9 @@ export function queryDefinitionExpression({
 //---------------------------------------------//
 //           Lot Pie chart                     //
 //---------------------------------------------//
-// 'piechart' = constant declared from class ChartPieSeries in layers.ts
+
+//--- Chart Data Generation helper function
+// `pieChartData` function helps to assign parameter names to class `ChartPieSeries`
 interface pieChartDataType {
   piechart: any;
   qChart: any;
@@ -114,8 +70,9 @@ interface pieChartDataType {
   statusList: any;
   statusField: any;
   statisticField: any;
-  statisticType: any;
+  statisticType: "sum" | "count";
 }
+
 export async function pieChartData({
   piechart,
   qChart,
@@ -135,6 +92,7 @@ export async function pieChartData({
   return await piechart.chartDataPieSeries();
 }
 
+//--- Separate calculation
 interface fieldStatisticType {
   qChart: any;
   layer: any;
@@ -163,6 +121,94 @@ export async function fieldStatistic({
     return response.features[0].attributes.statsCollect;
   });
 }
+
+//--- Chart Render helper function
+// `pieChartRender` function helps to assign parameter names to class `ChartPieSeriesRender`
+interface PieChartRenderType {
+  render: any | null; // the first instance of new ChartPieSeriesRender
+  chart: any; // amChart
+  pieSeries: any;
+  legend: any;
+  root: any;
+  qChart: any;
+  q2Expression?: any;
+  status_field: any;
+  view: any;
+  updateChartPanelwidth: any;
+  data: any;
+  seriesScale: any;
+  innerLabel?: any;
+  innerLabelFontSize?: any;
+  innerValueFontSize?: any;
+  layer: FeatureLayer | any;
+  statusArray: StatusQueryItem[];
+  bkg_color_switch?: boolean;
+  seriesFillHash?: boolean;
+}
+
+interface StatusQueryItem {
+  category: string;
+  value: number | string;
+  color: string;
+}
+
+export async function PieChartRenderType({
+  render,
+  chart,
+  pieSeries,
+  legend,
+  root,
+  qChart,
+  q2Expression,
+  status_field,
+  view,
+  updateChartPanelwidth,
+  data,
+  seriesScale,
+  innerLabel,
+  innerLabelFontSize,
+  innerValueFontSize,
+  layer,
+  statusArray,
+  bkg_color_switch,
+  seriesFillHash,
+}: PieChartRenderType) {
+  render.chart = chart;
+  render.pieSeries = pieSeries;
+  render.legend = legend;
+  render.root = root;
+  render.qChart = qChart;
+  render.q2Expression = q2Expression;
+  render.status_field = status_field;
+  render.view = view;
+  render.updateChartPanelwidth = updateChartPanelwidth;
+  render.data = data;
+  render.seriesScale = seriesScale;
+  render.innerLabel = innerLabel;
+  render.innerLabelFontSize = innerLabelFontSize;
+  render.innerValueFontSize = innerValueFontSize;
+  render.layer = layer;
+  render.statusArray = statusArray;
+  render.bkg_color_switch = bkg_color_switch;
+  render.seriesFillHash = seriesFillHash;
+
+  return await render.chartDataRenderer();
+}
+
+//--- Returns query expression
+export const makeQuery = (
+  qValues: string[],
+  qFields: string[],
+  qExpression?: string,
+  q2Expression?: string,
+) => {
+  const q = new QueryExpressionLayers();
+  q.qValues = qValues;
+  q.qFields = qFields;
+  if (qExpression) q.qExpression = qExpression;
+  if (q2Expression) q.q2Expression = q2Expression;
+  return q;
+};
 
 //---------------------------------------------//
 //           Lot (handed over area)            //
@@ -194,7 +240,7 @@ export async function handedOverAreaByContractp({
       });
 
       const query = layer.createQuery();
-      query.where = `CP = '${cp}' AND ${cpField} IS NOT NULL`;
+      query.where = `CP = '${cp}' AND ${cp_f} IS NOT NULL`;
       query.outStatistics = [aa, hoa];
 
       const response = await layer?.queryFeatures(query);
@@ -209,15 +255,15 @@ export async function handedOverAreaByContractp({
   );
 }
 
-//----------------------------------------//
-//------ Symbology of lot layer ----------//
-//----------------------------------------//
+//--------------------------------------------//
+//  Change symbology of lot layer             //
+//--------------------------------------------//
 export function updateLotSymbology(new_date_field: any) {
   try {
     const lotLayerRenderer = new UniqueValueRenderer({
       field: new_date_field,
-      defaultSymbol: lotDefaultSymbol, // autocasts as new SimpleFillSymbol()
-      uniqueValueInfos: lotLayerRendererUniqueValueInfos,
+      defaultSymbol: lot_symbol, // autocasts as new SimpleFillSymbol()
+      uniqueValueInfos: lot_uniqueV,
     });
     lotLayer.renderer = lotLayerRenderer;
   } catch (error) {
@@ -225,40 +271,100 @@ export function updateLotSymbology(new_date_field: any) {
   }
 }
 
-//----------------------------------------//
-//------        Date and Month       -----//
-//----------------------------------------//
+//---------------------------------------------------------//
+//                Get & Sort date fields                   //
+//---------------------------------------------------------//
+function parseDateField(field: string): Date {
+  return new Date(
+    Number(field.slice(1, 5)),
+    Number(field.slice(5, 7)) - 1,
+    Number(field.slice(7, 9)),
+  );
+}
+
+export async function getSortDates(layer: any) {
+  //--- Get raw date fields (x202402013,.....)
+  const xdates = (layer?.fields ?? [])
+    .map((field: any) => field.name)
+    .filter(
+      (name: string) => name.startsWith("x") && !isNaN(Number(name.slice(1))),
+    )
+    .sort(
+      (a: string, b: string) =>
+        parseDateField(a).getTime() - parseDateField(b).getTime(),
+    );
+  return xdates;
+}
+
+export function toDateList(xdates: any) {
+  //--- Conver xdates to a list of dates in date format
+  const dateList: Date[] =
+    xdates.map((date: string) => {
+      const yyyy = Number(date.slice(1, 5));
+      const mm = Number(date.slice(5, 7)) - 1;
+      const dd = Number(date.slice(7, 9));
+      return new Date(yyyy, mm, dd);
+    }) ?? [];
+
+  return dateList;
+}
+
+//---------------------------------------------------------//
+//                Get as-of-date                           //
+//---------------------------------------------------------//
 export function yearMonthDay(date: Date) {
   return {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate(),
+    year: date?.getFullYear() ?? 0,
+    month: date?.getMonth() + 1,
+    day: date?.getDate(),
   };
 }
 
-//--- Update date
-export async function dateUpdate(category: any) {
+export function toAsofdate(date: Date) {
+  //--- Return displayed date: (as of date)
+  const { year, day } = yearMonthDay(date);
+  const cmonth = date?.toLocaleString("en-US", { month: "long" });
+  return `${cmonth} ${day}, ${year}`;
+}
+
+export async function dateUpdate(category: string) {
+  //--- Only executed during an initial render
   const query = dateTable.createQuery();
   query.where = `project = 'N2' AND category = '${category}'`;
 
-  const response = await dateTable.queryFeatures(query);
-  const dates = response.features.map((result: any) => {
-    const today = new Date();
-    const date = new Date(result.attributes.date);
+  const { features } = await dateTable.queryFeatures(query);
+  return features.map(({ attributes }: any) => {
+    const date = new Date(attributes.date);
+    const asofdate = toAsofdate(date);
 
-    //-- Calculate the number of days passed since the last update
-    const time_passed = today.getTime() - date.getTime();
-    const days_passed = Math.round(time_passed / (1000 * 3600 * 24));
-
-    const year = yearMonthDay(date).year;
-    const month = date.toLocaleString("en-US", {
-      month: "long",
-    });
-    const day = yearMonthDay(date).day;
-    const as_of_date = year < 1990 ? "" : `${month} ${day}, ${year}`;
-    return [as_of_date, days_passed, date];
+    return asofdate;
   });
-  return dates;
+}
+
+export function xDateFieldsToDate(xdate: any) {
+  //--- Convert a single xDate to a date in date format
+  const yyyy = Number(xdate.slice(1, 5));
+  const desired_mm = Number(xdate.slice(5, 7));
+  const dd = Number(xdate.slice(7, 9));
+  const mm = desired_mm - 1;
+  const final = new Date(yyyy, mm, dd);
+
+  return final;
+}
+
+//--- UseQuery to get a list of time-slider dates & latest date
+export function useDateFields(lotLayer: any) {
+  return useQuery<DateFieldsType>({
+    queryKey: [datefieldKeys.selected, lotLayer],
+    queryFn: async () => {
+      const response = await getSortDates(lotLayer);
+      return {
+        dateFields: response,
+        latestdate: xDateFieldsToDate(response.at(-1)),
+      };
+    },
+    staleTime: Infinity,
+  });
 }
 
 //----------------------------------------------//
@@ -309,7 +415,7 @@ export async function highlightLot(layer: any, view: any) {
 //--- Highlight handed-over lot
 export async function highlightHandedOverLot(layer: any, view: any) {
   const query = layer.createQuery();
-  query.where = `${lotHandedOverField} = 1 AND ${lotStatusField} <> 8`;
+  query.where = `${lot_ho_f} = 1 AND ${lot_status_f} <> 8`;
 
   const layerView = view?.whenLayerView(layer);
   const results = await layer?.queryObjectIds(query);

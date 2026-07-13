@@ -1,26 +1,20 @@
+export type statisticsType = "count" | "sum";
+export type TypeFieldType = "number" | "string";
+
 //--- Dropdown
 export interface SelectedLocation {
-  municipality?: string | any;
-  barangay?: string | any;
+  municipality: string | any;
+  barangay: string | any;
 }
 
 export const locationKeys = {
   selected: ["selectedLocation"] as const,
 };
 
-//--- timeslider state type
-export interface TimeSliderState {
-  timesliderstate: boolean;
-}
-
-export const timesliderKeys = {
-  selected: ["selectedTimesliderState"] as const,
-};
-
 //-- date fields (needs to render only once)
 export interface DateFieldsType {
   dateFields: any;
-  latestasofdate: any;
+  latestdate?: any;
 }
 
 export const datefieldKeys = {

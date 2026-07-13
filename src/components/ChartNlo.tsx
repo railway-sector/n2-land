@@ -1,75 +1,50 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { useRef, useState, useEffect, memo } from "react";
-import * as am5 from "@amcharts/amcharts5";
+import { useRef, useState, useEffect, memo, use } from "react";
 import {
   thousands_separators,
   queryDefinitionExpression,
-  dateUpdate,
   pieChartData,
   fieldStatistic,
+  useDateFields,
+  toAsofdate,
+  makeQuery,
+  PieChartRenderType,
 } from "../query";
 import {
-  nloStatusField,
+  barangay_f,
+  municipality_f,
+  nlo_status_f,
+  nlo_status_q,
   primaryLabelColor,
-  statusNloQuery,
-  updatedDateCategoryNames,
   valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { nloLayer, piechart_nlo, queryc_nlo } from "../layers";
+import { lotLayer, nloLayer } from "../layers";
 import { useQuery } from "@tanstack/react-query";
-import { locationKeys, dateDisplayKeys } from "../interfaceKeys";
-import type {
-  SelectedLocation,
-  ChartResponse,
-  DisplayDates,
-} from "../interfaceKeys";
+import type { ChartResponse } from "../interfaceKeys";
 import {
   chartSetter,
   legendSetter,
-  // maybeDisposeRoot,
   rootSetter,
   seriesSetter,
 } from "../chartSetter";
 import ChartPieSeriesRender from "chart-pie-series-render";
-
-// Dispose function
-function maybeDisposeRoot(divId: any) {
-  am5.array.each(am5.registry.rootElements, function (root) {
-    if (root.dom.id === divId) {
-      root.dispose();
-    }
-  });
-}
+import { MyContext } from "../contexts/MyContext";
+import ChartPieSeries from "chart-pie-series";
 
 //--------------------------------------------//
 //              Chart Component                //
 //--------------------------------------------//
 const ChartNlo = memo(() => {
+  const { municipality, barangay } = use(MyContext);
+
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
 
-  //--- 0. As of date
-  const { data: newAsOfDate } = useQuery<DisplayDates | any>({
-    queryKey: [dateDisplayKeys.selected, updatedDateCategoryNames[0]],
-    queryFn: () => dateUpdate(updatedDateCategoryNames[2]),
-    select: (response) => {
-      return {
-        asOfDate: response[0][0],
-        daysPass: response[0][1],
-      };
-    },
-    staleTime: Infinity,
-  });
-
-  //--- 1. Location state
-  const { data: selectedLocation } = useQuery<SelectedLocation | any>({
-    queryKey: locationKeys.selected,
-    queryFn: async () => ({}),
-    staleTime: Infinity,
-  });
-  const municipality = selectedLocation?.municipality;
-  const barangay = selectedLocation?.barangay;
+  //--- As of date
+  //--- Initial date to display
+  const { data: dateList } = useDateFields(lotLayer); // use lotLayer
+  const latestDate = toAsofdate(dateList?.latestdate);
 
   //--- Chart parameters
   const new_fontSize = chartPanelwidth / 22.3;
@@ -84,13 +59,14 @@ const ChartNlo = memo(() => {
   const legendRef = useRef<unknown | any | undefined>({});
   const chartID = "nlo-chart";
 
-  //--- 2. Streamlined Data Fetching with useQuery
-  const { data, isLoading } = useQuery<ChartResponse | any>({
-    queryKey: [municipality, barangay, nloStatusField, nloLayer],
-    queryFn: async () => {
-      queryc_nlo.qValues = [municipality, barangay];
-      queryc_nlo.qExpression = `${nloStatusField} >= 1`;
+  //--- Generat Chart Data
+  const qV = [municipality, barangay];
+  const qF = [municipality_f, barangay_f];
+  const queryc_nlo = makeQuery(qV, qF, `${nlo_status_f} >= 1`);
 
+  const { data, isLoading } = useQuery<ChartResponse | any>({
+    queryKey: [municipality, barangay, nlo_status_f, nloLayer],
+    queryFn: async () => {
       queryDefinitionExpression({
         queryExpression: queryc_nlo.queryExpression(),
         featureLayer: [nloLayer],
@@ -98,25 +74,25 @@ const ChartNlo = memo(() => {
 
       //--- Pie chart data
       const chartData = await pieChartData({
-        piechart: piechart_nlo,
+        piechart: new ChartPieSeries(),
         qChart: queryc_nlo,
         layer: nloLayer,
-        statusList: statusNloQuery,
-        statusField: nloStatusField,
-        statisticField: nloStatusField,
+        statusList: nlo_status_q,
+        statusField: nlo_status_f,
+        statisticField: nlo_status_f,
         statisticType: "count",
       });
 
       const totaln = await fieldStatistic({
         qChart: queryc_nlo.queryExpression(),
         layer: nloLayer,
-        statisticField: nloStatusField,
+        statisticField: nlo_status_f,
         statisticType: "count",
       });
 
       return {
         chartData: chartData[0] || [],
-        totalNumber: totaln ?? 0,
+        totaln: totaln ?? 0,
       };
     },
     staleTime: Infinity,
@@ -124,10 +100,9 @@ const ChartNlo = memo(() => {
 
   //--- Call chart data
   const chartData = data?.chartData ?? [];
-  const totalNumber = data?.totalNumber ?? 0;
+  const totaln = data?.totaln ?? 0;
 
   useEffect(() => {
-    maybeDisposeRoot(chartID);
     const root = rootSetter({ chartID: chartID });
     const chart = chartSetter({ root: root, y: -10 });
 
@@ -155,25 +130,27 @@ const ChartNlo = memo(() => {
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
-    const crender = new ChartPieSeriesRender(
+    PieChartRenderType({
+      render: new ChartPieSeriesRender(),
       chart,
-      pieSeries,
+      pieSeries: pieSeries,
       legend,
       root,
-      queryc_nlo,
-      undefined,
-      nloStatusField,
-      arcgisScene?.view,
-      setChartPanelwidth,
-      chartData,
-      new_pieSeriesScale,
-      "HOUSEHOLDS",
-      new_pieInnerLabelFontSize,
-      new_pieInnerValueFontSize,
-      nloLayer,
-      statusNloQuery,
-    );
-    crender.chartDataRenderer();
+      qChart: queryc_nlo,
+      q2Expression: undefined,
+      status_field: nlo_status_f,
+      view: arcgisScene?.view,
+      updateChartPanelwidth: setChartPanelwidth,
+      data: chartData,
+      seriesScale: new_pieSeriesScale,
+      innerLabel: "HOUSEHOLDS",
+      innerLabelFontSize: new_pieInnerLabelFontSize,
+      innerValueFontSize: new_pieInnerValueFontSize,
+      layer: nloLayer,
+      statusArray: nlo_status_q,
+      bkg_color_switch: false,
+      seriesFillHash: undefined,
+    });
 
     return () => {
       root.dispose();
@@ -224,19 +201,19 @@ const ChartNlo = memo(() => {
               opacity: isLoading ? 0 : 1,
             }}
           >
-            {thousands_separators(totalNumber)}
+            {thousands_separators(totaln)}
           </dd>
         </dl>
       </div>
       <div
         style={{
-          color: newAsOfDate?.daysPass === true ? "red" : "gray",
+          color: "gray",
           fontSize: `${new_asofDateSize}px`,
           float: "right",
           marginRight: "5px",
         }}
       >
-        {!newAsOfDate?.asOfDate ? "" : "As of " + newAsOfDate?.asOfDate}
+        {latestDate ? `As of ${latestDate}` : `As of `}
       </div>
       <div
         id={chartID}

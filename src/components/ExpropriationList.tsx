@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable array-callback-return */
-import { lotLayer, querycExpro } from "../layers";
+import { lotLayer } from "../layers";
 import Query from "@arcgis/core/rest/support/Query";
 import "@esri/calcite-components/components/calcite-shell";
 import "@esri/calcite-components/components/calcite-list";
@@ -11,14 +11,20 @@ import "@esri/calcite-components/components/calcite-chip";
 import "@esri/calcite-components/components/calcite-chip-group";
 import "@esri/calcite-components/components/calcite-avatar";
 import "@esri/calcite-components/components/calcite-action-bar";
-import { chart_width, lotStatusField, statusLotNumber } from "../uniqueValues";
+import {
+  barangay_f,
+  chart_width,
+  lot_status_f,
+  lot_status_q,
+  municipality_f,
+} from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import "../index.css";
 import { useQuery } from "@tanstack/react-query";
-import { locationKeys } from "../interfaceKeys";
-import type { SelectedLocation } from "../interfaceKeys";
 import type FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
+import { MyContext } from "../contexts/MyContext";
+import { makeQuery } from "../query";
 
 //--- Zoom in to selected lot from expropriation list
 let highlightSelect: any;
@@ -38,6 +44,7 @@ async function resultClickHandler(event: any) {
   const layerView = await arcgisScene?.whenLayerView(lotLayer);
   highlightSelect && highlightSelect.remove();
   highlightSelect = layerView.highlight([event.target.value]);
+
   arcgisScene?.view.on("click", () => {
     layerView.filter = null;
     highlightSelect.remove();
@@ -48,22 +55,10 @@ async function resultClickHandler(event: any) {
 interface QueryFeaturesType {
   layer: FeatureLayer;
   queryc: any;
-  municipality: string;
-  barangay: string;
-  statusV: number;
 }
 
-async function queryFeatures({
-  layer,
-  queryc,
-  municipality,
-  barangay,
-  statusV,
-}: QueryFeaturesType) {
+async function queryFeatures({ layer, queryc }: QueryFeaturesType) {
   const query = lotLayer.createQuery();
-
-  queryc.qValues = [municipality, barangay];
-  queryc.qExpression = `${lotStatusField} = ${statusV}`;
   query.where = queryc.queryExpression();
   query.outFields = ["*"];
   query.returnGeometry = true;
@@ -73,32 +68,22 @@ async function queryFeatures({
 
 //--- Component for expropriation List
 const ExpropriationList = () => {
-  //--- 1. Location state
-  const { data: selectedLocation } = useQuery<SelectedLocation | any>({
-    queryKey: locationKeys.selected,
-    queryFn: async () => ({}),
-    staleTime: Infinity,
-  });
-  const municipality = selectedLocation?.municipality;
-  const barangay = selectedLocation?.barangay;
+  const { municipality, barangay } = use(MyContext);
 
-  //--- Obtain Status number for 'For Expropriation'
-  const find = statusLotNumber.filter((e) =>
+  //--- Status value for Expro
+  const exproV = lot_status_q.filter((e: any) =>
     e.category.includes("Expropriation"),
-  );
-  const statusExproValue = find[0]?.value;
+  )[0]?.value;
+
+  //--- Make query expression
+  const qV = [municipality, barangay];
+  const qF = [municipality_f, barangay_f];
+  const querycExpro = makeQuery(qV, qF, `${lot_status_f} = ${exproV}`);
 
   //--- Obtain queried Features
   const { data } = useQuery<any>({
-    queryKey: [municipality, barangay, lotStatusField],
-    queryFn: () =>
-      queryFeatures({
-        layer: lotLayer,
-        queryc: querycExpro,
-        municipality,
-        barangay,
-        statusV: statusExproValue,
-      }),
+    queryKey: [municipality, barangay, lot_status_f],
+    queryFn: () => queryFeatures({ layer: lotLayer, queryc: querycExpro }),
     select: (response) => {
       return response.features;
     },

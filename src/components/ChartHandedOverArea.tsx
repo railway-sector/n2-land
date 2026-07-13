@@ -5,21 +5,17 @@ import { handedOverAreaByContractp } from "../query";
 import { rootSetter } from "../chartSetter";
 import { useQuery } from "@tanstack/react-query";
 import { lotLayer } from "../layers";
-import {
-  affectedAreaField,
-  cp_list,
-  lotHandedOverAreaField,
-} from "../uniqueValues";
+import { cp_list, lot_aa_f, lot_hoa_f } from "../uniqueValues";
 
 const HandedOverAreaChart = memo(() => {
   const chartID = "lot-handedover";
 
   const { data, isLoading } = useQuery<any>({
-    queryKey: [lotLayer, affectedAreaField, lotHandedOverAreaField],
+    queryKey: [lotLayer, lot_aa_f, lot_hoa_f],
     queryFn: async () => {
       const chartData = await handedOverAreaByContractp({
-        aa_field: affectedAreaField,
-        hoa_field: lotHandedOverAreaField,
+        aa_field: lot_aa_f,
+        hoa_field: lot_hoa_f,
         cp_list: cp_list,
         layer: lotLayer,
       });
