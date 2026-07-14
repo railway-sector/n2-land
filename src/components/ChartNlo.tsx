@@ -178,7 +178,11 @@ const ChartNlo = memo(() => {
           alt="Structure Logo"
           height={`${new_imageSize}%`}
           width={`${new_imageSize}%`}
-          style={{ paddingTop: "5px", paddingLeft: "5px" }}
+          style={{
+            paddingTop: "5px",
+            paddingLeft: "5px",
+            opacity: isLoading ? 0 : 1,
+          }}
         />
         <dl style={{ alignItems: "center" }}>
           <dt
