@@ -31,6 +31,7 @@ import {
   pnr_popup,
   label_stationp,
   lot_meralco_tss_renderer,
+  lot_meralco_tss_lot_renderer,
 } from "./uniqueValues";
 //----------------------------------------------//
 //            Alignment Layers                  //
@@ -172,7 +173,7 @@ export const lotLayer = new FeatureLayer({
 //--- MERALCO TSS 10 ---//
 export const Meralco_tss10_layer = new FeatureLayer({
   portalItem: portalItems("d5c43ca76b9a475e954e9c3d3595e2af"),
-  renderer: lot_meralco_tss_renderer,
+  renderer: lot_meralco_tss_lot_renderer,
   title: "Additional Area for MERALCO TSS 10",
   minScale: 150000,
   maxScale: 0,

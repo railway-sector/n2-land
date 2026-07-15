@@ -256,6 +256,14 @@ export const lot_meralco_tss_renderer = new SimpleRenderer({
   }),
 });
 
+export const lot_meralco_tss_lot_renderer = new SimpleRenderer({
+  symbol: new SimpleLineSymbol({
+    color: "#f10861",
+    width: "3px",
+    style: "short-dash",
+  }),
+});
+
 //--- ENDORSED LOT LAYER ---//
 export const lot_endorsed_q = [
   { value: 0, category: "Not Endorsed", color: "#ff0000" },
