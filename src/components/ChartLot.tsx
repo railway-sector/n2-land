@@ -66,6 +66,9 @@ const ChartLot = () => {
   const [handedOverCheckBox, setHandedOverCheckBox] = useState<any>(false);
   const [urgentType, setUrgentType] = useState<any>(lot_urgent_switch[0]);
 
+  //--- Skip zoomToLayer in an initial render
+  const firstLoad = useRef<boolean>(true);
+
   //--- Initial date to display
   const { data: dateList } = useDateFields(lotLayer);
   const latestDate = toAsofdate(dateList?.latestdate);
@@ -168,9 +171,11 @@ const ChartLot = () => {
         ((total_ho_lot / totaln) * 100).toFixed(0),
       );
 
-      if (!timesliderOn) {
-        zoomToLayer(lotLayer, arcgisScene);
+      //--- Only zoom on subsequent (non-initial) fetches
+      if (!firstLoad.current) {
+        if (!timesliderOn) zoomToLayer(lotLayer, arcgisScene);
       }
+      firstLoad.current = false;
 
       return {
         chartData: chartData[0] || [],

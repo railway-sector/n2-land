@@ -32,7 +32,7 @@ export const portalItems = (id: any) => {
 };
 
 //--- cp list
-export const cp_list = ["N-01", "N-02", "N-03", "N-04", "N-05"];
+export const cp_list = ["All", "N-01", "N-02", "N-03", "N-04", "N-05"];
 
 export const monitorLists = ["Land Acquisition", "Structure", "Non Land Owner"];
 
@@ -64,9 +64,6 @@ export const color_completed = "#0070ff";
 // lu: land use
 // pho: percent handed-over area
 // aa: affected area
-
-// export const lotTargetActualField = "TargetActual";
-// export const lotTargetActualDateField = "TargetActualDate";
 
 export const cp_f = "CP";
 export const municipality_f = "Municipality";
