@@ -22,7 +22,7 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import "../index.css";
 import { useQuery } from "@tanstack/react-query";
 import type FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import { use, useMemo } from "react";
+import { memo, use, useMemo } from "react";
 import { MyContext } from "../contexts/MyContext";
 import { makeQuery } from "../query";
 
@@ -33,13 +33,9 @@ async function resultClickHandler(event: any) {
   const queryExtent = new Query({
     objectIds: [event.target.value],
   });
+
   const result = await lotLayer.queryExtent(queryExtent);
-  result.extent &&
-    arcgisScene?.goTo({
-      target: result.extent,
-      // speedFactor: 2,
-      zoom: 17,
-    });
+  result.extent && arcgisScene?.goTo({ target: result.extent, zoom: 17 });
 
   const layerView = await arcgisScene?.whenLayerView(lotLayer);
   highlightSelect && highlightSelect.remove();
@@ -67,7 +63,7 @@ async function queryFeatures({ layer, queryc }: QueryFeaturesType) {
 }
 
 //--- Component for expropriation List
-const ExpropriationList = () => {
+const ExpropriationList = memo(() => {
   const { municipality, barangay } = use(MyContext);
 
   //--- Status value for Expro
@@ -87,6 +83,7 @@ const ExpropriationList = () => {
     select: (response) => {
       return response.features;
     },
+    staleTime: Infinity,
   });
 
   const exproItem =
@@ -106,6 +103,7 @@ const ExpropriationList = () => {
   //--- When exproItem is not changed, do not render
   const uniqueExproItems = useMemo(() => {
     if (!exproItem) return [];
+
     const seen = new Map<any, any>();
     for (const item of exproItem) {
       if (!seen.has(item.objectid)) seen.set(item.objectid, item);
@@ -122,7 +120,6 @@ const ExpropriationList = () => {
         style={{ width: chart_width }}
       >
         {uniqueExproItems.map((result: any) => (
-          // need 'key' to upper div and inside CalciteListItem
           <calcite-list-item
             key={result.id}
             expanded
@@ -161,6 +158,6 @@ const ExpropriationList = () => {
       </calcite-list>
     </>
   );
-};
+});
 
 export default ExpropriationList;

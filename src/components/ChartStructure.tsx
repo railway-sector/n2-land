@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { memo, use, useEffect, useRef, useState } from "react";
 import {
   thousands_separators,
   queryDefinitionExpression,
@@ -35,7 +35,7 @@ import ChartPieSeries from "chart-pie-series";
 //--------------------------------------------//
 //              Chart Component                //
 //--------------------------------------------//
-const ChartStructure = () => {
+const ChartStructure = memo(() => {
   const { municipality, barangay } = use(MyContext);
 
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
@@ -229,6 +229,6 @@ const ChartStructure = () => {
       ></div>
     </>
   );
-}; // End of lotChartgs
+}); // End of lotChartgs
 
 export default ChartStructure;
