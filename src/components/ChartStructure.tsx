@@ -7,7 +7,7 @@ import {
   useDateFields,
   toAsofdate,
   makeQuery,
-  PieChartRenderType,
+  PieChartRender,
 } from "../query";
 import "../index.css";
 import {
@@ -129,7 +129,7 @@ const ChartStructure = memo(() => {
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
-    PieChartRenderType({
+    PieChartRender({
       render: new ChartPieSeriesRender(),
       chart,
       pieSeries: pieSeries,

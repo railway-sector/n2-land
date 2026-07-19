@@ -11,7 +11,7 @@ import {
   useDateFields,
   toAsofdate,
   makeQuery,
-  PieChartRenderType,
+  PieChartRender,
 } from "../query";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
@@ -255,7 +255,7 @@ const ChartLot = () => {
     legend.data.setAll(pieSeries.dataItems);
 
     //--- Render Chart
-    PieChartRenderType({
+    PieChartRender({
       render: new ChartPieSeriesRender(),
       chart,
       pieSeries: pieSeries,

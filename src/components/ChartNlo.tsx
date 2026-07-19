@@ -8,7 +8,7 @@ import {
   useDateFields,
   toAsofdate,
   makeQuery,
-  PieChartRenderType,
+  PieChartRender,
 } from "../query";
 import {
   barangay_f,
@@ -130,7 +130,7 @@ const ChartNlo = memo(() => {
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
-    PieChartRenderType({
+    PieChartRender({
       render: new ChartPieSeriesRender(),
       chart,
       pieSeries: pieSeries,
