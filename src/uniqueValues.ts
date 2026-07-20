@@ -463,7 +463,7 @@ export const nlo_status_q = [
   {
     value: 6,
     category: "For Notice of Taking",
-    color: "#6f0000",
+    color: "#FF5733",
     logo: nlo_status_symbol[5],
   },
 ];
