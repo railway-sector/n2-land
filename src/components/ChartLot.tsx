@@ -368,7 +368,7 @@ const ChartLot = () => {
         </dl>
       </div>
 
-      <div style={{ display: "flex", gap: "20px", marginTop: "1%" }}>
+      <div style={{ display: "flex", gap: "20px", marginTop: "2%" }}>
         <div
           style={{
             marginLeft: "15px",
