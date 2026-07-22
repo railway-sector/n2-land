@@ -201,11 +201,11 @@ const ChartLot = () => {
   const total_hoa = data?.total_hoa || 0;
   const aa_pie = data?.aa_pie || [];
 
-  const new_fontSize = chartPanelwidth / 22.3;
-  const new_valueSize = new_fontSize * 1.55;
+  const new_fontSize = chartPanelwidth / 30;
+  const new_valueSize = chartPanelwidth / 19;
   const new_imageSize = chartPanelwidth * 0.025;
   const new_sementedListSize = chartPanelwidth * 0.55;
-  const new_asofDateSize = chartPanelwidth * 0.032;
+  const new_asofDateSize = chartPanelwidth * 0.03;
   const new_pieSeriesScale = 220;
   const new_pieInnerValueFontSize = "1.1rem";
   const new_pieInnerLabelFontSize = "0.45em";
@@ -238,7 +238,6 @@ const ChartLot = () => {
         '{category}[/] ([#C9CC3F; bold]{valuePercentTotal.formatNumber("#.")}%[/]) ',
       radius: 45,
       innerRadius: 28,
-      // scale: 1.7,
     });
     pieSeriesRef.current = pieSeries;
     chart.series.push(pieSeries);
@@ -310,20 +309,16 @@ const ChartLot = () => {
           height={`${new_imageSize}%`}
           width={`${new_imageSize}%`}
           style={{
-            paddingTop: "5px",
-            paddingLeft: "5px",
+            paddingTop: "1%",
+            paddingLeft: "1%",
             opacity: isLoading ? 0 : 1,
           }}
         />
-        <dl
-          style={{
-            alignItems: "center",
-          }}
-        >
+        <dl style={{ alignItems: "center" }}>
           <dt
             style={{ color: primaryLabelColor, fontSize: `${new_fontSize}px` }}
           >
-            Total Lots
+            TOTAL LOTS
           </dt>
           <dd
             style={{
@@ -334,6 +329,7 @@ const ChartLot = () => {
               lineHeight: "1.2",
               margin: "auto",
               opacity: isLoading ? 0 : 1,
+              textAlign: "center",
             }}
           >
             {thousands_separators(totaln)}
@@ -343,7 +339,7 @@ const ChartLot = () => {
           <dt
             style={{ color: primaryLabelColor, fontSize: `${new_fontSize}px` }}
           >
-            Total Affected Area
+            TOTAL AFFECTED AREA
           </dt>
           {/* #d3d3d3 */}
           <dd
@@ -355,6 +351,7 @@ const ChartLot = () => {
               margin: "auto",
               fontWeight: "bold",
               opacity: isLoading ? 0 : 1,
+              textAlign: "center",
             }}
           >
             {total_aa && thousands_separators(total_aa.toFixed(0))}
@@ -371,7 +368,7 @@ const ChartLot = () => {
         </dl>
       </div>
 
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", gap: "20px", marginTop: "1%" }}>
         <div
           style={{
             marginLeft: "15px",
@@ -382,17 +379,12 @@ const ChartLot = () => {
             marginRight: "10px",
           }}
         >
-          Super Urgent Lot:{" "}
+          SUPER URGENT LOT:{" "}
         </div>
         <calcite-segmented-control
           scale="s"
           width="full"
-          style={{
-            width: `${new_sementedListSize}px`,
-            // marginRight: "80px",
-            // marginTop: "auto",
-            marginBottom: "auto",
-          }}
+          style={{ width: `${new_sementedListSize}px`, marginBottom: "auto" }}
           oncalciteSegmentedControlChange={(event: any) =>
             setUrgentType(event.target.selectedItem.id)
           }
@@ -418,8 +410,8 @@ const ChartLot = () => {
           color: "gray",
           fontSize: `${new_asofDateSize}px`,
           float: "right",
-          marginRight: "5px",
-          marginTop: "5px",
+          marginRight: "1%",
+          marginTop: "1.5%",
           opacity: isLoading ? 0 : 1,
         }}
       >
@@ -444,10 +436,10 @@ const ChartLot = () => {
       <div
         style={{
           display: "flex",
-          marginLeft: "15px",
-          marginRight: "15px",
+          marginLeft: "3%",
+          marginRight: "5%",
           justifyContent: "space-between",
-          marginBottom: "5px",
+          marginTop: "3%",
         }}
       >
         <div
@@ -462,8 +454,9 @@ const ChartLot = () => {
             name="handover-checkbox"
             label="VIEW"
             scale="l"
+            style={{ marginLeft: "1.5rem" }}
             oncalciteCheckboxChange={() =>
-              setHandedOverCheckBox(handedOverCheckBox === false ? true : false)
+              setHandedOverCheckBox(!handedOverCheckBox)
             }
           ></calcite-checkbox>
         </div>
@@ -471,7 +464,7 @@ const ChartLot = () => {
           <dt
             style={{ color: primaryLabelColor, fontSize: `${new_fontSize}px` }}
           >
-            Total Handed-Over
+            TOTAL HANDED-OVER
           </dt>
           <dd
             style={{
@@ -482,6 +475,7 @@ const ChartLot = () => {
               lineHeight: "1.2",
               margin: "auto",
               opacity: isLoading ? 0 : 1,
+              textAlign: "center",
             }}
           >
             {total_hop}% ({thousands_separators(total_ho)})
@@ -491,7 +485,7 @@ const ChartLot = () => {
           <dt
             style={{ color: primaryLabelColor, fontSize: `${new_fontSize}px` }}
           >
-            Handed-Over Area
+            HANDED-OVER AREA
           </dt>
           {/* #d3d3d3 */}
           <dd
@@ -503,6 +497,7 @@ const ChartLot = () => {
               margin: "auto",
               fontWeight: "bold",
               opacity: isLoading ? 0 : 1,
+              textAlign: "center",
             }}
           >
             {total_hoa && thousands_separators(total_hoa.toFixed(0))}
