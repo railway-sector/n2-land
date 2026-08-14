@@ -148,6 +148,8 @@ const ChartStructure = memo(() => {
 
       //--- Extract ObjectIds within optimized lots
       const arr: any = await getStructuresWithinLots(qe);
+      if (arr.length === 0) return;
+
       const structureIds = arr.map((f: any) => f.strucObjectId);
       exportArr.current = arr.map(
         ({ optimizedLotID, optimizedStructureID }: any) => ({

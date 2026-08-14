@@ -251,9 +251,9 @@ export async function getStructuresWithinLots(
       const { features } = await structureLayer.queryFeatures(query);
 
       return features.map((structure) => ({
-        optimizedLotID: lot.attributes[lot_id_f],
-        optimizedStructureID: structure.attributes[str_id_f],
-        strucObjectId: structure.attributes.OBJECTID,
+        optimizedLotID: lot.attributes[lot_id_f] ?? null,
+        optimizedStructureID: structure.attributes[str_id_f] ?? null,
+        strucObjectId: structure.attributes.OBJECTID ?? null,
       }));
     }),
   );
