@@ -265,6 +265,12 @@ function ActionPanel() {
                 <li>Structures, </li>
                 <li>Housedholds (NLOs), </li>
                 <li>Lots under Expropriation, </li>
+                <li>
+                  <span style={{ fontWeight: "bold" }}>
+                    Optimized structures{" "}
+                  </span>
+                  represent strucutures completely within optimized lots.{" "}
+                </li>
               </ul>
               <div style={{ paddingLeft: "20px" }}>
                 <li>

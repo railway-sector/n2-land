@@ -59,8 +59,8 @@ export default function MapDisplay() {
         basemap="dark-gray-vector"
         ground="world-elevation"
         viewingMode="local"
-        center="120.5793, 15.18"
-        zoom={10}
+        center="120.68043405127615, 15.04243"
+        zoom={11}
         onarcgisViewReadyChange={(event: any) => {
           setMapView(event.target);
         }}

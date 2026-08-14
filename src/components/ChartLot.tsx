@@ -448,7 +448,7 @@ const ChartLot = () => {
           height: "57vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
-          marginTop: "2%",
+          // marginTop: "1%",
           marginBottom: "1%",
           opacity: isLoading ? 0 : 1,
         }}

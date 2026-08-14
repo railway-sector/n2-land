@@ -41,6 +41,7 @@ let highlight: any;
 async function resultClickHandler(event: any) {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const qExtent = new Query({ objectIds: [event.target.value] });
+
   const result = await lotLayer.queryExtent(qExtent);
   result.extent && arcgisScene?.goTo({ target: result.extent, zoom: 17 });
 

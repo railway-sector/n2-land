@@ -5,10 +5,12 @@ import {
   fieldStatistic,
   useDateFields,
   toAsofdate,
+  getStructuresWithinLots,
 } from "../query";
 import "../index.css";
 import {
   barangay_f,
+  lot_status_f,
   municipality_f,
   primaryLabelColor,
   str_status_f,
@@ -29,6 +31,8 @@ import ChartPieSeriesRender from "chart-pie-series-render";
 import { MyContext } from "../contexts/MyContext";
 import ChartPieSeries from "chart-pie-series";
 import QueryExpressionLayers from "query-layers-expression";
+import Query from "@arcgis/core/rest/support/Query";
+import * as XLSX from "xlsx";
 
 //--------------------------//
 //     useStructureData     //
@@ -96,6 +100,7 @@ const ChartStructure = memo(() => {
   const new_valueSize = new_fontSize * 1.55;
   const new_imageSize = chartPanelwidth * 0.03;
   const new_asofDateSize = chartPanelwidth * 0.032;
+  const new_optimized_font = chartPanelwidth * 0.038;
   const new_pieSeriesScale = 220;
   const new_pieInnerValueFontSize = "1.0rem";
   const new_pieInnerLabelFontSize = "0.45em";
@@ -122,7 +127,77 @@ const ChartStructure = memo(() => {
   const chartData = data?.chartData || [];
   const totalNumber = data?.totalNumber || 0;
 
+  //------------------------------------//
+  //       Optimized Structures         //
+  //------------------------------------//
+  // Optimized structures represent ones fall
+  // completely within optimized lots (statusLA = 8)
+  const highlightRef = useRef<any>(null);
+  const [checked, setChecked] = useState<boolean>(false);
+  const exportArr = useRef<any>(null);
+  const [hasExportData, setHasExportData] = useState<boolean>(false);
+
+  const handleClick = async (ev: any) => {
+    setChecked(ev.target.checked);
+
+    if (ev.target.checked) {
+      const qe = new QueryExpressionLayers({
+        ...baseFilter,
+        qExpression: `${lot_status_f} = 8`,
+      }).queryExpression();
+
+      //--- Extract ObjectIds within optimized lots
+      const arr: any = await getStructuresWithinLots(qe);
+      const structureIds = arr.map((f: any) => f.strucObjectId);
+      exportArr.current = arr.map(
+        ({ optimizedLotID, optimizedStructureID }: any) => ({
+          optimizedLotID,
+          optimizedStructureID,
+        }),
+      );
+      setHasExportData(exportArr.current.length > 0);
+
+      //--- Query extent
+      const qExtent = new Query({ objectIds: structureIds });
+      const result = await structureLayer.queryExtent(qExtent);
+
+      result.extent &&
+        arcgisScene?.goTo({ target: result.extent }).catch((err) => {
+          if (err.name !== "AbortError") console.error(err);
+        });
+
+      //--- Highlight
+      const lv = await arcgisScene?.whenLayerView(structureLayer);
+      highlightRef.current?.remove();
+      highlightRef.current = lv.highlight(structureIds);
+
+      structureLayer.visible = true;
+    }
+
+    if (!ev.target.checked) {
+      highlightRef.current?.remove();
+      highlightRef.current = null;
+      setHasExportData(false);
+    }
+  };
+
+  //--- Export Optimized structures to excel
+  const handleExport = () => {
+    if (!checked || !exportArr.current) return;
+
+    const ws = XLSX.utils.json_to_sheet(exportArr.current);
+    const wb = XLSX.utils.book_new();
+    const fn = "N2_Optimized_Structures.xlsx";
+    XLSX.utils.book_append_sheet(wb, ws, "OptimizedStructures");
+    XLSX.writeFile(wb, fn);
+  };
+
   useEffect(() => {
+    //--- Uncheck checkbox and remove highlight
+    setChecked(false);
+    highlightRef.current?.remove();
+    highlightRef.current = null;
+
     const root = rootSetter({ chartID: chartID });
     const chart = chartSetter({ root: root });
 
@@ -135,7 +210,6 @@ const ChartStructure = memo(() => {
       legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
       radius: 40,
       innerRadius: 28,
-      // scale: 0.5,
     });
     pieSeriesRef.current = pieSeries;
     chart.series.push(pieSeries);
@@ -174,7 +248,7 @@ const ChartStructure = memo(() => {
     return () => {
       root.dispose();
     };
-  }, [chartID, chartData]);
+  }, [chartData, municipality, barangay]);
 
   useEffect(() => {
     pieSeriesRef.current?.data.setAll(chartData);
@@ -182,13 +256,14 @@ const ChartStructure = memo(() => {
   });
 
   return (
-    <>
+    <div style={{ overflow: "hidden" }}>
       <div
         style={{
           display: "flex",
           marginLeft: "15px",
           marginRight: "15px",
           justifyContent: "space-between",
+          maxHeight: "30%",
         }}
       >
         <img
@@ -224,6 +299,7 @@ const ChartStructure = memo(() => {
         </dl>
       </div>
 
+      {/* As of date*/}
       <div
         style={{
           color: "gray",
@@ -235,19 +311,59 @@ const ChartStructure = memo(() => {
         {latestDate ? `As of ${latestDate}` : `As of `}
       </div>
 
+      {/* Optimized Structures*/}
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          gap: "10px",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: "8%",
+        }}
+      >
+        <calcite-checkbox
+          name="handover-checkbox"
+          label="VIEW"
+          scale="l"
+          style={{ marginLeft: "1.5rem" }}
+          checked={checked}
+          oncalciteCheckboxChange={handleClick}
+        ></calcite-checkbox>
+        <span style={{ fontSize: `${new_optimized_font}px` }}>
+          Optimized Structures:
+        </span>
+        <calcite-button
+          onClick={handleExport}
+          disabled={!checked || !hasExportData}
+          slot="trigger"
+          scale="s"
+          appearance="solid"
+          icon-start="file-excel"
+          style={{ "--calcite-button-background-color": "#0079C1" }}
+        >
+          <span
+            style={{
+              color: "black",
+              fontSize: `${new_optimized_font * 0.8}px`,
+            }}
+          >
+            Export to Excel
+          </span>
+        </calcite-button>
+      </div>
+
       {/* Structure Chart */}
       <div
         id={chartID}
         style={{
-          height: "63vh",
+          height: "60vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
-          // marginBottom: "5%",
-          marginTop: "11%",
           opacity: isLoading ? 0 : 1,
         }}
       ></div>
-    </>
+    </div>
   );
 }); // End of lotChartgs
 

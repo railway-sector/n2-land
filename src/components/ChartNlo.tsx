@@ -148,6 +148,7 @@ const ChartNlo = memo(() => {
       x: 50,
     });
     legendRef.current = legend;
+    legend.setAll({ marginBottom: 30 });
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
