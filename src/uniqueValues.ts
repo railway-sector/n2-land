@@ -80,6 +80,7 @@ export const lot_tunnel_f = "TunnelAffected";
 export const lot_urgent_f = "Urgent";
 export const lot_urgent_q = `${lot_urgent_f} = 0`;
 export const lot_urgent_switch = ["OFF", "ON"];
+export const expro_wop_f = "WOP";
 
 export const lot_endorsed_arr = ["Not Endorsed", "Endorsed", "NA"];
 
@@ -133,7 +134,21 @@ const highlight = (value: unknown) =>
   `<span style="color: #d9dc00ff; font-weight: bold">${value}</span>`;
 
 const customContentLot = new CustomContent({
-  outFields: ["*"],
+  outFields: [
+    lot_hod_f,
+    lot_hdod_f,
+    lot_pho_f,
+    lot_status_f,
+    lot_lu_f,
+    municipality_f,
+    barangay_f,
+    lot_lo_f,
+    cp_f,
+    lot_endorsed_f,
+    "Remarks",
+    "WOP",
+    "note",
+  ],
   creator: (event: any) => {
     const attrs = event.graphic.attributes;
     const hod = attrs[lot_hod_f];
@@ -148,6 +163,7 @@ const customContentLot = new CustomContent({
     const endorse = attrs[lot_endorsed_f];
     const endorsed = lot_endorsed_arr[endorse];
     const remarks = attrs["Remarks"];
+    const expro_wop = attrs[expro_wop_f];
     const note = attrs["note"];
 
     //--- Hand-Over Date
@@ -167,14 +183,23 @@ const customContentLot = new CustomContent({
     //--- Status with label
     const statusLabel =
       lot_status_q.find((f: any) => f.value === statusV)?.category ?? "";
+
+    console.log(expro_wop);
+    const statusFinal = statusLabel.includes("Expro")
+      ? `${statusLabel} (${expro_status_q[expro_wop].category})`
+      : statusLabel;
+
     const lu_label = lu >= 1 ? lot_lu_arr[lu - 1] : "";
 
     return `
-    <div style='color: #eaeaea'>
+    <div style='line-height: 1.7'>
+      <style>
+        .lbl { padding: 2px 8px 2px 3px; font-weight: bold; }
+      </style>
     <ul><li>Handed-Over Area: ${highlight(`${hoa} %`)}</li>
     <li>Hand-Over Date: ${highlight(hdod1 ?? "")}</li>
     <li>Handed-Over Date: ${highlight(hod1 ?? "")}</li>
-    <li>Status:           ${highlight(statusLabel ?? "")}</li>
+    <li>Status:           ${highlight(statusFinal ?? "")}</li>
     <li>Land Use:         ${highlight(lu_label ?? "")}</li>
     <li>Municipality:     ${highlight(municipal ?? "")}</li>
     <li>Barangay:         ${highlight(barangay ?? "")}</li>
@@ -279,6 +304,12 @@ export const lot_access_renderer = new SimpleRenderer({
     outline: { width: 1, color: "black" },
   }),
 });
+
+//--- EXPROT STATUS ---//
+export const expro_status_q = [
+  { category: "To secure WOP", color: "#FF474C   " },
+  { category: "With WOP", color: "#6f0000" },
+];
 
 //----------------------------------------------//
 //       Structure Layer Parameters             //

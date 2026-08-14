@@ -19,7 +19,7 @@ function Header() {
         }}
       >
         <img
-          src="https://EijiGorilla.github.io/Symbols/Projec_Logo/DOTr_Logo_v2.png"
+          src="https://EijiGorilla.github.io/Symbols/Projec_Logo/DOTr_Logo_v2.svg"
           alt="DOTr Logo"
           height={"55px"}
           width={"55px"}
@@ -41,7 +41,7 @@ function Header() {
         <DropdownData />
 
         <img
-          src="https://EijiGorilla.github.io/Symbols/Projec_Logo/GCR LOGO.png"
+          src="https://EijiGorilla.github.io/Symbols/Projec_Logo/GCR_LOGO.svg"
           alt="GCR Logo"
           height={"50px"}
           width={"75px"}
@@ -50,6 +50,7 @@ function Header() {
             marginTop: "auto",
             marginLeft: "1rem",
             marginRight: "1.5rem",
+            backgroundColor: "#f0e7e7",
           }}
         />
       </header>

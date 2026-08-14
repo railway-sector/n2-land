@@ -10,7 +10,6 @@ import Query from "@arcgis/core/rest/support/Query";
 import { useQuery } from "@tanstack/react-query";
 import { datefieldKeys } from "./interfaceKeys";
 import type { DateFieldsType } from "./interfaceKeys";
-import QueryExpressionLayers from "query-layers-expression";
 import type { statisticsType } from "./interfaceKeys";
 
 //---------------------------------------------------------//
@@ -43,58 +42,23 @@ export function queryDefinitionExpression({
   );
 }
 
-//---------------------------------------------//
-//           Lot Pie chart                     //
-//---------------------------------------------//
-
-//--- Chart Data Generation helper function
-// `pieChartData` function helps to assign parameter names to class `ChartPieSeries`
-interface pieChartDataType {
-  piechart: any;
-  qChart: any;
-  layer: any;
-  statusList: any;
-  statusField: any;
-  statisticField: any;
-  statisticType: "sum" | "count";
-}
-
-export async function pieChartData({
-  piechart,
-  qChart,
-  layer,
-  statusList,
-  statusField,
-  statisticField,
-  statisticType,
-}: pieChartDataType) {
-  Object.assign(piechart, {
-    qChart: qChart.queryExpression(),
-    layer,
-    statusList,
-    statusField,
-    statisticField,
-    statisticType,
-  });
-  return await piechart.chartDataPieSeries();
-}
-
 //--- Separate calculation
-interface fieldStatisticType {
-  qChart: any;
+interface FieldStatisticType {
+  where: any;
   layer: any;
   statisticField: any;
   statisticType: statisticsType;
 }
 
 export async function fieldStatistic({
-  qChart,
+  where,
   layer,
   statisticField,
   statisticType,
-}: fieldStatisticType) {
+}: FieldStatisticType) {
+  //--- Query
   const query = new Query({
-    where: qChart,
+    where: where,
     outStatistics: [
       new StatisticDefinition({
         onStatisticField: statisticField,
@@ -104,61 +68,9 @@ export async function fieldStatistic({
     ],
   });
 
-  return layer?.queryFeatures(query).then((response: any) => {
-    return response.features[0].attributes.statsCollect;
-  });
+  const response = await layer?.queryFeatures(query);
+  return response.features[0].attributes.statsCollect;
 }
-
-//--- Chart Render helper function
-// `pieChartRender` function helps to assign parameter names to class `ChartPieSeriesRender`
-interface PieChartRenderType {
-  render: any | null; // the first instance of new ChartPieSeriesRender
-  chart: any; // amChart
-  pieSeries: any;
-  legend: any;
-  root: any;
-  qChart: any;
-  q2Expression?: any;
-  status_field: any;
-  view: any;
-  updateChartPanelwidth: any;
-  data: any;
-  seriesScale: any;
-  innerLabel?: any;
-  innerLabelFontSize?: any;
-  innerValueFontSize?: any;
-  layer: FeatureLayer | any;
-  statusArray: StatusQueryItem[];
-  bkg_color_switch?: boolean;
-  seriesFillHash?: boolean;
-}
-
-interface StatusQueryItem {
-  category: string;
-  value: number | string;
-  color: string;
-}
-
-export async function PieChartRender({ render, ...props }: PieChartRenderType) {
-  // render.chart = chart, render.legend = legend,....
-  Object.assign(render, props);
-  return await render.chartDataRenderer();
-}
-
-//--- Returns query expression
-export const makeQuery = (
-  qValues: string[],
-  qFields: string[],
-  qExpression?: string,
-  q2Expression?: string,
-) => {
-  const q = new QueryExpressionLayers();
-  q.qValues = qValues;
-  q.qFields = qFields;
-  if (qExpression) q.qExpression = qExpression;
-  if (q2Expression) q.q2Expression = q2Expression;
-  return q;
-};
 
 //---------------------------------------------//
 //           Lot (handed over area)            //
@@ -231,7 +143,7 @@ function parseDateField(field: string): Date {
   );
 }
 
-export async function getSortDates(layer: any) {
+export function getSortDates(layer: any) {
   //--- Get raw date fields (x202402013,.....)
   const xdates = (layer?.fields ?? [])
     .map((field: any) => field.name)
