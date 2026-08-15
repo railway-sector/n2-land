@@ -24,7 +24,7 @@ import "../index.css";
 import { useQuery } from "@tanstack/react-query";
 import { memo, use, useEffect, useMemo, useRef } from "react";
 import type FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import { MyContext } from "../contexts/MyContext";
+import { FilterContext } from "../contexts/FilterContext";
 import { fieldStatistic } from "../query";
 import * as am5 from "@amcharts/amcharts5";
 import {
@@ -138,7 +138,7 @@ function exproListData(
 }
 
 const ExpropriationList = memo(() => {
-  const { municipality, barangay } = use(MyContext);
+  const { municipality, barangay } = use(FilterContext);
 
   //--- Base filter
   const baseFilter = {

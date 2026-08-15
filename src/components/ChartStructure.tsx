@@ -27,7 +27,7 @@ import {
   seriesSetter,
 } from "../chartSetter";
 import ChartPieSeriesRender from "chart-pie-series-render";
-import { MyContext } from "../contexts/MyContext";
+import { FilterContext } from "../contexts/FilterContext";
 import ChartPieSeries from "chart-pie-series";
 import QueryExpressionLayers from "query-layers-expression";
 import Query from "@arcgis/core/rest/support/Query";
@@ -85,7 +85,7 @@ function useStructureData(
 //              Chart Component                //
 //--------------------------------------------//
 const ChartStructure = memo(() => {
-  const { municipality, barangay } = use(MyContext);
+  const { municipality, barangay } = use(FilterContext);
 
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();

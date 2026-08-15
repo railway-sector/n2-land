@@ -112,6 +112,7 @@ export const pnrLayer = new FeatureLayer({
   definitionExpression: "OwnershipType IN (1, 2, 3)",
   elevationInfo: { mode: "on-the-ground" },
   labelsVisible: false,
+  minScale: 100000,
   renderer: pnr_renderer,
   popupTemplate: pnr_popup,
 });

@@ -8,7 +8,7 @@ import {
 } from "../query";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import { use } from "react";
-import { MyContext } from "../contexts/MyContext";
+import { TimesliderContext } from "../contexts/TimesliderContext";
 import { lotLayer } from "../layers";
 
 export default function Timeslider() {
@@ -19,7 +19,7 @@ export default function Timeslider() {
     updateNewHoaField,
     updateNewAfaField,
     updateNewHoField,
-  } = use(MyContext);
+  } = use(TimesliderContext);
 
   const arcgisScene = document.querySelector("arcgis-scene");
 

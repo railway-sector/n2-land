@@ -4,7 +4,7 @@ import "../index.css";
 import GenerateDropdownData from "dropdown-pkg-arcgis";
 import { lotLayer } from "../layers";
 import { useQuery } from "@tanstack/react-query";
-import { MyContext } from "../contexts/MyContext";
+import { FilterContext } from "../contexts/FilterContext";
 
 const theme = {
   bg: "#2b2b2b",
@@ -65,7 +65,7 @@ const customStyles = {
 };
 
 export default function DropdownData() {
-  const { updateMunicipality, updateBarangay } = use(MyContext);
+  const { updateMunicipality, updateBarangay } = use(FilterContext);
 
   const [mSelected, setMselected] = useState<any | null>(null);
   const [bSelected, setBselected] = useState<any | null>(null);

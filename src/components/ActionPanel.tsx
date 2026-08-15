@@ -24,10 +24,10 @@ import {
   zoomToFullExtent,
 } from "../query";
 import Timeslider from "./Timeslider";
-import { MyContext } from "../contexts/MyContext";
+import { TimesliderContext } from "../contexts/TimesliderContext";
 
 function ActionPanel() {
-  const { updateAsofdate, updateTimesliderOn } = use(MyContext);
+  const { updateAsofdate, updateTimesliderOn } = use(TimesliderContext);
   const arcgisScene = document.querySelector("arcgis-scene");
   const timeSlider = document.querySelector("arcgis-time-slider");
   const shellPanel: any = document.getElementById("left-shell-panel");
@@ -77,8 +77,13 @@ function ActionPanel() {
 
       //------------------------------------------
       //  Reset timeslider to default state
+      //  (only when the timeslider widget itself
+      //  is the one being closed — not on every
+      //  panel switch, to avoid needlessly
+      //  updating shared context/consumers like
+      //  ChartLot)
       //------------------------------------------
-      if (timeSlider) {
+      if (activeWidget === "timeslider" && timeSlider) {
         timeSlider.timeExtent = null;
         shellPanel.collapsed = true;
 

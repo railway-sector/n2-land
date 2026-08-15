@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-type MyDropdownContextType = {
+type TimesliderContextType = {
   asofdate: any;
   updateAsofdate: any;
   timesliderOn: any;
@@ -13,13 +13,9 @@ type MyDropdownContextType = {
   updateNewAfaField: any;
   newHoField: any;
   updateNewHoField: any;
-  municipality: any;
-  updateMunicipality: any;
-  barangay: any;
-  updateBarangay: any;
 };
 
-const initialState = {
+const initialState: TimesliderContextType = {
   asofdate: undefined,
   updateAsofdate: undefined,
   timesliderOn: undefined,
@@ -32,12 +28,8 @@ const initialState = {
   updateNewAfaField: undefined,
   newHoField: undefined,
   updateNewHoField: undefined,
-  municipality: undefined,
-  updateMunicipality: undefined,
-  barangay: undefined,
-  updateBarangay: undefined,
 };
 
-export const MyContext = createContext<MyDropdownContextType>({
+export const TimesliderContext = createContext<TimesliderContextType>({
   ...initialState,
 });

@@ -40,7 +40,8 @@ import {
 } from "../chartSetter";
 import ChartPieSeriesRender from "chart-pie-series-render";
 import ChartPieSeries from "chart-pie-series";
-import { MyContext } from "../contexts/MyContext";
+import { TimesliderContext } from "../contexts/TimesliderContext";
+import { FilterContext } from "../contexts/FilterContext";
 import QueryExpressionLayers from "query-layers-expression";
 
 //--------------------------//
@@ -189,9 +190,8 @@ const ChartLot = () => {
     newHoaField,
     newAfaField,
     newHoField,
-    municipality,
-    barangay,
-  } = use(MyContext);
+  } = use(TimesliderContext);
+  const { municipality, barangay } = use(FilterContext);
   const arcgisScene = document.querySelector("arcgis-scene");
 
   //--- Declare useState
@@ -222,8 +222,6 @@ const ChartLot = () => {
     baseFilter,
     urgent_qe,
   );
-
-  if (!timesliderOn) zoomToLayer(lotLayer, arcgisScene?.view);
 
   //--- Call chart data
   const chartData = data?.chartData || [];
@@ -256,8 +254,24 @@ const ChartLot = () => {
     handedOverLotLayer.visible = handedOverCheckBox;
   }, [handedOverCheckBox]);
 
+  //--- Signature of the filters that should trigger a re-zoom.
+  //  Set once from the true first render — NOT reset inside the
+  //  effect — so React 18 StrictMode's dev-only double effect
+  //  invoke (mount -> cleanup -> mount) sees "nothing changed"
+  //  on both passes and correctly skips the zoom both times.
+  //  A zoom only fires once one of these values genuinely
+  //  changes on a later, real render.
+  const zoomFiltersRef = useRef(`${municipality}-${barangay}-${timesliderOn}`);
+
   //---  Pie Chart Renderer
   useEffect(() => {
+    const currentZoomFilters = `${municipality}-${barangay}-${timesliderOn}`;
+
+    if (currentZoomFilters !== zoomFiltersRef.current) {
+      zoomFiltersRef.current = currentZoomFilters;
+      if (!timesliderOn) zoomToLayer(lotLayer, arcgisScene?.view);
+    }
+
     const root = rootSetter({ chartID: chartID });
     const chart = chartSetter({ root: root, y: 10 });
 
