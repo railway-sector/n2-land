@@ -10,7 +10,6 @@ import {
 import "../index.css";
 import {
   barangay_f,
-  lot_status_f,
   municipality_f,
   primaryLabelColor,
   str_status_f,
@@ -141,10 +140,7 @@ const ChartStructure = memo(() => {
     setChecked(ev.target.checked);
 
     if (ev.target.checked) {
-      const qe = new QueryExpressionLayers({
-        ...baseFilter,
-        qExpression: `${lot_status_f} = 8`,
-      }).queryExpression();
+      const qe = new QueryExpressionLayers({ ...baseFilter }).queryExpression();
 
       //--- Extract ObjectIds within optimized lots
       const arr: any = await getStructuresWithinLots(qe);
@@ -152,7 +148,8 @@ const ChartStructure = memo(() => {
 
       const structureIds = arr.map((f: any) => f.strucObjectId);
       exportArr.current = arr.map(
-        ({ optimizedLotID, optimizedStructureID }: any) => ({
+        ({ municipality, optimizedLotID, optimizedStructureID }: any) => ({
+          municipality,
           optimizedLotID,
           optimizedStructureID,
         }),
