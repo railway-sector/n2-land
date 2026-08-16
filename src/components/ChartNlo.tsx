@@ -125,6 +125,7 @@ const ChartNlo = memo(() => {
 
   useEffect(() => {
     const root = rootSetter({ chartID: chartID });
+    root.setThemes([]);
     const chart = chartSetter({ root: root, y: -10 });
 
     const pieSeries = seriesSetter({
