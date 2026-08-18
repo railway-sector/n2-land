@@ -154,6 +154,13 @@ const ChartStructure = memo(() => {
           optimizedStructureID,
         }),
       );
+
+      exportArr.current.sort((a: any, b: any) => {
+        const muniCompare = a.municipality.localeCompare(b.municipality);
+        if (muniCompare !== 0) return muniCompare;
+        return a.optimizedLotID.localeCompare(b.optimizedLotID);
+      });
+
       setHasExportData(exportArr.current.length > 0);
 
       //--- Query extent
