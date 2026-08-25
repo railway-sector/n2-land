@@ -237,10 +237,7 @@ function ActionPanel() {
           <arcgis-direct-line-measurement-3d
             id="directLineMeasurementAnalysisButton"
             referenceElement="arcgis-scene"
-            style={{
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
+            style={{ marginLeft: "auto", marginRight: "auto" }}
           ></arcgis-direct-line-measurement-3d>
         </calcite-panel>
 
@@ -252,10 +249,7 @@ function ActionPanel() {
           <arcgis-area-measurement-3d
             id="AreaMeasurementAnalysisButton"
             referenceElement="arcgis-scene"
-            style={{
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
+            style={{ marginLeft: "auto", marginRight: "auto" }}
           ></arcgis-area-measurement-3d>
         </calcite-panel>
 

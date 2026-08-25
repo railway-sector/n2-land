@@ -1,4 +1,4 @@
-import { memo, use, useEffect, useRef, useState } from "react";
+import { memo, use, useEffect, useMemo, useRef, useState } from "react";
 import {
   thousands_separators,
   queryDefinitionExpression,
@@ -108,10 +108,13 @@ const ChartStructure = memo(() => {
   const chartID = "structure-chart";
 
   //--- Base filter
-  const baseFilter = {
-    qFields: [municipality_f, barangay_f],
-    qValues: [municipality, barangay],
-  };
+  const baseFilter = useMemo(
+    () => ({
+      qFields: [municipality_f, barangay_f],
+      qValues: [municipality, barangay],
+    }),
+    [municipality, barangay],
+  );
 
   //--- Fetch data
   const { data, isLoading } = useStructureData(
@@ -251,15 +254,14 @@ const ChartStructure = memo(() => {
       seriesFillHash: undefined,
     }).chartDataRenderer();
 
+    if (!pieSeriesRef.current) return;
+    pieSeriesRef.current?.data.setAll(chartData);
+    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
+
     return () => {
       root.dispose();
     };
-  }, [chartData, municipality, barangay]);
-
-  useEffect(() => {
-    pieSeriesRef.current?.data.setAll(chartData);
-    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
-  });
+  }, [chartData]);
 
   return (
     <div style={{ overflow: "hidden" }}>

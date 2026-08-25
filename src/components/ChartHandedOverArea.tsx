@@ -20,9 +20,7 @@ const HandedOverAreaChart = memo(() => {
         layer: lotLayer,
       });
 
-      return {
-        chartData: chartData ?? [],
-      };
+      return { chartData };
     },
     staleTime: Infinity,
   });
@@ -69,16 +67,13 @@ const HandedOverAreaChart = memo(() => {
       }),
     );
 
-    // Label properties Y axis
     yAxis.get("renderer").labels.template.setAll({
       textAlign: "center",
       fontSize: 12,
       fill: am5.color("#ffffff"),
     });
 
-    yRenderer.grid.template.setAll({
-      location: 1,
-    });
+    yRenderer.grid.template.setAll({ location: 1 });
     yAxis.data.setAll(chartData);
 
     const xRenderer = am5xy.AxisRendererX.new(root, {
@@ -87,7 +82,6 @@ const HandedOverAreaChart = memo(() => {
       stroke: am5.color("#ffffff"),
     });
 
-    // Remove xaxis labels
     xRenderer.labels.template.set("visible", false);
 
     const xAxis = chart.xAxes.push(
@@ -115,8 +109,6 @@ const HandedOverAreaChart = memo(() => {
         }),
       );
       series.data.setAll(chartData);
-
-      // Make stuff animate on load
       series.appear();
 
       series.bullets.push(function () {

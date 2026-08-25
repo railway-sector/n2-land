@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import { handedOverLotLayer, lotLayer } from "../layers";
 import {
   highlightLot,
@@ -83,11 +83,6 @@ function useLotData(
         ...baseFilter,
         qExpression: `${statusField} >= 1`,
         q2Expression: urgentQuery,
-      });
-
-      queryDefinitionExpression({
-        queryExpression: q1.queryExpression(),
-        featureLayer: [lotLayer, handedOverLotLayer],
       });
 
       queryDefinitionExpression({
@@ -189,7 +184,7 @@ const ChartLot = () => {
     newHoField,
   } = use(TimesliderContext);
   const { municipality, barangay } = use(FilterContext);
-  const arcgisScene = document.querySelector("arcgis-scene");
+  const arcgisScene = document.querySelector("arcgis-scene") as any;
 
   //--- Declare useState
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
@@ -201,10 +196,13 @@ const ChartLot = () => {
   const latestDate = toAsofdate(dateList?.latestdate);
 
   //--- Base filter
-  const baseFilter = {
-    qFields: [municipality_f, barangay_f],
-    qValues: [municipality, barangay],
-  };
+  const baseFilter = useMemo(
+    () => ({
+      qFields: [municipality_f, barangay_f],
+      qValues: [municipality, barangay],
+    }),
+    [municipality, barangay],
+  );
 
   const urgent_qe = urgentType === "OFF" ? undefined : lot_urgent_q;
 
@@ -221,7 +219,7 @@ const ChartLot = () => {
   );
 
   //--- Call chart data
-  const chartData = data?.chartData || [];
+  const chartData = useMemo(() => data?.chartData ?? [], [data]);
   const totalNumber = data?.totalNumber || 0;
   const affectedArea = data?.affectedArea || 0;
   const handedOverArea = data?.handedOverArea || 0;
@@ -233,9 +231,9 @@ const ChartLot = () => {
   const new_valueSize = chartPanelwidth / 19;
   const new_sementedListSize = chartPanelwidth * 0.55;
   const new_asofDateSize = chartPanelwidth * 0.03;
-  const new_pieSeriesScale = 220;
-  const new_pieInnerValueFontSize = "1.1rem";
-  const new_pieInnerLabelFontSize = "0.45em";
+  const seriesScale = 220;
+  const innerValueFontSize = "1.1rem";
+  const innerLabelFontSize = "0.45em";
 
   const pieSeriesRef = useRef<any>(null);
   const legendRef = useRef<any>(null);
@@ -299,7 +297,7 @@ const ChartLot = () => {
     //--- Render Chart
     new ChartPieSeriesRender({
       chart,
-      pieSeries: pieSeries,
+      pieSeries,
       legend,
       root,
       qChart: data?.query,
@@ -308,10 +306,10 @@ const ChartLot = () => {
       view: arcgisScene?.view,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
-      seriesScale: new_pieSeriesScale,
+      seriesScale,
       innerLabel: "PRIVATE LOTS",
-      innerLabelFontSize: new_pieInnerLabelFontSize,
-      innerValueFontSize: new_pieInnerValueFontSize,
+      innerLabelFontSize,
+      innerValueFontSize,
       layer: lotLayer,
       statusArray: lot_status_q,
       bkg_color_switch: false,
@@ -324,16 +322,15 @@ const ChartLot = () => {
       lot_status_q.map((f: any) => f.category),
     );
 
+    if (!pieSeriesRef.current) return;
+    pieSeriesRef.current?.data.setAll(chartData);
+    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
+
     // Dispose root
     return () => {
       root.dispose();
     };
-  }, [chartID, chartData, affectedAreaStatus]);
-
-  useEffect(() => {
-    pieSeriesRef.current?.data.setAll(chartData);
-    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
-  });
+  }, [chartData]);
 
   return (
     <>
@@ -422,7 +419,6 @@ const ChartLot = () => {
           height: "57vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
-          // marginTop: "1%",
           marginBottom: "1%",
           opacity: isLoading ? 0 : 1,
         }}
@@ -476,6 +472,6 @@ const ChartLot = () => {
       </div>
     </>
   );
-}; // End of lotChartgs
+};
 
 export default ChartLot;

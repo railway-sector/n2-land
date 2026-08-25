@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { useRef, useState, useEffect, memo, use } from "react";
+import { useRef, useState, useEffect, memo, use, useMemo } from "react";
 import {
   thousands_separators,
   queryDefinitionExpression,
@@ -105,10 +105,13 @@ const ChartNlo = memo(() => {
   const chartID = "nlo-chart";
 
   //--- Base filter
-  const baseFilter = {
-    qFields: [municipality_f, barangay_f],
-    qValues: [municipality, barangay],
-  };
+  const baseFilter = useMemo(
+    () => ({
+      qFields: [municipality_f, barangay_f],
+      qValues: [municipality, barangay],
+    }),
+    [municipality, barangay],
+  );
 
   //--- Fetch data
   const { data, isLoading } = useNloData(
@@ -173,22 +176,20 @@ const ChartNlo = memo(() => {
       seriesFillHash: undefined,
     }).chartDataRenderer();
 
+    if (!pieSeriesRef.current) return;
+    pieSeriesRef.current?.data.setAll(chartData);
+    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
+
     return () => {
       root.dispose();
     };
-  }, [chartID, chartData]);
-
-  useEffect(() => {
-    pieSeriesRef.current?.data.setAll(chartData);
-    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
-  });
+  }, [chartData]);
 
   return (
     <>
       <div
         style={{
           display: "flex",
-          // marginTop: "3px",
           marginLeft: "15px",
           marginRight: "15px",
           justifyContent: "space-between",
@@ -235,6 +236,6 @@ const ChartNlo = memo(() => {
       ></div>
     </>
   );
-}); // End of lotChartgs
+});
 
 export default ChartNlo;
