@@ -12,8 +12,6 @@ import {
   municipality_f,
   nlo_status_f,
   nlo_status_q,
-  primaryLabelColor,
-  valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { lotLayer, nloLayer } from "../layers";
@@ -29,6 +27,7 @@ import ChartPieSeriesRender from "chart-pie-series-render";
 import { FilterContext } from "../contexts/FilterContext";
 import ChartPieSeries from "chart-pie-series";
 import QueryExpressionLayers from "query-layers-expression";
+import StatBlock from "./statBlock";
 
 //--------------------------//
 //     useNloData     //
@@ -93,8 +92,8 @@ const ChartNlo = memo(() => {
   const latestDate = toAsofdate(dateList?.latestdate);
 
   //--- Chart parameters
-  const new_fontSize = chartPanelwidth / 22.3;
-  const new_valueSize = new_fontSize * 1.55;
+  const new_fontSize = chartPanelwidth / 30;
+  const new_valueSize = chartPanelwidth / 19;
   const new_imageSize = chartPanelwidth * 0.028;
   const new_pieSeriesScale = 280;
   const new_asofDateSize = chartPanelwidth * 0.032;
@@ -206,30 +205,14 @@ const ChartNlo = memo(() => {
             opacity: isLoading ? 0 : 1,
           }}
         />
-        <dl style={{ alignItems: "center" }}>
-          <dt
-            style={{
-              color: primaryLabelColor,
-              fontSize: `${new_fontSize}px`,
-              marginRight: "20px",
-            }}
-          >
-            TOTAL HOUSEHOLDS
-          </dt>
-          <dd
-            style={{
-              color: valueLabelColor,
-              fontSize: `${new_valueSize}px`,
-              fontWeight: "bold",
-              fontFamily: "calibri",
-              lineHeight: "1.2",
-              margin: "auto",
-              opacity: isLoading ? 0 : 1,
-            }}
-          >
-            {thousands_separators(totalNumber)}
-          </dd>
-        </dl>
+        <StatBlock
+          label="TOTAL HOUSEHOLDS"
+          value={thousands_separators(totalNumber)}
+          fontSize={new_fontSize}
+          valueSize={new_valueSize}
+          isLoading={isLoading}
+          labelMarginRight="20px"
+        />
       </div>
       <div
         style={{

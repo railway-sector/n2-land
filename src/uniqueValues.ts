@@ -16,6 +16,7 @@ import { yearMonthDay } from "./query";
 import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
 import TextSymbol3DLayer from "@arcgis/core/symbols/TextSymbol3DLayer";
 import LabelSymbol3D from "@arcgis/core/symbols/LabelSymbol3D";
+import "@arcgis/map-components/components/arcgis-legend";
 
 //----------------------------------------------//
 //              portalItem                      //
@@ -39,8 +40,8 @@ export const chart_width = "26vw";
 export const chart_box_width = 250;
 
 // labeling and value label color
-export const primaryLabelColor = "#9ca3af";
-export const valueLabelColor = "#d1d5db";
+export const labelColor = "#9ca3af";
+export const valueColor = "#d1d5db";
 
 // Pier Workable properties
 export const color_workable = "#38A800";
@@ -184,7 +185,6 @@ const customContentLot = new CustomContent({
     const statusLabel =
       lot_status_q.find((f: any) => f.value === statusV)?.category ?? "";
 
-    console.log(expro_wop);
     const statusFinal = statusLabel.includes("Expro")
       ? `${statusLabel} (${expro_status_q[expro_wop].category})`
       : statusLabel;
@@ -207,6 +207,7 @@ const customContentLot = new CustomContent({
     <li>CP:               ${highlight(cp ?? "")}</li>
     <li>Endorsed:         ${highlight(endorsed ?? "")}</li>
     <li>Acquisition Status: ${highlight(remarks ?? "")}</li>
+    <li>WOP: ${highlight(expro_wop ?? "")}</li>
     <li>Note: ${highlight(note ?? "")}</li></ul>
     </div>
               `;
@@ -254,7 +255,7 @@ export const lot_meralco_tss_renderer = new SimpleRenderer({
   symbol: new SimpleFillSymbol({
     color: "#f10861",
     style: "horizontal",
-    outline: { color: primaryLabelColor, width: "3px" },
+    outline: { color: labelColor, width: "3px" },
   }),
 });
 
@@ -307,8 +308,13 @@ export const lot_access_renderer = new SimpleRenderer({
 
 //--- EXPROT STATUS ---//
 export const expro_status_q = [
-  { category: "To secure WOP", color: "#FF474C   " },
-  { category: "With WOP", color: "#6f0000" },
+  {
+    field: lot_status_f,
+    value: 7,
+    category: "To secure WOP",
+    color: "#FF474C",
+  },
+  { field: expro_wop_f, value: 1, category: "With WOP", color: "#6f0000" },
 ];
 
 //----------------------------------------------//
@@ -654,7 +660,7 @@ export const pier_access_label = new LabelClass({
   symbol: new LabelSymbol3D({
     symbolLayers: [
       new TextSymbol3DLayer({
-        material: { color: valueLabelColor },
+        material: { color: valueColor },
         size: 15,
         font: { family: "Ubuntu Mono", weight: "bold" },
       }),
@@ -814,7 +820,6 @@ export const label_stationp = new LabelClass({
       border: { color: "grey" },
     },
   }),
-  labelPlacement: "above-center",
   labelExpressionInfo: { expression: "$feature.Station" },
 });
 
@@ -853,7 +858,7 @@ function zoomToAction(id: string) {
   ]);
 }
 
-export async function defineActions(event: any) {
+export function defineActions(event: any) {
   const { item } = event;
 
   if (item.title === "Additional Area due to Sapang Balen River Training") {
@@ -872,20 +877,21 @@ export async function defineActions(event: any) {
     item.panel = { content: "legend", open: true };
   }
 
-  item.title === "Chainage" ||
-  item.title === "Pier Head/Column" ||
-  item.title === "Households Ownership (Structure)" ||
-  item.title === "Land Acquisition (Endorsed Status)" ||
-  item.title === "Handed-Over (public + private)" ||
-  item.title === "Structure" ||
-  item.title === "NGCP Pole Relocation Working Area" ||
-  item.title === "NGCP Pole Relocation Tagged Structures" ||
-  item.title === "Households" ||
-  item.title === "Occupancy (Structure)" ||
-  item.title === "Handed-Over Area" ||
-  item.title === "MERALCO TSS 10" ||
-  item.title ===
-    "Candidate Lots of NSCR-Ex Passenger & Freight Line for Optimization"
-    ? (item.visible = false)
-    : (item.visible = true);
+  const hiddenTitles = new Set([
+    "Chainage",
+    "Pier Head/Column",
+    "Households Ownership (Structure)",
+    "Land Acquisition (Endorsed Status)",
+    "Handed-Over (public + private)",
+    "Structure",
+    "NGCP Pole Relocation Working Area",
+    "NGCP Pole Relocation Tagged Structures",
+    "Households",
+    "Occupancy (Structure)",
+    "Handed-Over Area",
+    "MERALCO TSS 10",
+    "Candidate Lots of NSCR-Ex Passenger & Freight Line for Optimization",
+  ]);
+
+  item.visible = !hiddenTitles.has(item.title);
 }

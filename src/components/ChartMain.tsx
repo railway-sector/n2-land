@@ -11,7 +11,7 @@ import "../index.css";
 import StructureChart from "./ChartStructure";
 import NloChart from "./ChartNlo";
 import ExpropriationList from "./ExpropriationList";
-import { primaryLabelColor } from "../uniqueValues";
+import { labelColor } from "../uniqueValues";
 import { useState } from "react";
 
 function ChartMain() {
@@ -45,7 +45,7 @@ function ChartMain() {
         id="chart-panel"
         collapseDirection="up"
         style={{
-          "--calcite-panel-heading-text-color": primaryLabelColor,
+          "--calcite-panel-heading-text-color": labelColor,
           borderStyle: "solid",
           borderRightWidth: 5,
           borderLeftWidth: 5,
@@ -77,7 +77,7 @@ function ChartMain() {
             <calcite-tab-title>Land</calcite-tab-title>
             <calcite-tab-title>Structure</calcite-tab-title>
             <calcite-tab-title>Households</calcite-tab-title>
-            <calcite-tab-title>ExproList</calcite-tab-title>
+            <calcite-tab-title>ExproStatus</calcite-tab-title>
           </calcite-tab-nav>
 
           {/* CalciteTab: Lot */}
@@ -95,7 +95,7 @@ function ChartMain() {
 
           {/* CalciteTab: List of Lots under Expropriation */}
           <calcite-tab>
-            {tabName === "ExproList" && <ExpropriationList />}
+            {tabName === "ExproStatus" && <ExpropriationList />}
           </calcite-tab>
         </calcite-tabs>
       </calcite-panel>

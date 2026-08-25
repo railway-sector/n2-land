@@ -122,8 +122,9 @@ export const stationLayer = new FeatureLayer({
   portalItem: portalItems("876de8483da9485aac5df737cbef2143"),
   layerId: 2,
   title: "N2 Stations",
+  outFields: ["Station"],
   labelingInfo: [label_stationp],
-  elevationInfo: { mode: "relative-to-ground" },
+  elevationInfo: { mode: "on-the-ground" },
 });
 stationLayer.listMode = "hide";
 

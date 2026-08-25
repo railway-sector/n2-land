@@ -11,10 +11,8 @@ import "../index.css";
 import {
   barangay_f,
   municipality_f,
-  primaryLabelColor,
   str_status_f,
   str_status_q,
-  valueLabelColor,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { lotLayer, occupancyLayer, structureLayer } from "../layers";
@@ -32,6 +30,7 @@ import ChartPieSeries from "chart-pie-series";
 import QueryExpressionLayers from "query-layers-expression";
 import Query from "@arcgis/core/rest/support/Query";
 import * as XLSX from "xlsx";
+import StatBlock from "./statBlock";
 
 //--------------------------//
 //     useStructureData     //
@@ -95,8 +94,8 @@ const ChartStructure = memo(() => {
   const latestDate = toAsofdate(dateList?.latestdate);
 
   //--- Chart parameters
-  const new_fontSize = chartPanelwidth / 22.3;
-  const new_valueSize = new_fontSize * 1.55;
+  const new_fontSize = chartPanelwidth / 30;
+  const new_valueSize = chartPanelwidth / 19;
   const new_imageSize = chartPanelwidth * 0.03;
   const new_asofDateSize = chartPanelwidth * 0.032;
   const new_optimized_font = chartPanelwidth * 0.038;
@@ -280,30 +279,14 @@ const ChartStructure = memo(() => {
           width={`${new_imageSize}%`}
           style={{ paddingTop: "2px", opacity: isLoading ? 0 : 1 }}
         />
-        <dl style={{ alignItems: "center" }}>
-          <dt
-            style={{
-              color: primaryLabelColor,
-              fontSize: `${new_fontSize}px`,
-              marginRight: "25px",
-            }}
-          >
-            TOTAL STRUCTURES
-          </dt>
-          <dd
-            style={{
-              color: valueLabelColor,
-              fontSize: `${new_valueSize}px`,
-              fontWeight: "bold",
-              fontFamily: "calibri",
-              lineHeight: "1.2",
-              margin: "auto",
-              opacity: isLoading ? 0 : 1,
-            }}
-          >
-            {thousands_separators(totalNumber)}
-          </dd>
-        </dl>
+        <StatBlock
+          label="TOTAL STRUCTURES"
+          value={thousands_separators(totalNumber)}
+          fontSize={new_fontSize}
+          valueSize={new_valueSize}
+          isLoading={isLoading}
+          labelMarginRight="25px"
+        />
       </div>
 
       {/* As of date*/}
