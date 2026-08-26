@@ -15,7 +15,12 @@ import {
   str_status_q,
 } from "../uniqueValues";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { lotLayer, occupancyLayer, structureLayer } from "../layers";
+import {
+  demolishedStrucLayer,
+  lotLayer,
+  occupancyLayer,
+  structureLayer,
+} from "../layers";
 import { useQuery } from "@tanstack/react-query";
 import type { ChartResponse } from "../interfaceKeys";
 import {
@@ -53,6 +58,7 @@ function useStructureData(
         queryExpression: q1.queryExpression(),
         featureLayer: [structureLayer, occupancyLayer],
       });
+      demolishedStrucLayer.definitionExpression = `${q1.queryExpression()} AND Demolition = 1`;
 
       const baseArgs = {
         layer: structureLayer,
@@ -60,7 +66,7 @@ function useStructureData(
         statisticType: "count" as const,
       };
 
-      const [chartData, totalNumber] = await Promise.all([
+      const [chartData, totalNumber, totalDemolish] = await Promise.all([
         new ChartPieSeries({
           ...baseArgs,
           where: q1.queryExpression(),
@@ -72,9 +78,17 @@ function useStructureData(
           ...baseArgs,
           where: new QueryExpressionLayers({ ...baseFilter }).queryExpression(),
         }),
+
+        fieldStatistic({
+          ...baseArgs,
+          where: new QueryExpressionLayers({
+            ...baseFilter,
+            qExpression: "Demolition = 1",
+          }).queryExpression(),
+        }),
       ]);
 
-      return { chartData, totalNumber, q1 };
+      return { chartData, totalNumber, totalDemolish, q1 };
     },
     staleTime: Infinity,
   });
@@ -88,20 +102,25 @@ const ChartStructure = memo(() => {
 
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
+  const [demolishCheckBox, setDemolishCheckBox] = useState<any>(false);
 
   //--- Initial date to display
   const { data: dateList } = useDateFields(lotLayer); // Use lotLayer
   const latestDate = toAsofdate(dateList?.latestdate);
 
+  useEffect(() => {
+    demolishedStrucLayer.visible = demolishCheckBox;
+  }, [demolishCheckBox]);
+
   //--- Chart parameters
-  const new_fontSize = chartPanelwidth / 30;
-  const new_valueSize = chartPanelwidth / 19;
-  const new_imageSize = chartPanelwidth * 0.03;
-  const new_asofDateSize = chartPanelwidth * 0.032;
-  const new_optimized_font = chartPanelwidth * 0.038;
-  const new_pieSeriesScale = 220;
-  const new_pieInnerValueFontSize = "1.0rem";
-  const new_pieInnerLabelFontSize = "0.45em";
+  const fontSize = chartPanelwidth / 30;
+  const valueSize = chartPanelwidth / 19;
+  const imageSize = chartPanelwidth * 0.03;
+  const asofDateSize = chartPanelwidth * 0.032;
+  const optimized_font = chartPanelwidth * 0.038;
+  const seriesScale = 220;
+  const innerValueFontSize = "1.0rem";
+  const innerLabelFontSize = "0.45em";
 
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
@@ -127,6 +146,10 @@ const ChartStructure = memo(() => {
   //--- Call chart data
   const chartData = data?.chartData || [];
   const totalNumber = data?.totalNumber || 0;
+  const totalDemolish = data?.totalDemolish ?? 0;
+  const percDemolished = Number(
+    ((totalDemolish / totalNumber) * 100).toFixed(0),
+  );
 
   //------------------------------------//
   //       Optimized Structures         //
@@ -235,7 +258,7 @@ const ChartStructure = memo(() => {
     // Render chart
     new ChartPieSeriesRender({
       chart,
-      pieSeries: pieSeries,
+      pieSeries,
       legend,
       root,
       qChart: data?.q1,
@@ -244,10 +267,10 @@ const ChartStructure = memo(() => {
       view: arcgisScene?.view,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
-      seriesScale: new_pieSeriesScale,
+      seriesScale,
       innerLabel: "STRUCTURES",
-      innerLabelFontSize: new_pieInnerLabelFontSize,
-      innerValueFontSize: new_pieInnerValueFontSize,
+      innerLabelFontSize,
+      innerValueFontSize,
       layer: structureLayer,
       statusArray: str_status_q,
       bkg_color_switch: false,
@@ -270,22 +293,22 @@ const ChartStructure = memo(() => {
           display: "flex",
           marginLeft: "15px",
           marginRight: "15px",
-          justifyContent: "space-between",
-          maxHeight: "30%",
+          justifyContent: "center",
+          gap: "25%",
         }}
       >
         <img
           src="https://EijiGorilla.github.io/Symbols/House_Logo.svg"
           alt="Structure Logo"
-          height={`${new_imageSize}%`}
-          width={`${new_imageSize}%`}
+          height={`${imageSize}%`}
+          width={`${imageSize}%`}
           style={{ paddingTop: "2px", opacity: isLoading ? 0 : 1 }}
         />
         <StatBlock
           label="TOTAL STRUCTURES"
           value={thousands_separators(totalNumber)}
-          fontSize={new_fontSize}
-          valueSize={new_valueSize}
+          fontSize={fontSize}
+          valueSize={valueSize}
           isLoading={isLoading}
           labelMarginRight="25px"
         />
@@ -295,7 +318,7 @@ const ChartStructure = memo(() => {
       <div
         style={{
           color: "gray",
-          fontSize: `${new_asofDateSize}px`,
+          fontSize: `${asofDateSize}px`,
           float: "right",
           marginRight: "5px",
         }}
@@ -311,7 +334,7 @@ const ChartStructure = memo(() => {
           gap: "10px",
           alignItems: "center",
           justifyContent: "center",
-          marginTop: "8%",
+          marginTop: "7%",
         }}
       >
         <calcite-checkbox
@@ -322,7 +345,7 @@ const ChartStructure = memo(() => {
           checked={checked}
           oncalciteCheckboxChange={handleClick}
         ></calcite-checkbox>
-        <span style={{ fontSize: `${new_optimized_font}px` }}>
+        <span style={{ fontSize: `${optimized_font}px` }}>
           Optimized Structures:
         </span>
         <calcite-button
@@ -337,7 +360,7 @@ const ChartStructure = memo(() => {
           <span
             style={{
               color: "black",
-              fontSize: `${new_optimized_font * 0.8}px`,
+              fontSize: `${optimized_font * 0.8}px`,
             }}
           >
             Export to Excel
@@ -349,12 +372,45 @@ const ChartStructure = memo(() => {
       <div
         id={chartID}
         style={{
-          height: "60vh",
+          height: "55vh",
           backgroundColor: "rgb(0,0,0,0)",
           color: "white",
           opacity: isLoading ? 0 : 1,
         }}
       ></div>
+
+      {/* Total Demolished structures */}
+      <div
+        style={{
+          display: "flex",
+          marginLeft: "3%",
+          marginRight: "5%",
+          justifyContent: "center",
+          gap: "25%",
+          marginTop: "1%",
+        }}
+      >
+        <div
+          style={{ backgroundColor: "green", height: "0", marginTop: "13px" }}
+        >
+          <calcite-checkbox
+            name="demolished-structures-checkbox"
+            label="VIEW"
+            scale="l"
+            oncalciteCheckboxChange={() =>
+              setDemolishCheckBox((prev: any) => !prev)
+            }
+          ></calcite-checkbox>
+        </div>
+        <StatBlock
+          label="TOTAL DEMOLISHED"
+          value={`${percDemolished}% (${thousands_separators(totalDemolish)})`}
+          fontSize={fontSize}
+          valueSize={valueSize}
+          isLoading={isLoading}
+          textAlign="center"
+        />
+      </div>
     </div>
   );
 }); // End of lotChartgs

@@ -32,6 +32,10 @@ import {
   label_stationp,
   lot_meralco_tss_renderer,
   lot_meralco_tss_lot_renderer,
+  demolished_renderer,
+  lot_partialPayment_renderer,
+  lot_pte_renderer,
+  lot_pte_f,
 } from "./uniqueValues";
 //----------------------------------------------//
 //            Alignment Layers                  //
@@ -172,6 +176,32 @@ export const lotLayer = new FeatureLayer({
   elevationInfo: { mode: "on-the-ground" },
 });
 
+//--- PARTIAL PAYMENT LAYER ---//
+export const lotPartialPaymentLayer = new FeatureLayer({
+  portalItem: portalItems("23500954a8d84a46886e76e6e0883a69"),
+  renderer: lot_partialPayment_renderer,
+  layerId: 4,
+  title: "With Partial Payment",
+  popupEnabled: false,
+  definitionExpression: `PartialPayment = 1`,
+  elevationInfo: { mode: "on-the-ground" },
+  visible: false,
+});
+
+//--- PTE STATUS LAYER ---//
+export const lotPteLayer = new FeatureLayer({
+  portalItem: portalItems("23500954a8d84a46886e76e6e0883a69"),
+  layerId: 4,
+  labelingInfo: [lot_label],
+  renderer: lot_pte_renderer,
+  definitionExpression: `${lot_pte_f} = 1`,
+  popupTemplate: lot_popup,
+  title: "With PTE",
+  minScale: 40000,
+  maxScale: 0,
+  elevationInfo: { mode: "on-the-ground" },
+});
+
 //--- MERALCO TSS 10 ---//
 export const Meralco_tss10_layer = new FeatureLayer({
   portalItem: portalItems("d5c43ca76b9a475e954e9c3d3595e2af"),
@@ -260,6 +290,19 @@ export const strucOwnershipLayer = new FeatureLayer({
   elevationInfo: { mode: "on-the-ground" },
 });
 
+//--- DEMOLISHED LAYER ---//
+export const demolishedStrucLayer = new FeatureLayer({
+  portalItem: portalItems("23500954a8d84a46886e76e6e0883a69"),
+  renderer: demolished_renderer,
+  layerId: 3,
+  title: "Demolished Structure",
+  popupEnabled: false,
+  definitionExpression: `Demolition = 1`,
+  elevationInfo: { mode: "on-the-ground" },
+  visible: false,
+});
+demolishedStrucLayer.listMode = "hide";
+
 //--- NLO LAYER ---//
 export const nloLayer = new FeatureLayer({
   portalItem: portalItems("23500954a8d84a46886e76e6e0883a69"),
@@ -324,6 +367,8 @@ export const lotGroupLayer = new GroupLayer({
   layers: [
     endorsedLotLayer,
     lotLayer,
+    lotPteLayer,
+    lotPartialPaymentLayer,
     candidate_lot_layer,
     pnrLayer,
     accessibleLotAreaLayer,

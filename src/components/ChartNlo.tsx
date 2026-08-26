@@ -92,13 +92,13 @@ const ChartNlo = memo(() => {
   const latestDate = toAsofdate(dateList?.latestdate);
 
   //--- Chart parameters
-  const new_fontSize = chartPanelwidth / 30;
-  const new_valueSize = chartPanelwidth / 19;
-  const new_imageSize = chartPanelwidth * 0.028;
-  const new_pieSeriesScale = 280;
-  const new_asofDateSize = chartPanelwidth * 0.032;
-  const new_pieInnerValueFontSize = "1.3rem";
-  const new_pieInnerLabelFontSize = "0.7em";
+  const fontSize = chartPanelwidth / 30;
+  const valueSize = chartPanelwidth / 19;
+  const imageSize = chartPanelwidth * 0.028;
+  const seriesScale = 280;
+  const asofDateSize = chartPanelwidth * 0.032;
+  const innerValueFontSize = "1.3rem";
+  const innerLabelFontSize = "0.7em";
 
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
@@ -157,7 +157,7 @@ const ChartNlo = memo(() => {
     // Render chart
     new ChartPieSeriesRender({
       chart,
-      pieSeries: pieSeries,
+      pieSeries,
       legend,
       root,
       qChart: data?.q1,
@@ -166,10 +166,10 @@ const ChartNlo = memo(() => {
       view: arcgisScene?.view,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
-      seriesScale: new_pieSeriesScale,
+      seriesScale,
       innerLabel: "HOUSEHOLDS",
-      innerLabelFontSize: new_pieInnerLabelFontSize,
-      innerValueFontSize: new_pieInnerValueFontSize,
+      innerLabelFontSize,
+      innerValueFontSize,
       layer: nloLayer,
       statusArray: nlo_status_q,
       bkg_color_switch: false,
@@ -198,8 +198,8 @@ const ChartNlo = memo(() => {
         <img
           src="https://EijiGorilla.github.io/Symbols/NLO_Logo.svg"
           alt="Structure Logo"
-          height={`${new_imageSize}%`}
-          width={`${new_imageSize}%`}
+          height={`${imageSize}%`}
+          width={`${imageSize}%`}
           style={{
             paddingTop: "5px",
             paddingLeft: "5px",
@@ -209,8 +209,8 @@ const ChartNlo = memo(() => {
         <StatBlock
           label="TOTAL HOUSEHOLDS"
           value={thousands_separators(totalNumber)}
-          fontSize={new_fontSize}
-          valueSize={new_valueSize}
+          fontSize={fontSize}
+          valueSize={valueSize}
           isLoading={isLoading}
           labelMarginRight="20px"
         />
@@ -218,7 +218,7 @@ const ChartNlo = memo(() => {
       <div
         style={{
           color: "gray",
-          fontSize: `${new_asofDateSize}px`,
+          fontSize: `${asofDateSize}px`,
           float: "right",
           marginRight: "5px",
         }}

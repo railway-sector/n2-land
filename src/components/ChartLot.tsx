@@ -227,10 +227,10 @@ const ChartLot = () => {
   const affectedAreaStatus = data?.affectedAreaStatus || [];
   const handedOverPercent = data?.handedOverPercent || 0;
 
-  const new_fontSize = chartPanelwidth / 30;
-  const new_valueSize = chartPanelwidth / 19;
-  const new_sementedListSize = chartPanelwidth * 0.55;
-  const new_asofDateSize = chartPanelwidth * 0.03;
+  const fontSize = chartPanelwidth / 30;
+  const valueSize = chartPanelwidth / 19;
+  const sementedListSize = chartPanelwidth * 0.55;
+  const asofDateSize = chartPanelwidth * 0.03;
   const seriesScale = 220;
   const innerValueFontSize = "1.1rem";
   const innerLabelFontSize = "0.45em";
@@ -347,15 +347,15 @@ const ChartLot = () => {
         <StatBlock
           label="TOTAL LOTS"
           value={thousands_separators(totalNumber)}
-          fontSize={new_fontSize}
-          valueSize={new_valueSize}
+          fontSize={fontSize}
+          valueSize={valueSize}
           isLoading={isLoading}
         />
         <StatBlock
           label="TOTAL AFFECTED AREA"
           value={affectedArea && thousands_separators(affectedArea.toFixed(0))}
-          fontSize={new_fontSize}
-          valueSize={new_valueSize}
+          fontSize={fontSize}
+          valueSize={valueSize}
           isLoading={isLoading}
           unit
         />
@@ -365,7 +365,7 @@ const ChartLot = () => {
         <div
           style={{
             marginLeft: "15px",
-            fontSize: `${new_fontSize}px`,
+            fontSize: `${fontSize}px`,
             color: labelColor,
             marginTop: "auto",
             marginBottom: "auto",
@@ -377,7 +377,7 @@ const ChartLot = () => {
         <calcite-segmented-control
           scale="s"
           width="full"
-          style={{ width: `${new_sementedListSize}px`, marginBottom: "auto" }}
+          style={{ width: `${sementedListSize}px`, marginBottom: "auto" }}
           oncalciteSegmentedControlChange={(event: any) =>
             setUrgentType(event.target.selectedItem.id)
           }
@@ -401,7 +401,7 @@ const ChartLot = () => {
       <div
         style={{
           color: "gray",
-          fontSize: `${new_asofDateSize}px`,
+          fontSize: `${asofDateSize}px`,
           float: "right",
           marginRight: "1%",
           marginTop: "1.5%",
@@ -455,8 +455,8 @@ const ChartLot = () => {
         <StatBlock
           label="TOTAL HANDED-OVER"
           value={`${handedOverPercent}% (${thousands_separators(handedOverNumber)})`}
-          fontSize={new_fontSize}
-          valueSize={new_valueSize}
+          fontSize={fontSize}
+          valueSize={valueSize}
           isLoading={isLoading}
         />
         <StatBlock
@@ -464,8 +464,8 @@ const ChartLot = () => {
           value={
             handedOverArea && thousands_separators(handedOverArea.toFixed(0))
           }
-          fontSize={new_fontSize}
-          valueSize={new_valueSize}
+          fontSize={fontSize}
+          valueSize={valueSize}
           isLoading={isLoading}
           unit
         />

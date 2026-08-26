@@ -18,6 +18,7 @@ import {
   ngcp2_groupLayer,
   meralco_tss10_groupLayer,
   sources,
+  demolishedStrucLayer,
 } from "../layers";
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search";
 import { addLayersToMap } from "../query";
@@ -39,6 +40,7 @@ export default function MapDisplay() {
       meralco_tss10_groupLayer,
       alignmentGroupLayer,
       stationLayer,
+      demolishedStrucLayer,
     ]);
 
     arcgisSearch.allPlaceholder = "LotID, StructureID, Chainage";
