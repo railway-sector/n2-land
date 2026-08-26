@@ -196,7 +196,7 @@ export const lotPteLayer = new FeatureLayer({
   renderer: lot_pte_renderer,
   definitionExpression: `${lot_pte_f} = 1`,
   popupTemplate: lot_popup,
-  title: "With PTE",
+  title: "With Permit to Enter",
   minScale: 40000,
   maxScale: 0,
   elevationInfo: { mode: "on-the-ground" },
