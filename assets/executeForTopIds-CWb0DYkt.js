@@ -1,1 +1,0 @@
-import{dV as m}from"./index-BAGZkTax.js";import{d as s}from"./queryTopFeatures-yyYQRvF9.js";import e from"./TopFeaturesQuery-DVo9b_A1.js";async function i(o,r,t){const a=m(o);return(await s(a,e.from(r),{...t})).data.objectIds}export{i as executeForTopIds};

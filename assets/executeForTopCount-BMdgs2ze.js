@@ -1,1 +1,0 @@
-import{dV as m}from"./index-BAGZkTax.js";import{a as n}from"./queryTopFeatures-yyYQRvF9.js";import f from"./TopFeaturesQuery-DVo9b_A1.js";async function i(o,t,r){const a=m(o);return(await n(a,f.from(t),{...r})).data.count}export{i as executeForTopCount};
