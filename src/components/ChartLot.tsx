@@ -57,6 +57,7 @@ function useLotData(
   hoField: string,
   baseFilter: any,
   urgentQuery: any,
+  lot_status_q2: any,
 ) {
   return useQuery<ChartResponse | any>({
     queryKey: [
@@ -103,7 +104,7 @@ function useLotData(
       ] = await Promise.all([
         new ChartPieSeries({
           ...sharedArgs,
-          statusList: lot_status_q,
+          statusList: lot_status_q2,
           statusField: statusField,
           statisticField: statusField,
           statisticType: "count",
@@ -142,7 +143,7 @@ function useLotData(
         new ChartPieSeries({
           where: q3.queryExpression(),
           layer: lotLayer,
-          statusList: lot_status_q,
+          statusList: lot_status_q2,
           statusField: statusField,
           statisticField: afaField,
           statisticType: "sum",
@@ -191,6 +192,10 @@ const ChartLot = () => {
   const [handedOverCheckBox, setHandedOverCheckBox] = useState<any>(false);
   const [urgentType, setUrgentType] = useState<any>(lot_urgent_switch[0]);
 
+  const lot_status_q2 = lot_status_q.map((item) =>
+    item.value === 6 ? { ...item, category: "With CNO" } : item,
+  );
+
   //--- Initial date to display
   const { data: dateList } = useDateFields(lotLayer);
   const latestDate = toAsofdate(dateList?.latestdate);
@@ -216,6 +221,7 @@ const ChartLot = () => {
     timesliderOn ? newHoField : lot_ho_f,
     baseFilter,
     urgent_qe,
+    lot_status_q2,
   );
 
   //--- Call chart data
@@ -311,7 +317,7 @@ const ChartLot = () => {
       innerLabelFontSize,
       innerValueFontSize,
       layer: lotLayer,
-      statusArray: lot_status_q,
+      statusArray: lot_status_q2,
       bkg_color_switch: false,
       seriesFillHash: undefined,
     }).chartDataRenderer();
@@ -319,7 +325,7 @@ const ChartLot = () => {
     affectedAreaValue(
       legend,
       affectedAreaStatus,
-      lot_status_q.map((f: any) => f.category),
+      lot_status_q2.map((f: any) => f.category),
     );
 
     if (!pieSeriesRef.current) return;

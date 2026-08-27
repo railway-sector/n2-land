@@ -94,7 +94,11 @@ export const lot_status_q = [
   { value: 3, category: "For Legal Pass", color: "#ffff00" },
   { value: 4, category: "For Offer to Buy", color: "#ffaa00" },
   { value: 5, category: "For Notice of Taking", color: "#FF5733" },
-  { value: 6, category: "With CNO", color: "#E2F4C5" },
+  {
+    value: 6,
+    category: "With Certificate with No Objection (CNO)",
+    color: "#E2F4C5",
+  },
   { value: 7, category: "For Expropriation", color: "#6f0000" },
   { value: 8, category: "Optimized", color: "#B2B2B2" },
 ];
