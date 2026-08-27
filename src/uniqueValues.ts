@@ -341,8 +341,8 @@ export const lot_partialPayment_renderer = new UniqueValueRenderer({
       label: " ",
       symbol: new SimpleFillSymbol({
         style: "vertical",
-        color: "#0070ff",
-        outline: new SimpleLineSymbol({ color: "#0070ff", width: "4px" }),
+        color: "#a7dbdb",
+        outline: new SimpleLineSymbol({ color: "#a7dbdb", width: "4px" }),
       }),
     },
   ],
