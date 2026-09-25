@@ -347,6 +347,7 @@ export const lot_partialPayment_renderer = new UniqueValueRenderer({
     },
   ],
 });
+
 //----------------------------------------------//
 //       Structure Layer Parameters             //
 //----------------------------------------------//

@@ -21,7 +21,7 @@ import {
   occupancyLayer,
   structureLayer,
 } from "../layers";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { ChartResponse } from "../interfaceKeys";
 import {
   chartSetter,
@@ -88,8 +88,14 @@ function useStructureData(
         }),
       ]);
 
-      return { chartData, totalNumber, totalDemolish, q1 };
+      //--- Demolished percent
+      const percDemolished = Number(
+        ((totalDemolish / totalNumber) * 100).toFixed(0),
+      );
+
+      return { chartData, totalNumber, totalDemolish, percDemolished, q1 };
     },
+    placeholderData: keepPreviousData,
     staleTime: Infinity,
   });
 }
@@ -124,6 +130,7 @@ const ChartStructure = memo(() => {
 
   const pieSeriesRef = useRef<unknown | any | undefined>({});
   const legendRef = useRef<unknown | any | undefined>({});
+  const renderRef = useRef<ChartPieSeriesRender | null>(null);
   const chartID = "structure-chart";
 
   //--- Base filter
@@ -145,11 +152,9 @@ const ChartStructure = memo(() => {
 
   //--- Call chart data
   const chartData = data?.chartData || [];
-  const totalNumber = data?.totalNumber || 0;
+  const totalNumber = thousands_separators(data?.totalNumber?.toFixed(0)) || 0;
   const totalDemolish = data?.totalDemolish ?? 0;
-  const percDemolished = Number(
-    ((totalDemolish / totalNumber) * 100).toFixed(0),
-  );
+  const percDemolished = data?.percDemolished ?? 0;
 
   //------------------------------------//
   //       Optimized Structures         //
@@ -223,6 +228,28 @@ const ChartStructure = memo(() => {
     XLSX.writeFile(wb, fn);
   };
 
+  //--- Keep click-handler-relevant values fresh without rebuilding the
+  //    chart. view lives here too (not passed statically to the
+  //    renderer) since arcgis-scene's view may not be ready on first
+  //    mount.
+
+  const configRef = useRef({
+    qChart: data?.q1,
+    q2Expression: undefined,
+    status_field: str_status_f,
+    view: arcgisScene?.view,
+  });
+
+  useEffect(() => {
+    configRef.current = {
+      qChart: data?.q1,
+      q2Expression: undefined,
+      status_field: str_status_f,
+      view: arcgisScene?.view,
+    };
+  }, [data, str_status_f, arcgisScene]);
+
+  //--- Pie Chart Renderer - created ONCE (mount only)
   useEffect(() => {
     //--- Uncheck checkbox and remove highlight
     setChecked(false);
@@ -230,7 +257,6 @@ const ChartStructure = memo(() => {
     highlightRef.current = null;
 
     const root = rootSetter({ chartID: chartID });
-    root.setThemes([]);
     const chart = chartSetter({ root: root });
 
     const pieSeries = seriesSetter({
@@ -255,19 +281,19 @@ const ChartStructure = memo(() => {
     legendRef.current = legend;
     legend.data.setAll(pieSeries.dataItems);
 
-    // Render chart
-    new ChartPieSeriesRender({
+    //--- NOTE: no `view` here — it's read live from configRef.current
+    //    inside chartrender.ts, since arcgis-scene may not have a
+    //    ready `.view` yet at this point.
+    const renderer = new ChartPieSeriesRender({
       chart,
       pieSeries,
       legend,
       root,
-      qChart: data?.q1,
-      q2Expression: undefined,
-      status_field: str_status_f,
-      view: arcgisScene?.view,
+      configRef,
       updateChartPanelwidth: setChartPanelwidth,
-      data: chartData,
+      data: [],
       seriesScale,
+      innerValue: totalNumber,
       innerLabel: "STRUCTURES",
       innerLabelFontSize,
       innerValueFontSize,
@@ -275,16 +301,28 @@ const ChartStructure = memo(() => {
       statusArray: str_status_q,
       bkg_color_switch: false,
       seriesFillHash: undefined,
-    }).chartDataRenderer();
-
-    if (!pieSeriesRef.current) return;
-    pieSeriesRef.current?.data.setAll(chartData);
-    legendRef.current?.data.setAll(pieSeriesRef.current.dataItems);
+    });
+    renderRef.current = renderer;
+    renderRef.current.chartDataRenderer();
 
     return () => {
       root.dispose();
+      renderRef.current = null;
     };
-  }, [chartData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount-once — do not add dependencies here
+
+  //--- Push new data / inner value / affected-area figures into the
+  //    already-mounted chart. No dispose, no rebuild -> no blink.
+  //    NOTE: affectedAreaValue is NOT called here directly — it's
+  //    registered once inside chartrender.ts and reads live data via
+  //    closures, which updateData() keeps in sync. Calling it here on
+  //    every render would both miss the first paint and stack
+  //    duplicate adapters.
+  useEffect(() => {
+    if (!renderRef.current) return;
+    renderRef.current.updateData(chartData, totalNumber, str_status_q);
+  }, [chartData, totalNumber, str_status_q]);
 
   return (
     <div style={{ overflow: "hidden" }}>

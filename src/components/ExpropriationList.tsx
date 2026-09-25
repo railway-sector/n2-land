@@ -211,8 +211,6 @@ const ExpropriationList = memo(() => {
     [selectedCategory],
   );
 
-  console.log("selectedQ: ", selectedQ);
-
   //--- filter the fetched list according to the selected slice
   // Return only when matchesCategory = true
   const filteredExproList = useMemo(() => {
@@ -222,8 +220,6 @@ const ExpropriationList = memo(() => {
       matchesCategory(f.attributes, selectedQ),
     );
   }, [exproList, selectedCategory, selectedQ]);
-
-  console.log(filteredExproList);
 
   //--- 3. Compile expro lots in an object
   const uniqueExproitems = useMemo(
