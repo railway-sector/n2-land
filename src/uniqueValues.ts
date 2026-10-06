@@ -948,6 +948,7 @@ export function defineActions(event: any) {
     "NGCP Pole Relocation Working Area",
     "NGCP Pole Relocation Tagged Structures",
     "Households",
+    "Relocated Households",
     "Occupancy (Structure)",
     "Handed-Over Area",
     "MERALCO TSS 10",
