@@ -512,12 +512,12 @@ export const nlo_status_symbol = [
 ];
 
 export const nlo_status_q = [
-  {
-    value: 1,
-    category: "Relocated",
-    color: "#00C5FF",
-    logo: nlo_status_symbol[0],
-  },
+  // {
+  //   value: 1,
+  //   category: "Relocated",
+  //   color: "#00C5FF",
+  //   logo: nlo_status_symbol[0],
+  // },
   { value: 2, category: "Paid", color: "#70AD47", logo: nlo_status_symbol[1] },
   {
     value: 3,
@@ -566,6 +566,26 @@ const nlo_uniqueV = nlo_status_q.map((item: any) => {
 export const nlo_renderer = new UniqueValueRenderer({
   field: nlo_status_f,
   uniqueValueInfos: nlo_uniqueV,
+});
+
+//--- RELOCATED HOUSEHOLDS LAYER ---//
+export const relocated_renderer = new UniqueValueRenderer({
+  valueExpression: "When($feature.Occupancy == 1, 'Relocated', 'others')",
+  uniqueValueInfos: [
+    {
+      value: "Relocated",
+      label: "Relocated",
+      symbol: new PointSymbol3D({
+        symbolLayers: [
+          new IconSymbol3DLayer({
+            resource: { href: nlo_status_symbol[0] },
+            size: symbolSize,
+            outline: { color: "white", size: 2 },
+          }),
+        ],
+      }),
+    },
+  ],
 });
 
 export const nlo_popup = {
@@ -811,7 +831,7 @@ export const pnr_renderer = new UniqueValueRenderer({
       value: 1, // RP
       label: "RP",
       symbol: new SimpleFillSymbol({
-        color: [137, 205, 102],
+        color: "#b06c49",
         style: "diagonal-cross",
         outline: { width: 0.5, color: "black" },
       }),
