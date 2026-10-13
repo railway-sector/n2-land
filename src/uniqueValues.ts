@@ -831,7 +831,7 @@ export const pnr_renderer = new UniqueValueRenderer({
       value: 1, // RP
       label: "RP",
       symbol: new SimpleFillSymbol({
-        color: "#b06c49",
+        color: "#e2f4c5",
         style: "diagonal-cross",
         outline: { width: 0.5, color: "black" },
       }),
@@ -846,10 +846,10 @@ export const pnr_renderer = new UniqueValueRenderer({
       }),
     },
     {
-      value: 3, // BCDA
-      label: "BCDA",
+      value: 3, // Other Gov't Properties
+      label: "Other Gov't Properties",
       symbol: new SimpleFillSymbol({
-        color: [137, 205, 102],
+        color: "#b06c49",
         style: "diagonal-cross",
         outline: { width: 0.5, color: "black" },
       }),
