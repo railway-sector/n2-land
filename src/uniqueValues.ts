@@ -96,7 +96,7 @@ export const lot_status_q = [
   { value: 5, category: "For Notice of Taking", color: "#FF5733" },
   {
     value: 6,
-    category: "With Certificate with No Objection (CNO)",
+    category: "With Certificate of No Objection (CNO)",
     color: "#E2F4C5",
   },
   { value: 7, category: "For Expropriation", color: "#6f0000" },
@@ -238,6 +238,15 @@ export const lot_lu_arr = [
   "Road Lot",
   "Special Exempt",
 ];
+
+//--- FREE AND CLEAR LOTS ---//
+// export const free_and_clear_renderer = new SimpleRenderer({
+//   symbol: new SimpleFillSymbol({
+//     color: "#f10861",
+//     style: "horizontal",
+//     outline: { color: labelColor, width: "3px" },
+//   }),
+// });
 
 //--- HANDED-OVER LOTS (PUBLIC + PRIATE LOTS) ---//
 export const lot_ho_renderer = new UniqueValueRenderer({
@@ -943,6 +952,7 @@ export function defineActions(event: any) {
     "Households Ownership (Structure)",
     "Land Acquisition (Endorsed Status)",
     "With Partial Payment",
+    // "Free and Clear Lots",
     "Handed-Over (public + private)",
     "Structure",
     "NGCP Pole Relocation Working Area",
