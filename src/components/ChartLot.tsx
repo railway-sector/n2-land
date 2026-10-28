@@ -25,6 +25,9 @@ import {
   municipality_f,
   barangay_f,
   labelColor,
+  popupTimeslider,
+  lot_popup,
+  customContentLot,
 } from "../uniqueValues";
 import "@arcgis/map-components/dist/components/arcgis-scene";
 import "@arcgis/map-components/components/arcgis-scene";
@@ -134,9 +137,10 @@ function useLotData(
 
         //--- Total handed-over area (m2)
         fieldStatistic({
-          ...sharedArgs,
-          statisticType: "sum",
+          where: q2.queryExpression(),
+          layer: lotLayer,
           statisticField: hoaField,
+          statisticType: "sum",
         }),
 
         //--- Total number of handed-over
@@ -233,6 +237,11 @@ const ChartLot = () => {
     urgent_qe,
     lot_status_q2,
   );
+
+  //--- Re-configure POPUP
+  if (timesliderOn)
+    lot_popup.content = [popupTimeslider(newStatusField, newHoaField)];
+  else lot_popup.content = [customContentLot];
 
   //--- Call chart data
   const chartData = useMemo(() => data?.chartData ?? [], [data]);
