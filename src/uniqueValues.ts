@@ -219,7 +219,7 @@ export const customContentLot = new CustomContent({
     //--- Handed-Over Date
     let hdod1: any;
     if (hdod) {
-      const { year, month, day } = yearMonthDay(new Date(hod));
+      const { year, month, day } = yearMonthDay(new Date(hdod));
       hdod1 = `${year}-${month}-${day}`;
     }
 
@@ -239,8 +239,8 @@ export const customContentLot = new CustomContent({
         .lbl { padding: 2px 8px 2px 3px; font-weight: bold; }
       </style>
     <ul><li>Handed-Over Area: ${highlight(`${hoa} %`)}</li>
-    <li>Hand-Over Date: ${highlight(hdod1 ?? "")}</li>
-    <li>Handed-Over Date: ${highlight(hod1 ?? "")}</li>
+    <li>Hand-Over Date: ${highlight(hod1 ?? "")}</li>
+    <li>Handed-Over Date: ${highlight(hdod1 ?? "")}</li>
     <li>Status:           ${highlight(statusFinal ?? "")}</li>
     <li>Land Use:         ${highlight(lu ?? "")}</li>
     <li>Municipality:     ${highlight(municipal ?? "")}</li>
