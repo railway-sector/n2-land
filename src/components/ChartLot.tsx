@@ -45,6 +45,7 @@ import { TimesliderContext } from "../contexts/TimesliderContext";
 import { FilterContext } from "../contexts/FilterContext";
 import QueryExpressionLayers from "query-layers-expression";
 import StatBlock from "./statBlock";
+import { watch } from "@arcgis/core/core/reactiveUtils.js";
 
 //--------------------------//
 //      useLotData          //
@@ -239,9 +240,44 @@ const ChartLot = () => {
   );
 
   //--- Re-configure POPUP
-  if (timesliderOn)
+  //- Clear popup when closed
+  useEffect(() => {
+    const view = arcgisScene?.view;
+    if (!view) return;
+
+    const handle = watch(
+      () => view.popup?.visible,
+      (visible) => {
+        if (!visible) view.popup?.clear();
+      },
+    );
+
+    return () => handle.remove();
+  }, [arcgisScene]);
+
+  useEffect(() => {
+    const view = arcgisScene?.view;
+    if (!view) return;
+
+    if (!timesliderOn) {
+      lot_popup.content = [customContentLot];
+      view.closePopup();
+      return;
+    }
+
     lot_popup.content = [popupTimeslider(newStatusField, newHoaField)];
-  else lot_popup.content = [customContentLot];
+
+    const selected = view.popup?.selectedFeature;
+    if (!selected) return;
+
+    const query = lotLayer.createQuery();
+    query.where = `${lot_id_f} = '${selected.attributes.LotID}'`;
+
+    lotLayer.queryFeatures(query).then(({ features }: any) => {
+      if (features.length == 0) return;
+      view.openPopup({ features: [features[0]] });
+    });
+  }, [arcgisScene, timesliderOn, newStatusField, newHoaField]);
 
   //--- Call chart data
   const chartData = useMemo(() => data?.chartData ?? [], [data]);
