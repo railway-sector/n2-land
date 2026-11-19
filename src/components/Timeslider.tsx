@@ -1,4 +1,6 @@
 import "@arcgis/map-components/components/arcgis-time-slider";
+import "@arcgis/map-components/components/arcgis-time-bar";
+import "@arcgis/map-components/components/arcgis-time-bar-slider";
 import {
   toAsofdate,
   toDateList,
@@ -14,7 +16,6 @@ import { lotLayer } from "../layers";
 export default function Timeslider() {
   const {
     updateAsofdate,
-    updateTimesliderOn,
     updateNewStatusField,
     updateNewHoaField,
     updateNewAfaField,
@@ -29,22 +30,22 @@ export default function Timeslider() {
   const { data: dateList } = useDateFields(lotLayer);
 
   arcgisScene?.viewOnReady(() => {
-    const timeSlider: any = document.querySelector("arcgis-time-slider");
+    const timeBar: any = document.querySelector("arcgis-time-bar");
 
     if (!dateList) return; // wait until the query has resolved (another option is useEffect)
     const datesObj: any = dateList && toDateList(dateList?.dateFields);
 
     //--- Define start and end dates of time-slider
-    timeSlider.fullTimeExtent = {
+    timeBar.fullTimeExtent = {
       start: datesObj[0],
       end: datesObj.at(-1),
     };
 
     //--- Define timestamps where the slider stops.
-    timeSlider.stops = { dates: datesObj };
+    timeBar.stops = { dates: datesObj };
 
     reactiveUtils.watch(
-      () => timeSlider?.timeExtent,
+      () => timeBar?.timeExtent,
       (timeExtent) => {
         if (!timeExtent) return;
 
@@ -74,19 +75,33 @@ export default function Timeslider() {
   });
 
   return (
-    <>
-      <span style={{ fontSize: "16px", color: "#d1d5db", margin: "auto" }}>
-        Historical Progress on Land Acquisition
-      </span>
-      <div>
-        <arcgis-time-slider
-          referenceElement="arcgis-scene"
-          slot="bottom"
-          layout="auto"
-          mode="cumulative-from-start"
-          onarcgisPropertyChange={() => updateTimesliderOn(true)}
-        ></arcgis-time-slider>
-      </div>
-    </>
+    <div
+      style={{
+        bottom: "1.5%",
+        left: "5%",
+        position: "fixed",
+        zIndex: 1,
+        width: "60%",
+      }}
+    >
+      <arcgis-time-bar
+        referenceElement="arcgis-scene"
+        slot="bottom-left"
+        mode="cumulative-from-start"
+        show-next
+        show-play
+        show-previous
+        show-time-extent
+      >
+        <arcgis-time-bar-slider
+          slot="time-extent"
+          show-min
+          show-max
+          show-thumb-labels
+          show-ticks
+          popover-display="always"
+        ></arcgis-time-bar-slider>
+      </arcgis-time-bar>
+    </div>
   );
 }

@@ -226,6 +226,8 @@ const ChartLot = () => {
 
   const urgent_qe = urgentType === "OFF" ? undefined : lot_urgent_q;
 
+  // console.log(timesliderOn);
+
   //--- Fetch data
   const { data, isLoading } = useLotData(
     municipality,

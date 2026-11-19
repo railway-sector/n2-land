@@ -29,7 +29,7 @@ import { TimesliderContext } from "../contexts/TimesliderContext";
 function ActionPanel() {
   const { updateAsofdate, updateTimesliderOn } = use(TimesliderContext);
   const arcgisScene = document.querySelector("arcgis-scene");
-  const timeSlider = document.querySelector("arcgis-time-slider");
+  const timeBar: any = document.querySelector("arcgis-time-bar");
   const shellPanel: any = document.getElementById("left-shell-panel");
 
   //-----------------------------------------
@@ -83,15 +83,15 @@ function ActionPanel() {
       //  updating shared context/consumers like
       //  ChartLot)
       //------------------------------------------
-      if (activeWidget === "timeslider" && timeSlider) {
-        timeSlider.timeExtent = null;
+      if (activeWidget === "timeslider" && timeBar) {
+        timeBar.timeExtent = null;
         shellPanel.collapsed = true;
 
         if (!data) return; // wait until the query has resolved.
         //-- Update As of date
         updateAsofdate(toAsofdate(data?.latestdate));
 
-        //--- Time-slider off
+        //-- Time-slider off
         updateTimesliderOn(false);
 
         //--- Reset to default symbology
@@ -105,6 +105,12 @@ function ActionPanel() {
       );
       actionNextWidget.hidden = false;
       shellPanel.collapsed = false;
+
+      //--- Time-slider on
+      if (nextWidget === "timeslider") {
+        updateTimesliderOn(true);
+      }
+      // updateTimesliderOn(true);
 
       //--- Manually collapse shellPanel when
       // timeslider widget is closes.
@@ -181,7 +187,7 @@ function ActionPanel() {
           <calcite-action
             data-action-id="timeslider"
             icon="time-filter"
-            text="Land Status Change"
+            text="Land Property Change"
             id="timeslider"
             onClick={handleActionClick}
           ></calcite-action>

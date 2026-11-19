@@ -7,6 +7,7 @@ import "@arcgis/map-components/components/arcgis-zoom";
 import "@esri/calcite-components/components/calcite-shell";
 import "@esri/calcite-components/components/calcite-navigation";
 import "@esri/calcite-components/components/calcite-navigation-logo";
+import "@arcgis/map-components/components/arcgis-popup";
 import type { ArcgisScene } from "@arcgis/map-components/components/arcgis-scene";
 import {
   structureLayer,
@@ -29,6 +30,15 @@ export default function MapDisplay() {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const arcgisSearch = document.querySelector("arcgis-search") as ArcgisSearch;
   const [_mapView, setMapView] = useState<any>();
+
+  if (arcgisScene?.popup) {
+    arcgisScene.popup.dockEnabled = true;
+    arcgisScene.popup.dockOptions = {
+      buttonEnabled: false,
+      breakpoint: false, // keeps it docked at all sizes
+      position: "top-right",
+    };
+  }
 
   //--- Add layers to scene view
   arcgisScene?.viewOnReady(() => {
@@ -68,7 +78,10 @@ export default function MapDisplay() {
         onarcgisViewReadyChange={(event: any) => {
           setMapView(event.target);
         }}
+        popupComponentEnabled={false}
+        popupDisabled={false}
       >
+        {/* <arcgis-popup slot="popup"></arcgis-popup> */}
         <arcgis-compass slot="top-right"></arcgis-compass>
         <arcgis-expand close-on-esc slot="top-right" mode="floating">
           <arcgis-search></arcgis-search>
