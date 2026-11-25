@@ -110,7 +110,6 @@ function ActionPanel() {
       if (nextWidget === "timeslider") {
         updateTimesliderOn(true);
       }
-      // updateTimesliderOn(true);
 
       //--- Manually collapse shellPanel when
       // timeslider widget is closes.

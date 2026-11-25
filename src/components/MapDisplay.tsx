@@ -28,7 +28,9 @@ import { useState } from "react";
 
 export default function MapDisplay() {
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
-  const arcgisSearch = document.querySelector("arcgis-search") as ArcgisSearch;
+  const arcgisSearch: any = document.querySelector(
+    "arcgis-search",
+  ) as ArcgisSearch;
   const [_mapView, setMapView] = useState<any>();
 
   if (arcgisScene?.popup) {
@@ -36,7 +38,7 @@ export default function MapDisplay() {
     arcgisScene.popup.dockOptions = {
       buttonEnabled: false,
       breakpoint: false, // keeps it docked at all sizes
-      position: "top-right",
+      position: "top-left",
     };
   }
 
@@ -58,7 +60,7 @@ export default function MapDisplay() {
     arcgisSearch.allPlaceholder = "LotID, StructureID, Chainage";
     arcgisSearch.includeDefaultSourcesDisabled = true;
     arcgisSearch.locationDisabled = true;
-    arcgisSearch?.sources.push(...sources);
+    arcgisSearch.sources = sources;
     arcgisScene.hideAttribution = true;
     arcgisScene.view.environment.atmosphereEnabled = false;
     arcgisScene.view.environment.starsEnabled = false;
