@@ -1,1 +1,0 @@
-import{fU as l,b9 as a}from"./index-BOci0-66.js";function s(){let n=new WeakMap,i=(e,t)=>{let r=n.get(e);r&&(r.delete(t),r.size===0&&n.delete(e))};return{register(e,t){return l(n,e,()=>new Set).add(t),a(()=>i(e,t))},forEveryOther(e,t,r){let f=n.get(e);if(f)for(let o of f)o!==t&&r(o)}}}export{s as n};

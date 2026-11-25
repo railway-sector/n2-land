@@ -1,1 +1,0 @@
-import{aX as i,bi as o,b9 as n}from"./index-BOci0-66.js";function u(r){return i.isCollection(r)?r.toArray():Array.isArray(r)?r:s(r)||o(r)||e(r)?[r]:a}function s(r){return typeof r=="number"||typeof r=="string"}const a=[],c=n();function e(r){return r.declaredClass==="esri.views.3d.layers.i3s.PointCloudGraphic"}export{s as i,c as o,u as r};

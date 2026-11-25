@@ -1,1 +1,0 @@
-import"./index-BOci0-66.js";function l(i){let{objectIdField:t,uniqueIdFields:e}=i;return e?.length?e.length>=2?{type:"unique-id-composite",fieldNames:e}:{type:"unique-id-simple",fieldName:e[0]}:{type:"object-id",fieldName:t}}export{l as e};

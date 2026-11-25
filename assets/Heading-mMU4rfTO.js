@@ -1,0 +1,1 @@
+import{ep as s,eq as o,er as c,es as u}from"./index-CGeJfPJG.js";function h({level:e,class:n,...t},i){let r=a(e),l=`h${r}`;return s(l,{...t,"aria-level":String(r),class:o(c.heading,n),role:"heading"},i)}function a(e){return u(Math.ceil(e),1,6)}function p(e,n=1){return a(e+n)}export{h as i,p as o};

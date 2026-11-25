@@ -1,1 +1,0 @@
-import{k3 as e,k4 as f}from"./index-BOci0-66.js";function o(r,u){return u.push(r.buffer),{buffer:r.buffer,layout:new e(r.layout)}}function t(r){return new f(r.layout).createView(r.buffer)}export{o as n,t as r};
